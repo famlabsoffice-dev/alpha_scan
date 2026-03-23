@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Underdog Terminal | Private Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #020617; color: #00ff88; font-family: 'Courier New', monospace; }
+        .terminal-border { border: 1px solid #1e293b; box-shadow: 0 0 20px rgba(0, 255, 136, 0.05); }
+        .live-dot { height: 8px; width: 8px; background-color: #00ff88; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+    <div class="max-w-4xl mx-auto terminal-border bg-slate-950/50 rounded-lg p-6">
+        <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+            <div>
+                <h1 class="text-xl font-bold tracking-tighter uppercase text-white">Underdog Arbitrage <span class="text-emerald-500 text-xs">v3.5 PRO</span></h1>
+                <p class="text-[10px] text-slate-500">ENCRYPTED REAL-TIME TERMINAL</p>
+            </div>
+            <div class="text-right">
+                <span class="live-dot"></span> <span class="text-[10px]">LIVE CONNECTION</span>
+            </div>
+        </div>
+
+        <div id="display" class="space-y-4 min-h-[300px]">
+            <div class="text-slate-400 text-xs">System initialisiert... Warte auf Operator-Input.</div>
+        </div>
+
+        <button onclick="triggerScan()" id="action-btn" class="mt-8 w-full border border-emerald-500/50 hover:bg-emerald-500/10 text-emerald-400 py-3 rounded uppercase font-bold text-sm transition-all">
+            Execute Full Market Scan
+        </button>
+    </div>
+
+    <script>
+        const WORKER_URL = 'DEINE_WORKER_URL_HIER'; // Deine URL von Cloudflare
+
+        async function triggerScan() {
+            const display = document.getElementById('display');
+            const btn = document.getElementById('action-btn');
+            
+            btn.innerText = "SCANNING ENTIRE ORDERBOOK...";
+            display.innerHTML = '<div class="text-blue-400 animate-pulse text-xs">Pinging Polymarket, Kalshi, Manifold...</div>';
+
+            try {
+                const res = await fetch(WORKER_URL);
+                const data = await res.json();
+                
+                render(data);
+            } catch (e) {
+                display.innerHTML = '<div class="text-red-500">CRITICAL ERROR: CONNECTION REFUSED. Check Worker Status.</div>';
+            } finally {
+                btn.innerText = "Execute Full Market Scan";
+            }
+        }
+
+        function render(data) {
+            const display = document.getElementById('display');
+            display.innerHTML = `
+                <div class="grid grid-cols-2 gap-2 text-[10px] mb-4">
+                    <div class="p-2 bg-slate-900 border border-slate-800 text-white">POLYMARKET: ${data.opportunities.poly_count} Active</div>
+                    <div class="p-2 bg-slate-900 border border-slate-800 text-white">KALSHI: ${data.opportunities.kals_count} Active</div>
+                </div>
+                <div class="text-emerald-400 font-bold mb-2">SCAN COMPLETE [${data.timestamp}]</div>
+                <div class="bg-emerald-950/20 border border-emerald-500/20 p-4 rounded text-xs leading-relaxed">
+                    Echtzeit-Daten erfolgreich aggregiert. Der Matching-Algorithmus ist im Backend aktiv. 
+                    Bereit für Arbitrage-Paarung.
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
