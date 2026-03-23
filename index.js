@@ -1,69 +1,88 @@
 export default {
   async fetch(request, env, ctx) {
-    // 1. Sicherheit zuerst: Falls was schiefgeht, Seite nicht killen
-    ctx.passThroughOnException();
-
-    const h = {
+    // 1. Header-Definition
+    const myHeaders = {
       "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
       "Content-Type": "application/json"
     };
 
+    // 2. CORS Preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, { headers: myHeaders });
+    }
+
     try {
-      // 2. Daten-Abruf (Wir definieren die Logik erst hier drin, um Startup-CPU zu sparen)
-      const getJson = async (url) => {
-        const r = await fetch(url, { cf: { cacheTtl: 30 } }); // Nutzt Cloudflares Edge Cache
-        return r.ok ? await r.json() : null;
-      };
+      // 3. API Fetching (Einzeln zugewiesen, um Declaration Errors zu vermeiden)
+      const pRes = await fetch("https://gamma-api.polymarket.com/markets?closed=false&limit=100").catch(() => null);
+      const kRes = await fetch("https://api.elections.kalshi.com/trade-api/v2/markets?status=open&limit=100").catch(() => null);
+      const mRes = await fetch("https://api.manifold.markets/v0/markets?limit=100").catch(() => null);
 
-      const [p, k, m] = await Promise.all([
-        getJson("https://gamma-api.polymarket.com/markets?closed=false&limit=150"),
-        getJson("https://api.elections.kalshi.com/trade-api/v2/markets?status=open&limit=150"),
-        getJson("https://api.manifold.markets/v0/markets?limit=150")
-      ]);
+      // 4. JSON Parsing mit Fallbacks
+      const p = (pRes && pRes.ok) ? await pRes.json().catch(() => []) : [];
+      const kData = (kRes && kRes.ok) ? await kRes.json().catch(() => ({ markets: [] })) : { markets: [] };
+      const m = (mRes && mRes.ok) ? await mRes.json().catch(() => []) : [];
 
-      const res = [];
-      const km = k?.markets || [];
+      const kMarkets = kData.markets || [];
+      const matches = [];
 
-      // 3. Effizientes Matching
-      if (p && km.length > 0) {
-        for (const pm of p) {
-          const pt = (pm.question || "").toLowerCase();
-          const pp = pm.outcomePrices ? parseFloat(pm.outcomePrices[0]) : null;
+      // 5. Matching Logik
+      if (Array.isArray(p) && kMarkets.length > 0) {
+        for (let i = 0; i < p.length; i++) {
+          const pm = p[i];
+          const pTitle = (pm.question || "").toLowerCase();
           
-          if (!pp) continue;
+          if (!pm.outcomePrices || pm.outcomePrices.length === 0) continue;
+          const pPrice = parseFloat(pm.outcomePrices[0]);
 
-          for (const kmm of km) {
-            const kt = (kmm.title || "").toLowerCase();
-            const kp = kmm.last_price ? kmm.last_price / 100 : null;
+          for (let j = 0; j < kMarkets.length; j++) {
+            const km = kMarkets[j];
+            const kTitle = (km.title || "").toLowerCase();
+            const kPrice = km.last_price ? km.last_price / 100 : null;
 
-            if (kp && pt.split(" ").filter(w => w.length > 5).some(w => kt.includes(w))) {
-              const d = Math.abs(pp - kp) * 100;
-              if (d > 0.5) {
-                res.push({
-                  event: pm.question.slice(0, 55),
-                  potential: d.toFixed(1) + "%",
-                  details: `P: ${pp.toFixed(2)}$ | K: ${kp.toFixed(2)}$`
-                });
+            if (pPrice && kPrice) {
+              // Einfacher Keyword-Check
+              const keywords = pTitle.split(" ").filter(w => w.length > 5);
+              let hits = 0;
+              for (const word of keywords) {
+                if (kTitle.includes(word)) hits++;
+              }
+
+              if (hits >= 2) {
+                const diff = Math.abs(pPrice - kPrice) * 100;
+                if (diff > 0.5) {
+                  matches.push({
+                    event: pTitle.substring(0, 50),
+                    potential: diff.toFixed(1) + "%",
+                    details: `P: ${pPrice.toFixed(2)} | K: ${kPrice.toFixed(2)}`
+                  });
+                }
               }
             }
           }
         }
       }
 
-      // 4. Response generieren
-      const out = JSON.stringify({
-        opportunities: {
-          poly: p?.length || 0,
-          kals: km.length,
-          mani: Array.isArray(m) ? m.length : 0,
-          matches: res.sort((a, b) => parseFloat(b.potential) - parseFloat(a.potential))
-        }
+      // 6. Response
+      const result = {
+        poly_count: p.length,
+        kals_count: kMarkets.length,
+        mani_count: Array.isArray(m) ? m.length : 0,
+        matches: matches,
+        ts: "2026-03-23"
+      };
+
+      return new Response(JSON.stringify(result), { 
+        status: 200, 
+        headers: myHeaders 
       });
 
-      return new Response(out, { headers: h });
-
-    } catch (e) {
-      return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: h });
+    } catch (err) {
+      return new Response(JSON.stringify({ error: err.message }), { 
+        status: 500, 
+        headers: myHeaders 
+      });
     }
   }
 };
