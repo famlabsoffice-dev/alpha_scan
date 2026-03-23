@@ -7,27 +7,65 @@ export default {
       "Content-Type": "application/json"
     };
 
-    // Preflight-Anfrage für Browser
     if (request.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
     try {
-      // Daten von allen drei Plattformen gleichzeitig abrufen
+      // Wir scannen jetzt tiefer (limit=150)
       const [poly, kals, mani] = await Promise.all([
-        fetch("https://gamma-api.polymarket.com/markets?closed=false&limit=50&order=liquidity&ascending=false").then(r => r.json()),
-        fetch("https://api.elections.kalshi.com/trade-api/v2/markets?status=open&limit=50").then(r => r.json()),
-        fetch("https://api.manifold.markets/v0/markets?limit=50").then(r => r.json())
+        fetch("https://gamma-api.polymarket.com/markets?closed=false&limit=150&order=liquidity&ascending=false").then(r => r.json()),
+        fetch("https://api.elections.kalshi.com/trade-api/v2/markets?status=open&limit=150").then(r => r.json()),
+        fetch("https://api.manifold.markets/v0/markets?limit=150").then(r => r.json())
       ]);
 
-      const results = {
-        poly_count: Array.isArray(poly) ? poly.length : 0,
-        kals_count: kals.markets ? kals.markets.length : 0,
-        mani_count: Array.isArray(mani) ? mani.length : 0,
-        matches: [] // Hier kommt in der nächsten Version die Matching-Logik rein
-      };
+      const matches = findArbitrage(poly, kals.markets || [], mani);
 
-      return new Response(JSON.stringify({ opportunities: results }), { headers: corsHeaders });
+      return new Response(JSON.stringify({
+        opportunities: {
+          poly_count: poly.length || 0,
+          kals_count: kals.markets?.length || 0,
+          mani_count: mani.length || 0,
+          matches: matches
+        }
+      }), { headers: corsHeaders });
+
     } catch (err) {
       return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
     }
   }
 };
+
+function findArbitrage(poly, kals, mani) {
+  const opportunities = [];
+  
+  poly.forEach(p => {
+    const pTitle = (p.question || "").toLowerCase();
+    // Preis bei Poly (Outcome 0 ist oft 'Yes')
+    const pPrice = p.outcomePrices ? parseFloat(p.outcomePrices[0]) : null;
+
+    kals.forEach(k => {
+      const kTitle = (k.title || "").toLowerCase();
+      // Kalshi Preise sind oft in Cents (z.B. 45 = 0.45$)
+      const kPrice = k.last_price ? k.last_price / 100 : null;
+
+      // Smart-Matching Logik
+      const keywords = ["bitcoin", "btc", "fed", "rate", "election", "trump", "biden", "crypto", "ai"];
+      const foundKey = keywords.find(word => pTitle.includes(word) && kTitle.includes(word));
+
+      if (foundKey && pPrice && kPrice) {
+        const diff = Math.abs(pPrice - kPrice) * 100;
+        
+        // Nur anzeigen, wenn der Preisunterschied > 2% ist
+        if (diff > 2) {
+          opportunities.push({
+            event: p.question,
+            platforms: ["Polymarket", "Kalshi"],
+            potential: `PROFIT: ${diff.toFixed(1)}%`,
+            details: `Poly: ${pPrice.toFixed(2)}$ | Kals: ${kPrice.toFixed(2)}$`
+          });
+        }
+      }
+    });
+  });
+
+  return opportunities;
+}
