@@ -1,6 +1,6 @@
 export default {
   async fetch(request, env, ctx) {
-    const myHeaders = {
+    const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
@@ -8,33 +8,34 @@ export default {
     };
 
     if (request.method === "OPTIONS") {
-      return new Response(null, { headers: myHeaders });
+      return new Response(null, { headers: corsHeaders });
     }
 
     try {
-      // Fetching mit User-Agent (wichtig für 2026er API-Stabilität)
-      const fOpts = { headers: { "User-Agent": "AlphaScan/1.1" } };
-      
+      const apiOptions = { headers: { "User-Agent": "AlphaScan-Terminal/1.1" } };
+
+      // API Abfragen
       const [pRes, kRes, mRes] = await Promise.all([
-        fetch("https://gamma-api.polymarket.com/markets?closed=false&limit=100", fOpts).catch(() => null),
-        fetch("https://api.elections.kalshi.com/trade-api/v2/markets?status=open&limit=100", fOpts).catch(() => null),
-        fetch("https://api.manifold.markets/v0/markets?limit=100", fOpts).catch(() => null)
+        fetch("https://gamma-api.polymarket.com/markets?closed=false&limit=100", apiOptions).catch(() => null),
+        fetch("https://api.elections.kalshi.com/trade-api/v2/markets?status=open&limit=100", apiOptions).catch(() => null),
+        fetch("https://api.manifold.markets/v0/markets?limit=100", apiOptions).catch(() => null)
       ]);
 
-      const p = (pRes && pRes.ok) ? await pRes.json().catch(() => []) : [];
+      const poly = (pRes && pRes.ok) ? await pRes.json().catch(() => []) : [];
       const kData = (kRes && kRes.ok) ? await kRes.json().catch(() => ({ markets: [] })) : { markets: [] };
-      const m = (mRes && mRes.ok) ? await mRes.json().catch(() => []) : [];
+      const mani = (mRes && mRes.ok) ? await mRes.json().catch(() => []) : [];
 
-      const kMarkets = kData.markets || [];
+      const kalshiMarkets = kData.markets || [];
       const matches = [];
 
-      if (Array.isArray(p) && kMarkets.length > 0) {
-        p.forEach(pm => {
+      // Arbitrage-Logik
+      if (Array.isArray(poly) && kalshiMarkets.length > 0) {
+        poly.forEach(pm => {
           const pTitle = (pm.question || "").toLowerCase();
           if (!pm.outcomePrices || pm.outcomePrices.length === 0) return;
           const pPrice = parseFloat(pm.outcomePrices[0]);
 
-          kMarkets.forEach(km => {
+          kalshiMarkets.forEach(km => {
             const kTitle = (km.title || "").toLowerCase();
             const kPrice = km.last_price ? km.last_price / 100 : null;
 
@@ -44,11 +45,11 @@ export default {
 
               if (hits >= 2) {
                 const diff = Math.abs(pPrice - kPrice) * 100;
-                if (diff > 0.5) {
+                if (diff > 0.4) {
                   matches.push({
                     event: pm.question.substring(0, 60),
                     potential: diff.toFixed(1) + "%",
-                    platforms: ["Polymarket", "Kalshi"], // WICHTIG für dein Frontend
+                    platforms: ["Polymarket", "Kalshi"],
                     details: `P: ${pPrice.toFixed(2)} | K: ${kPrice.toFixed(2)}`
                   });
                 }
@@ -58,26 +59,20 @@ export default {
         });
       }
 
-      // WICHTIG: Die Antwort muss in "opportunities" gewrappt sein!
-      const finalResponse = {
+      // Die Antwort, die dein GitHub-Frontend braucht
+      const payload = {
         opportunities: {
-          poly_count: p.length,
-          kals_count: kMarkets.length,
-          mani_count: Array.isArray(m) ? m.length : 0,
+          poly_count: poly.length,
+          kals_count: kalshiMarkets.length,
+          mani_count: mani.length,
           matches: matches
         }
       };
 
-      return new Response(JSON.stringify(finalResponse), { 
-        status: 200, 
-        headers: myHeaders 
-      });
+      return new Response(JSON.stringify(payload), { status: 200, headers: corsHeaders });
 
     } catch (err) {
-      return new Response(JSON.stringify({ error: err.message }), { 
-        status: 500, 
-        headers: myHeaders 
-      });
+      return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
     }
   }
 };
