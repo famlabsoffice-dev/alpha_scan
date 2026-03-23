@@ -47,7 +47,6 @@
         }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
@@ -91,7 +90,7 @@
 
         <div class="bg-black/40 border border-slate-800 rounded-lg p-4 mb-6">
             <div id="display" class="space-y-4 min-h-[350px] max-h-[500px] overflow-y-auto pr-2">
-                <div class="text-slate-500 text-xs italic">System bereit. Warte auf Befehl des Operators...</div>
+                <div class="text-slate-500 text-xs italic">System bereit. Initialisiere Bridge zu alphascan2...</div>
             </div>
         </div>
 
@@ -99,7 +98,6 @@
             <div class="absolute inset-0 bg-emerald-500 opacity-10 group-hover:opacity-20 transition-opacity"></div>
             <div class="border border-emerald-500/50 group-hover:border-emerald-400 py-4 rounded text-emerald-400 uppercase font-black text-xs tracking-widest flex items-center justify-center gap-3">
                 <span id="btn-text">Execute Full Market Scan</span>
-                <span class="text-[10px] opacity-50">[F5]</span>
             </div>
         </button>
         
@@ -109,9 +107,9 @@
     </div>
 
     <script>
-        const WORKER_URL = 'https://alphascan.famlabsoffice.workers.dev/';
+        // DIE KORREKTE URL ZU DEINEM WORKER
+        const WORKER_URL = 'https://alphascan2.famlabsoffice.workers.dev/';
 
-        // Uhrzeit-Update
         function updateClock() {
             document.getElementById('clock').innerText = "SYSTEM TIME: " + new Date().toLocaleTimeString();
         }
@@ -123,31 +121,35 @@
             const btn = document.getElementById('action-btn');
             const btnText = document.getElementById('btn-text');
             
-            // UI State: Loading
             btn.disabled = true;
             btnText.innerText = "BYPASSING API LIMITS...";
             display.innerHTML = `
                 <div class="flex flex-col items-center justify-center h-64 space-y-4">
                     <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                    <div class="text-emerald-500 text-[10px] animate-pulse uppercase tracking-widest font-bold">Aggregating Cross-Platform Data</div>
+                    <div class="text-emerald-500 text-[10px] animate-pulse uppercase tracking-widest font-bold">Requesting Cross-Platform Data...</div>
                 </div>
             `;
 
             try {
                 const res = await fetch(WORKER_URL);
+                if (!res.ok) throw new Error("Worker offline oder URL falsch.");
+                
                 const data = await res.json();
                 
-                // Update Stats
-                document.getElementById('stat-poly').innerText = data.opportunities.poly_count;
-                document.getElementById('stat-kals').innerText = data.opportunities.kals_count;
-                document.getElementById('stat-mani').innerText = data.opportunities.mani_count;
+                // Stats Update
+                document.getElementById('stat-poly').innerText = data.opportunities.poly_count || 0;
+                document.getElementById('stat-kals').innerText = data.opportunities.kals_count || 0;
+                document.getElementById('stat-mani').innerText = data.opportunities.mani_count || 0;
 
                 render(data);
             } catch (e) {
                 display.innerHTML = `
                     <div class="p-4 bg-red-950/20 border border-red-500/50 rounded text-red-500 text-xs">
-                        <span class="font-bold">CRITICAL ERROR:</span> Verbindung zum Worker fehlgeschlagen. 
-                        Prüfe die CORS-Einstellungen und den Status unter workers.dev.
+                        <span class="font-bold uppercase tracking-widest">Connection Error:</span><br>
+                        Der Worker unter <span class="text-white">${WORKER_URL}</span> antwortet nicht.<br><br>
+                        Checkliste:<br>
+                        1. Ist der Worker-Code bei Cloudflare gespeichert?<br>
+                        2. Ist die Datei index.js auf GitHub vorhanden?
                     </div>
                 `;
             } finally {
@@ -161,42 +163,35 @@
             
             if (!data.opportunities.matches || data.opportunities.matches.length === 0) {
                 display.innerHTML = `
-                    <div class="text-center py-20">
-                        <div class="text-slate-500 text-xs uppercase tracking-widest">Keine direkten Matches gefunden.</div>
-                        <div class="text-[10px] text-slate-700 mt-2 italic text-center max-w-xs mx-auto">
-                            Erhöhe die Anzahl der API-Anfragen im Backend oder verringere den Match-Score-Schwellenwert.
-                        </div>
+                    <div class="text-center py-20 border border-dashed border-slate-800 rounded">
+                        <div class="text-slate-500 text-xs uppercase tracking-widest">Keine Arbitrage-Matches gefunden.</div>
+                        <div class="text-[9px] text-slate-700 mt-2 italic">Märkte sind aktuell effizient. Versuche es in Kürze erneut.</div>
                     </div>
                 `;
                 return;
             }
 
-            let html = `
-                <div class="flex items-center justify-between text-[10px] border-b border-slate-800 pb-2 mb-4">
-                    <span class="text-emerald-500 font-bold uppercase">Gefundene Arbitrage-Paare: ${data.opportunities.matches.length}</span>
-                    <span class="text-slate-500 italic">Scan Dauer: 1.2s</span>
-                </div>
-            `;
+            let html = `<div class="text-[10px] border-b border-slate-800 pb-2 mb-4 text-emerald-500 font-bold uppercase">Gefundene Arbitrage-Paare: ${data.opportunities.matches.length}</div>`;
 
             data.opportunities.matches.forEach(match => {
                 html += `
-                    <div class="group bg-slate-900/30 border border-slate-800 p-4 rounded hover:border-emerald-500/50 transition-all duration-300">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-white text-xs font-bold leading-tight max-w-[80%]">${match.event}</h3>
-                            <span class="bg-emerald-500/10 text-emerald-500 text-[8px] px-2 py-0.5 rounded border border-emerald-500/20 uppercase font-black">Match</span>
+                    <div class="group bg-slate-900/30 border border-slate-800 p-4 rounded hover:border-emerald-500 transition-all">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-white text-[11px] font-bold leading-tight">${match.event}</h3>
+                            <span class="text-emerald-500 text-[8px] font-black uppercase tracking-tighter border border-emerald-500/20 px-1 rounded">MATCH</span>
                         </div>
-                        <div class="flex gap-4 mt-3">
-                            <div class="text-[9px]">
-                                <span class="text-slate-500 block uppercase">Plattformen</span>
-                                <span class="text-blue-400">${match.platforms.join(' ↔ ')}</span>
+                        <div class="grid grid-cols-3 gap-2 mt-4">
+                            <div>
+                                <span class="text-[7px] text-slate-500 uppercase block">Plattformen</span>
+                                <span class="text-blue-400 text-[10px] font-bold">${match.platforms.join(' / ')}</span>
                             </div>
-                            <div class="text-[9px]">
-                                <span class="text-slate-500 block uppercase">Status</span>
-                                <span class="text-emerald-400 font-bold">${match.potential}</span>
+                            <div>
+                                <span class="text-[7px] text-slate-500 uppercase block">Signal</span>
+                                <span class="text-emerald-400 text-[10px] font-bold">${match.potential}</span>
                             </div>
-                            <div class="text-[9px] ml-auto text-right">
-                                <span class="text-slate-500 block uppercase">Details</span>
-                                <span class="text-slate-400 italic">${match.details}</span>
+                            <div class="text-right">
+                                <span class="text-[7px] text-slate-500 uppercase block">Trace</span>
+                                <span class="text-slate-400 text-[9px] italic">${match.details}</span>
                             </div>
                         </div>
                     </div>
