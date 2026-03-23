@@ -1,13 +1,7 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "alphascan",
-  "compatibility_date": "2025-09-27",
-  "observability": {
-    "enabled": true
-  },
-  "assets": {
-    "directory": "."
-  },
+  "main": "index.js",
+  "compatibility_date": "2024-03-23",
   "compatibility_flags": [
     "nodejs_compat"
   ]
