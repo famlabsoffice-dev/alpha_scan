@@ -1,5 +1,5 @@
 export default {
-  async fetch(r) {
+  async fetch(request) {
     const h = {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"};
     try {
       const [pD, kD, mD] = await Promise.all([
@@ -15,7 +15,7 @@ export default {
         kM.forEach(k => {
           const kt = (k.title || "").toLowerCase();
           const kp = k.last_price ? k.last_price / 100 : null;
-          if (pt.split(" ").filter(w => w.length > 7).some(w => kt.includes(w)) && pp && kp) {
+          if (pp && kp && pt.split(" ").filter(w => w.length > 7).some(w => kt.includes(w))) {
             const d = Math.abs(pp - kp) * 100;
             res.push({event: p.question.slice(0, 50), platforms: ["Poly", "Kals"], potential: d.toFixed(1) + "%", details: `P: ${pp.toFixed(2)}$ | K: ${kp.toFixed(2)}$`});
           }
