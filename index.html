@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaScan Terminal | v1.0</title>
+    <title>AlphaScan Terminal | v1.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -11,44 +11,49 @@
         .terminal-box { border: 1px solid rgba(0, 255, 136, 0.2); background: rgba(15, 23, 42, 0.8); }
         .live-dot { height: 8px; width: 8px; background: #00ff88; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #00ff88; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        
+        /* Custom Scrollbar für das Terminal */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00ff88; }
     </style>
 </head>
-<body class="p-6 flex flex-col items-center">
+<body class="p-4 md:p-10 flex flex-col items-center">
 
-    <div class="w-full max-w-4xl terminal-box rounded-xl p-8 shadow-2xl">
-        <div class="flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
-            <h1 class="text-xl font-bold tracking-widest text-white">◣ ALPHASCAN <span class="text-emerald-500 font-black">v1.0</span></h1>
+    <div class="w-full max-w-4xl terminal-box rounded-xl p-6 md:p-8 shadow-2xl">
+        <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-6">
+            <h1 class="text-xl font-bold tracking-widest text-white">◣ ALPHASCAN <span class="text-emerald-500 font-black">v1.1</span></h1>
             <div class="text-right">
-                <span class="live-dot mr-2"></span> <span class="text-[10px] uppercase font-bold">System Online</span>
+                <span class="live-dot mr-2"></span> <span class="text-[10px] uppercase font-bold text-emerald-400">Scanner Active</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-3 gap-4 mb-8">
             <div class="bg-slate-900/50 p-4 border border-slate-800 rounded text-center">
-                <div class="text-slate-500 text-[10px] uppercase mb-1">Polymarket</div>
-                <div id="stat-poly" class="text-2xl font-bold text-white">--</div>
+                <div class="text-slate-500 text-[9px] uppercase mb-1 tracking-widest">Polymarket</div>
+                <div id="stat-poly" class="text-xl font-bold text-white">--</div>
             </div>
             <div class="bg-slate-900/50 p-4 border border-slate-800 rounded text-center">
-                <div class="text-slate-500 text-[10px] uppercase mb-1">Kalshi</div>
-                <div id="stat-kals" class="text-2xl font-bold text-white">--</div>
+                <div class="text-slate-500 text-[9px] uppercase mb-1 tracking-widest">Kalshi</div>
+                <div id="stat-kals" class="text-xl font-bold text-white">--</div>
             </div>
             <div class="bg-slate-900/50 p-4 border border-slate-800 rounded text-center">
-                <div class="text-slate-500 text-[10px] uppercase mb-1">Manifold</div>
-                <div id="stat-mani" class="text-2xl font-bold text-white">--</div>
+                <div class="text-slate-500 text-[9px] uppercase mb-1 tracking-widest">Manifold</div>
+                <div id="stat-mani" class="text-xl font-bold text-white">--</div>
             </div>
         </div>
 
-        <div id="display" class="bg-black/40 border border-slate-800 rounded-lg p-6 min-h-[300px] mb-8 text-sm leading-relaxed">
-            <div class="text-slate-500 italic uppercase text-xs">Bereit für Initial-Scan...</div>
+        <div id="display" class="bg-black/60 border border-slate-800 rounded-lg p-4 h-[400px] overflow-y-auto mb-8 shadow-inner">
+            <div class="text-slate-600 italic text-xs">Awaiting operator command... [Type: SCAN]</div>
         </div>
 
-        <button onclick="runScan()" id="btn" class="w-full py-4 bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
+        <button onclick="runScan()" id="btn" class="w-full py-4 bg-emerald-500/5 border border-emerald-500/30 text-emerald-500 font-bold uppercase tracking-[0.3em] hover:bg-emerald-500/20 hover:border-emerald-500 transition-all duration-300 rounded shadow-[0_0_15px_rgba(0,255,136,0.05)]">
             Execute Full Market Scan
         </button>
     </div>
 
     <script>
-        // DIE NEUE SAUBERE URL
         const WORKER_URL = 'https://alphascan.famlabsoffice.workers.dev/';
 
         async function runScan() {
@@ -56,27 +61,75 @@
             const btn = document.getElementById('btn');
             
             btn.disabled = true;
-            btn.innerText = "Scanning Ecosystem...";
-            display.innerHTML = '<div class="text-emerald-500 animate-pulse uppercase text-xs">Connecting to Cloudflare Edge...</div>';
+            btn.innerText = "CROSS-REF DATA...";
+            display.innerHTML = '<div class="flex items-center justify-center h-full"><div class="text-emerald-500 animate-pulse text-xs tracking-widest">ANALYSING CROSS-EXCHANGE LIQUIDITY...</div></div>';
 
             try {
                 const response = await fetch(WORKER_URL);
+                if(!response.ok) throw new Error("Worker Response Error");
+                
                 const data = await response.json();
+                const res = data.opportunities;
 
-                document.getElementById('stat-poly').innerText = data.opportunities.poly_count;
-                document.getElementById('stat-kals').innerText = data.opportunities.kals_count;
-                document.getElementById('stat-mani').innerText = data.opportunities.mani_count;
+                // Stats Update
+                document.getElementById('stat-poly').innerText = res.poly_count;
+                document.getElementById('stat-kals').innerText = res.kals_count;
+                document.getElementById('stat-mani').innerText = res.mani_count;
 
-                display.innerHTML = `<div class="text-emerald-400">✅ Scan abgeschlossen um ${new Date().toLocaleTimeString()}</div>
-                                     <div class="mt-4 text-slate-400 text-xs tracking-tighter">System empfängt Datenströme. Alle APIs antworten im grünen Bereich.</div>`;
+                renderMatches(res.matches);
+
             } catch (err) {
-                display.innerHTML = `<div class="text-red-500 font-bold">CRITICAL ERROR:</div>
-                                     <div class="text-red-400 text-xs mt-2 italic">${err.message}</div>
-                                     <div class="text-slate-600 text-[10px] mt-4 uppercase">Check: Ist der Worker 'alphascan' bei Cloudflare deployed?</div>`;
+                display.innerHTML = `
+                    <div class="border border-red-900/50 bg-red-950/20 p-4 rounded text-red-500">
+                        <div class="font-bold text-xs">CRITICAL SYSTEM FAILURE</div>
+                        <div class="text-[10px] mt-1 opacity-70">${err.message}</div>
+                    </div>`;
             } finally {
                 btn.disabled = false;
                 btn.innerText = "Execute Full Market Scan";
             }
+        }
+
+        function renderMatches(matches) {
+            const display = document.getElementById('display');
+            
+            if (!matches || matches.length === 0) {
+                display.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full opacity-40">
+                        <div class="text-xs uppercase tracking-widest text-slate-500">No Direct Matches Found</div>
+                        <div class="text-[9px] mt-2 italic">Try again in 60s. High market efficiency detected.</div>
+                    </div>`;
+                return;
+            }
+
+            let html = `<div class="text-[10px] text-emerald-500/50 uppercase font-bold mb-4 border-b border-emerald-500/10 pb-2">Detected Arbitrage Opportunities: ${matches.length}</div>`;
+
+            matches.forEach(match => {
+                html += `
+                    <div class="group bg-slate-900/40 border border-slate-800 p-4 rounded mb-3 hover:border-emerald-500/40 transition-all">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-white text-xs font-bold leading-tight max-w-[80%]">${match.event}</h3>
+                            <span class="bg-emerald-500/10 text-emerald-400 text-[8px] px-1.5 py-0.5 rounded border border-emerald-500/20 font-black">MATCH</span>
+                        </div>
+                        <div class="flex gap-4 mt-3">
+                            <div class="text-[9px]">
+                                <span class="text-slate-600 block uppercase text-[7px] mb-1">Bridge</span>
+                                <span class="text-blue-400">${match.platforms.join(' ↔ ')}</span>
+                            </div>
+                            <div class="text-[9px]">
+                                <span class="text-slate-600 block uppercase text-[7px] mb-1">Status</span>
+                                <span class="text-emerald-400 font-bold animate-pulse">${match.potential}</span>
+                            </div>
+                            <div class="text-[9px] ml-auto text-right">
+                                <span class="text-slate-600 block uppercase text-[7px] mb-1">ID-Trace</span>
+                                <span class="text-slate-500 italic">${match.details}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            display.innerHTML = html;
         }
     </script>
 </body>
