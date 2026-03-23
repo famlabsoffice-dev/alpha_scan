@@ -1,4 +1,37 @@
-// Ändere nur die findArbitrage Funktion am Ende deiner index.js:
+export default {
+  async fetch(request, env) {
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Content-Type": "application/json"
+    };
+
+    if (request.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+    try {
+      const [poly, kals, mani] = await Promise.all([
+        fetch("https://gamma-api.polymarket.com/markets?closed=false&limit=150&order=liquidity&ascending=false").then(r => r.json()),
+        fetch("https://api.elections.kalshi.com/trade-api/v2/markets?status=open&limit=150").then(r => r.json()),
+        fetch("https://api.manifold.markets/v0/markets?limit=150").then(r => r.json())
+      ]);
+
+      const matches = findArbitrage(poly, kals.markets || [], mani);
+
+      return new Response(JSON.stringify({
+        opportunities: {
+          poly_count: poly.length || 0,
+          kals_count: kals.markets?.length || 0,
+          mani_count: mani.length || 0,
+          matches: matches
+        }
+      }), { headers: corsHeaders });
+
+    } catch (err) {
+      return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+    }
+  }
+};
 
 function findArbitrage(poly, kals, mani) {
   const opportunities = [];
@@ -11,16 +44,12 @@ function findArbitrage(poly, kals, mani) {
       const kTitle = (k.title || "").toLowerCase();
       const kPrice = k.last_price ? k.last_price / 100 : null;
 
-      // Wir erweitern die Wortsuche massiv
       const commonWords = ["will", "the", "price", "above", "below", "march", "2026", "2025"];
       const pWords = pTitle.split(" ").filter(w => w.length > 3 && !commonWords.includes(w));
       const matchLevel = pWords.filter(word => kTitle.includes(word)).length;
 
-      // Wenn mindestens 1 wichtiges Wort matcht UND Preise da sind
       if (matchLevel >= 1 && pPrice && kPrice) {
         const diff = Math.abs(pPrice - kPrice) * 100;
-        
-        // Wir senken die Hürde auf 0.5%, nur um zu sehen, dass es klappt!
         if (diff > 0.5) {
           opportunities.push({
             event: p.question.substring(0, 60) + "...",
