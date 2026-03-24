@@ -2,88 +2,32 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>AlphaScan v1.2</title>
+    <title>AlphaScan Ultra-Light</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: #020617; color: #00ff88; font-family: monospace; }
-        .box { border: 1px solid #00ff8833; background: #0f172a; padding: 15px; max-width: 500px; margin: 20px auto; }
-    </style>
 </head>
-<body>
-    <div class="box">
-        <h1 class="text-white font-bold">◣ ALPHASCAN LIGHT</h1>
-        <div id="status" class="text-[10px] my-2 text-slate-500">Warten auf Scan...</div>
-        <div id="display" class="bg-black p-3 h-40 overflow-y-auto text-[10px] border border-slate-800 mb-4"></div>
-        <button onclick="doScan()" class="w-full py-2 border border-emerald-500 text-emerald-500 hover:bg-emerald-500 hover:text-black font-bold">SCAN EXECUTE</button>
+<body class="bg-slate-950 text-emerald-400 p-5 font-mono">
+    <div class="max-w-md mx-auto border border-emerald-900 p-4 rounded-lg bg-slate-900">
+        <h1 class="text-white font-bold border-b border-emerald-900 mb-4">◣ ALPHASCAN LIGHT</h1>
+        <div id="out" class="text-[10px] h-60 overflow-y-auto mb-4 italic">Bereit...</div>
+        <button onclick="scan()" class="w-full py-2 border border-emerald-500 hover:bg-emerald-500 hover:text-black transition-all font-bold uppercase">Start Scan</button>
     </div>
 
     <script>
-        async function doScan() {
-            const d = document.getElementById('display');
-            const s = document.getElementById('status');
-            d.innerHTML = "LADE...";
+        async function scan() {
+            const out = document.getElementById('out');
+            out.innerHTML = "VERBINDE...";
             try {
-                const r = await fetch('https://alphascan.famlabsoffice.workers.dev/');
-                const j = await r.json();
-                if(j.error) { d.innerHTML = j.error; return; }
-                
-                s.innerHTML = `P: ${j.counts.p} | K: ${j.counts.k}`;
-                d.innerHTML = j.results.length ? j.results.map(m => `<div>[!] ${m.e} (${m.p})</div>`).join('') : "KEINE MATCHES.";
-            } catch(e) { d.innerHTML = "FEHLER: " + e.message; }
-        }
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>AlphaScan Terminal | v1.2</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: #020617; color: #00ff88; font-family: monospace; }
-        .terminal { border: 1px solid #00ff8833; background: #0f172a; padding: 20px; border-radius: 8px; max-width: 600px; margin: 40px auto; }
-    </style>
-</head>
-<body>
-    <div class="terminal">
-        <h1 class="text-white border-b border-slate-800 pb-2">◣ ALPHASCAN v1.2</h1>
-        <div class="flex justify-between my-4 text-[10px] text-slate-500">
-            <span>Poly: <span id="stat-poly">--</span></span>
-            <span>Kalshi: <span id="stat-kals">--</span></span>
-        </div>
-        <div id="display" class="bg-black p-4 h-48 overflow-y-auto border border-slate-800 mb-4 text-[10px] text-emerald-400">
-            System bereit...
-        </div>
-        <button onclick="runScan()" id="btn" class="w-full py-2 bg-emerald-600/20 border border-emerald-500 text-emerald-500 font-bold uppercase hover:bg-emerald-500 hover:text-black transition-all">Scan starten</button>
-    </div>
-
-    <script>
-        const WORKER_URL = 'https://alphascan.famlabsoffice.workers.dev/';
-
-        async function runScan() {
-            const display = document.getElementById('display');
-            display.innerHTML = "LADE DATEN (LIMITIERTER SPEICHER)...";
-            try {
-                const response = await fetch(WORKER_URL);
-                const data = await response.json();
-                
+                const res = await fetch('https://alphascan.famlabsoffice.workers.dev/');
+                const data = await res.json();
                 if (data.error) {
-                    display.innerHTML = `<span class="text-red-500">FEHLER: ${data.error}</span>`;
-                    return;
-                }
-
-                const res = data.opportunities;
-                document.getElementById('stat-poly').innerText = res.poly_count;
-                document.getElementById('stat-kals').innerText = res.kals_count;
-
-                if (res.matches.length === 0) {
-                    display.innerHTML = "KEINE OPPORTUNITIES IM AKTUELLEN BUFFER.";
+                    out.innerHTML = "FEHLER: " + data.error;
                 } else {
-                    display.innerHTML = res.matches.map(m => `<div>[!] ${m.event} (${m.potential})</div>`).join('');
+                    out.innerHTML = data.markets.map(m => 
+                        `<div class="mb-2 p-1 border-b border-slate-800 text-white">${m.title} <br> <span class="text-emerald-500">Preis: ${m.price}</span></div>`
+                    ).join('');
                 }
-            } catch (err) {
-                display.innerHTML = `<span class="text-red-500">NETZWERK-FEHLER: ${err.message}</span>`;
+            } catch (e) {
+                out.innerHTML = "NETZWERK-FEHLER. Prüfe Cloudflare Deployment.";
             }
         }
     </script>
