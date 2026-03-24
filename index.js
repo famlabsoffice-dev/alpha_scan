@@ -17,93 +17,77 @@ export default {
 
     let arbitrageResults = [];
 
-    // --- Manifold Markets --- (Öffentliche API, keine Authentifizierung erforderlich)
+    // 1. Polymarket Gamma API (Öffentlich)
     try {
-      const manifoldResponse = await fetch('https://api.manifold.markets/v0/markets?limit=5'); // Holt die 5 neuesten Märkte
+      // Abfrage der neuesten aktiven Märkte
+      const polyResponse = await fetch('https://gamma-api.polymarket.com/markets?active=true&limit=10&order=volume&dir=desc');
+      const polyData = await polyResponse.json();
+      
+      polyData.forEach(market => {
+        if (market.outcomePrices) {
+          const prices = JSON.parse(market.outcomePrices);
+          const yesPrice = (parseFloat(prices[0]) * 100).toFixed(1);
+          arbitrageResults.push({
+            platform: 'Polymarket',
+            name: market.question,
+            price: `${yesPrice}%`,
+            url: `https://polymarket.com/event/${market.slug}`,
+            volume: market.volume || 'N/A'
+          });
+        }
+      });
+    } catch (e) {
+      console.error('Polymarket Error:', e);
+    }
+
+    // 2. Manifold Markets (Öffentlich)
+    try {
+      const manifoldResponse = await fetch('https://api.manifold.markets/v0/markets?limit=10&sort=updated-time');
       const manifoldData = await manifoldResponse.json();
       manifoldData.forEach(market => {
         if (market.probability !== undefined) {
-          const price = (market.probability * 100).toFixed(2); // Wahrscheinlichkeit in Prozent umrechnen
           arbitrageResults.push({
-            platform: 'Manifold Markets',
+            platform: 'Manifold',
             name: market.question,
-            price: `${price}%`,
-            url: market.url
+            price: `${(market.probability * 100).toFixed(1)}%`,
+            url: market.url,
+            volume: market.volume || 'N/A'
           });
         }
       });
-    } catch (error) {
-      console.error('Fehler beim Abrufen von Manifold Markets:', error);
-      arbitrageResults.push({ platform: 'Manifold Markets', name: 'Fehler beim Abrufen der Daten', price: 'N/A', url: '#' });
+    } catch (e) {
+      console.error('Manifold Error:', e);
     }
 
-    // --- Polymarket --- (Benötigt spezifischere Endpunkte für Preise oder Aggregation über Jupiter)
-    // Für Polymarket gibt es die Gamma API für Marktdaten. Eine direkte Abfrage hierfür ist komplexer, da man spezifische Märkte identifizieren muss.
-    // Eine einfachere Integration wäre über Jupiter Predict, wenn ein API-Key vorhanden ist.
-    arbitrageResults.push({ platform: 'Polymarket', name: 'Integration ausstehend (API-Key/spezifischer Endpunkt benötigt)', price: 'N/A', url: '#' });
-
-    // --- Jupiter Predict --- (Benötigt API Key)
-    // Um Jupiter Predict zu nutzen, müssen Sie einen API-Key in Ihren Cloudflare Worker Umgebungsvariablen hinterlegen.
-    // Beispiel: env.JUPITER_API_KEY
-    if (env.JUPITER_API_KEY) {
-      try {
-        const jupiterResponse = await fetch('https://api.jup.ag/prediction/v1/events?provider=polymarket&limit=5', {
-          headers: { 'x-api-key': env.JUPITER_API_KEY }
-        });
-        const jupiterData = await jupiterResponse.json();
-        jupiterData.data.forEach(event => {
-          event.markets.forEach(market => {
-            if (market.pricing && market.pricing.buyYesPriceUsd) {
-              const price = (market.pricing.buyYesPriceUsd * 100).toFixed(2);
-              arbitrageResults.push({
-                platform: 'Jupiter Predict (Polymarket)',
-                name: event.metadata.title + ' - ' + market.metadata.title,
-                price: `${price}%`,
-                url: `https://jup.ag/prediction/${event.eventId}` // Beispiel-URL
-              });
-            }
-          });
-        });
-      } catch (error) {
-        console.error('Fehler beim Abrufen von Jupiter Predict:', error);
-        arbitrageResults.push({ platform: 'Jupiter Predict', name: 'Fehler beim Abrufen der Daten (API-Key oder Netzwerk)', price: 'N/A', url: '#' });
-      }
-    } else {
-      arbitrageResults.push({ platform: 'Jupiter Predict', name: 'API Key (JUPITER_API_KEY) fehlt in Umgebungsvariablen', price: 'N/A', url: '#' });
-    }
-
-    // --- Kalshi --- (Öffentliche API, keine Authentifizierung erforderlich)
+    // 3. Kalshi (Öffentlich)
     try {
-      const kalshiResponse = await fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=5&status=open'); // Holt die 5 neuesten offenen Märkte
+      const kalshiResponse = await fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=10&status=open');
       const kalshiData = await kalshiResponse.json();
-      kalshiData.markets.forEach(market => {
-        if (market.yes_bid && market.no_bid) {
-          // Kalshi Preise sind in Cent, umrechnen in Prozent der Wahrscheinlichkeit
-          const yesPrice = (market.yes_bid / 100).toFixed(2); // Beispiel: 80 Cents = 0.80
-          arbitrageResults.push({
-            platform: 'Kalshi',
-            name: market.title,
-            price: `${yesPrice * 100}% (YES)`,
-            url: `https://kalshi.com/markets/${market.ticker}`
-          });
-        }
-      });
-    } catch (error) {
-      console.error('Fehler beim Abrufen von Kalshi:', error);
-      arbitrageResults.push({ platform: 'Kalshi', name: 'Fehler beim Abrufen der Daten', price: 'N/A', url: '#' });
+      if (kalshiData.markets) {
+        kalshiData.markets.forEach(market => {
+          if (market.yes_bid) {
+            arbitrageResults.push({
+              platform: 'Kalshi',
+              name: market.title,
+              price: `${market.yes_bid}%`,
+              url: `https://kalshi.com/markets/${market.ticker}`,
+              volume: market.volume || 'N/A'
+            });
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Kalshi Error:', e);
     }
 
     const responseData = {
-      results: arbitrageResults,
+      results: arbitrageResults.sort((a, b) => (b.volume || 0) - (a.volume || 0)),
       timestamp: new Date().toISOString(),
-      status: 'SYSTEM LIVE - Live Data (Manifold, Kalshi) & Placeholder (Jupiter)'
+      status: "LIVE_DATA_FEED_ACTIVE"
     };
 
     return new Response(JSON.stringify(responseData), {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json',
-      },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   },
 };
