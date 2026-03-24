@@ -15,97 +15,115 @@ export default {
       });
     }
 
+    // --- PARALLEL FETCHING (DEVIL SPEED) ---
+    const startTime = Date.now();
+    
+    const [polyRes, manifoldRes, kalshiRes] = await Promise.allSettled([
+      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=30&order=volume&dir=desc'),
+      fetch('https://api.manifold.markets/v0/markets?limit=30&sort=updated-time'),
+      fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=30&status=open')
+    ]);
+
     let allMarkets = [];
 
-    // 1. Polymarket Gamma API
-    try {
-      const polyResponse = await fetch('https://gamma-api.polymarket.com/markets?active=true&limit=20&order=volume&dir=desc');
-      const polyData = await polyResponse.json();
-      polyData.forEach(m => {
-        if (m.outcomePrices) {
-          const prices = JSON.parse(m.outcomePrices);
-          allMarkets.push({
-            platform: 'Polymarket',
-            name: m.question.trim(),
-            price: parseFloat(prices[0]) * 100,
-            url: `https://polymarket.com/event/${m.slug}`,
-            volume: m.volume || 0
-          });
-        }
-      });
-    } catch (e) { console.error('Polymarket Error:', e); }
-
-    // 2. Manifold Markets
-    try {
-      const manifoldResponse = await fetch('https://api.manifold.markets/v0/markets?limit=20&sort=updated-time');
-      const manifoldData = await manifoldResponse.json();
-      manifoldData.forEach(m => {
-        if (m.probability !== undefined) {
-          allMarkets.push({
-            platform: 'Manifold',
-            name: m.question.trim(),
-            price: m.probability * 100,
-            url: m.url,
-            volume: m.volume || 0
-          });
-        }
-      });
-    } catch (e) { console.error('Manifold Error:', e); }
-
-    // 3. Kalshi
-    try {
-      const kalshiResponse = await fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=20&status=open');
-      const kalshiData = await kalshiResponse.json();
-      if (kalshiData.markets) {
-        kalshiData.markets.forEach(m => {
-          if (m.yes_bid) {
+    // Polymarket Parser
+    if (polyRes.status === 'fulfilled') {
+      try {
+        const data = await polyRes.value.json();
+        data.forEach(m => {
+          if (m.outcomePrices) {
+            const prices = JSON.parse(m.outcomePrices);
             allMarkets.push({
-              platform: 'Kalshi',
-              name: m.title.trim(),
-              price: parseFloat(m.yes_bid),
-              url: `https://kalshi.com/markets/${m.ticker}`,
-              volume: m.volume || 0
+              p: 'Poly',
+              n: m.question.trim(),
+              v: parseFloat(prices[0]) * 100,
+              u: `https://polymarket.com/event/${m.slug}`,
+              vol: m.volume || 0
             });
           }
         });
-      }
-    } catch (e) { console.error('Kalshi Error:', e); }
+      } catch (e) {}
+    }
 
-    // --- ARBITRAGE MATCHING LOGIK ---
-    let arbitrageSignals = [];
-    const normalized = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-    for (let i = 0; i < allMarkets.length; i++) {
-      for (let j = i + 1; j < allMarkets.length; j++) {
-        const m1 = allMarkets[i];
-        const m2 = allMarkets[j];
-
-        if (m1.platform === m2.platform) continue;
-
-        // Einfaches Matching über Textähnlichkeit (erste 20 Zeichen normalisiert)
-        const n1 = normalized(m1.name).substring(0, 25);
-        const n2 = normalized(m2.name).substring(0, 25);
-
-        if (n1 === n2 && n1.length > 10) {
-          const diff = Math.abs(m1.price - m2.price);
-          if (diff >= 1.0) { // Mindestens 1% Differenz
-            arbitrageSignals.push({
-              type: 'ARBITRAGE',
-              market1: m1,
-              market2: m2,
-              difference: diff.toFixed(1) + '%',
-              severity: diff > 5 ? 'CRITICAL' : 'OPPORTUNITY'
+    // Manifold Parser
+    if (manifoldRes.status === 'fulfilled') {
+      try {
+        const data = await manifoldRes.value.json();
+        data.forEach(m => {
+          if (m.probability !== undefined) {
+            allMarkets.push({
+              p: 'Mani',
+              n: m.question.trim(),
+              v: m.probability * 100,
+              u: m.url,
+              vol: m.volume || 0
             });
+          }
+        });
+      } catch (e) {}
+    }
+
+    // Kalshi Parser
+    if (kalshiRes.status === 'fulfilled') {
+      try {
+        const data = await kalshiRes.value.json();
+        if (data.markets) {
+          data.markets.forEach(m => {
+            if (m.yes_bid) {
+              allMarkets.push({
+                p: 'Kalshi',
+                n: m.title.trim(),
+                v: parseFloat(m.yes_bid),
+                u: `https://kalshi.com/markets/${m.ticker}`,
+                vol: m.volume || 0
+              });
+            }
+          });
+        }
+      } catch (e) {}
+    }
+
+    // --- HIGH-PRECISION MATCHING ENGINE ---
+    const signals = [];
+    const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 30);
+    
+    // Group by normalized name to find matches faster
+    const groups = {};
+    allMarkets.forEach(m => {
+      const key = normalize(m.n);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(m);
+    });
+
+    for (const key in groups) {
+      const matches = groups[key];
+      if (matches.length > 1) {
+        // Compare all pairs in the group
+        for (let i = 0; i < matches.length; i++) {
+          for (let j = i + 1; j < matches.length; j++) {
+            const m1 = matches[i];
+            const m2 = matches[j];
+            if (m1.p === m2.p) continue;
+
+            const diff = Math.abs(m1.v - m2.v);
+            if (diff >= 0.5) { // Ultra-accurate: detect even 0.5% spreads
+              signals.push({
+                d: diff.toFixed(2),
+                m1: m1,
+                m2: m2,
+                score: (diff * Math.log10(Math.max(m1.vol, m2.vol) + 1)).toFixed(1)
+              });
+            }
           }
         }
       }
     }
 
     const responseData = {
-      signals: arbitrageSignals.sort((a, b) => parseFloat(b.difference) - parseFloat(a.difference)),
-      all_markets: allMarkets.sort((a, b) => b.volume - a.volume).slice(0, 20),
-      timestamp: new Date().toISOString(),
-      status: "SCANNER_LIVE_V2.2"
+      s: signals.sort((a, b) => b.d - a.d),
+      m: allMarkets.sort((a, b) => b.vol - a.vol).slice(0, 25),
+      t: Date.now() - startTime, // Processing time in ms
+      ts: new Date().toISOString()
     };
 
     return new Response(JSON.stringify(responseData), {
