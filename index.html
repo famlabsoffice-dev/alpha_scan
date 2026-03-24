@@ -2,6 +2,42 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <title>AlphaScan v1.2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #020617; color: #00ff88; font-family: monospace; }
+        .box { border: 1px solid #00ff8833; background: #0f172a; padding: 15px; max-width: 500px; margin: 20px auto; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1 class="text-white font-bold">◣ ALPHASCAN LIGHT</h1>
+        <div id="status" class="text-[10px] my-2 text-slate-500">Warten auf Scan...</div>
+        <div id="display" class="bg-black p-3 h-40 overflow-y-auto text-[10px] border border-slate-800 mb-4"></div>
+        <button onclick="doScan()" class="w-full py-2 border border-emerald-500 text-emerald-500 hover:bg-emerald-500 hover:text-black font-bold">SCAN EXECUTE</button>
+    </div>
+
+    <script>
+        async function doScan() {
+            const d = document.getElementById('display');
+            const s = document.getElementById('status');
+            d.innerHTML = "LADE...";
+            try {
+                const r = await fetch('https://alphascan.famlabsoffice.workers.dev/');
+                const j = await r.json();
+                if(j.error) { d.innerHTML = j.error; return; }
+                
+                s.innerHTML = `P: ${j.counts.p} | K: ${j.counts.k}`;
+                d.innerHTML = j.results.length ? j.results.map(m => `<div>[!] ${m.e} (${m.p})</div>`).join('') : "KEINE MATCHES.";
+            } catch(e) { d.innerHTML = "FEHLER: " + e.message; }
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
     <title>AlphaScan Terminal | v1.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
