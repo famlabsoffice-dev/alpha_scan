@@ -2,32 +2,51 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>AlphaScan Ultra-Light</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaScan v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-emerald-400 p-5 font-mono">
-    <div class="max-w-md mx-auto border border-emerald-900 p-4 rounded-lg bg-slate-900">
-        <h1 class="text-white font-bold border-b border-emerald-900 mb-4">◣ ALPHASCAN LIGHT</h1>
-        <div id="out" class="text-[10px] h-60 overflow-y-auto mb-4 italic">Bereit...</div>
-        <button onclick="scan()" class="w-full py-2 border border-emerald-500 hover:bg-emerald-500 hover:text-black transition-all font-bold uppercase">Start Scan</button>
+<body class="bg-black text-emerald-500 font-mono p-4 md:p-10">
+    <div class="max-w-2xl mx-auto border border-emerald-900 bg-slate-950 p-6 rounded-lg shadow-2xl">
+        <div class="flex justify-between items-center mb-6 border-b border-emerald-900 pb-4">
+            <h1 class="text-lg font-bold">◣ ALPHASCAN CORE v2.0</h1>
+            <span class="text-[10px] animate-pulse">● SYSTEM LIVE</span>
+        </div>
+
+        <div id="terminal" class="h-64 overflow-y-auto mb-6 p-4 bg-black/50 border border-slate-900 text-xs">
+            Awaiting Command...
+        </div>
+
+        <button onclick="executeScan()" id="scanBtn" class="w-full py-3 border border-emerald-500 hover:bg-emerald-500/20 transition-all font-bold uppercase tracking-widest">
+            Execute Market Scan
+        </button>
     </div>
 
     <script>
-        async function scan() {
-            const out = document.getElementById('out');
-            out.innerHTML = "VERBINDE...";
+        async function executeScan() {
+            const term = document.getElementById('terminal');
+            const btn = document.getElementById('scanBtn');
+            term.innerHTML = "INITIALIZING SECURE SCAN...";
+            btn.disabled = true;
+
             try {
-                const res = await fetch('https://alphascan.famlabsoffice.workers.dev/');
-                const data = await res.json();
-                if (data.error) {
-                    out.innerHTML = "FEHLER: " + data.error;
-                } else {
-                    out.innerHTML = data.markets.map(m => 
-                        `<div class="mb-2 p-1 border-b border-slate-800 text-white">${m.title} <br> <span class="text-emerald-500">Preis: ${m.price}</span></div>`
+                const response = await fetch('https://alphascan.famlabsoffice.workers.dev/');
+                const data = await response.json();
+
+                if (data.results && data.results.length > 0) {
+                    term.innerHTML = data.results.map(m => 
+                        `<div class="mb-3 p-2 border-l-2 border-emerald-800 bg-slate-900/40">
+                            <div class="text-white">${m.name}</div>
+                            <div class="text-emerald-400 font-bold">DIFFERENZ: ${m.diff}</div>
+                        </div>`
                     ).join('');
+                } else {
+                    term.innerHTML = "SCAN COMPLETE: NO ARBITRAGE DETECTED IN CURRENT BUFFER.";
                 }
-            } catch (e) {
-                out.innerHTML = "NETZWERK-FEHLER. Prüfe Cloudflare Deployment.";
+            } catch (err) {
+                term.innerHTML = "CRITICAL ERROR: CONNECTION TO WORKER FAILED.";
+            } finally {
+                btn.disabled = false;
             }
         }
     </script>
