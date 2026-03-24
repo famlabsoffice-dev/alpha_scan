@@ -3,32 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaScan v2.6 - PRECISION TRADER</title>
+    <title>AlphaScan v2.7 - TOTAL ARBITRAGE MATRIX</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .terminal-scroll::-webkit-scrollbar { width: 3px; }
         .terminal-scroll::-webkit-scrollbar-track { background: #020617; }
         .terminal-scroll::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
-        .market-card { border-left: 3px solid #1e293b; transition: all 0.2s; cursor: pointer; }
-        .market-card:hover { border-left-color: #10b981; background: rgba(16, 185, 129, 0.1); transform: translateX(5px); }
+        .market-card { border-left: 3px solid #1e293b; transition: all 0.2s; }
+        .market-card:hover { border-left-color: #10b981; background: rgba(16, 185, 129, 0.08); transform: translateX(5px); }
         .arb-card { border: 1px solid #7f1d1d; background: rgba(127, 29, 29, 0.15); border-left: 6px solid #ef4444; transition: all 0.2s; }
         .arb-card:hover { background: rgba(127, 29, 29, 0.25); transform: scale(1.01); }
-        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .pulse-dot { animation: pulse-dot 1.5s infinite; }
+        .arb-badge { animation: pulse-red 1.5s infinite; background: #991b1b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 8px; font-weight: 900; }
+        @keyframes pulse-red { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
         .glow-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
         .lang-btn { transition: all 0.2s; border: 1px solid transparent; }
         .lang-btn.active { border-color: #10b981; background: rgba(16, 185, 129, 0.2); color: #fff; }
         .profit-badge { background: #0f172a; border: 1px solid #1e293b; }
+        .platform-tag { font-size: 7px; font-weight: 900; padding: 1px 4px; border-radius: 2px; text-transform: uppercase; }
+        .poly { background: #6d28d9; color: white; }
+        .mani { background: #0369a1; color: white; }
+        .kalshi { background: #b91c1c; color: white; }
     </style>
 </head>
 <body class="bg-[#020617] text-emerald-500 font-mono p-2 md:p-6 min-h-screen flex flex-col">
-    <div class="max-w-6xl mx-auto w-full border border-emerald-900/50 bg-[#020617] p-4 md:p-6 rounded-lg shadow-2xl relative flex-grow flex flex-col">
+    <div class="max-w-7xl mx-auto w-full border border-emerald-900/50 bg-[#020617] p-4 md:p-6 rounded-lg shadow-2xl relative flex-grow flex flex-col">
         
-        <!-- Header (Compact) -->
+        <!-- Header -->
         <div class="flex justify-between items-center mb-4 border-b border-emerald-900/30 pb-4">
             <div>
-                <h1 class="text-xl md:text-2xl font-black tracking-tighter italic text-emerald-400 glow-green">◣ ALPHASCAN <span class="text-white">PRECISION</span> v2.6</h1>
-                <p id="t-subtitle" class="text-[9px] text-emerald-700 uppercase tracking-widest mt-0.5">Real-Time Arbitrage Engine</p>
+                <h1 class="text-xl md:text-2xl font-black tracking-tighter italic text-emerald-400 glow-green uppercase">◣ ALPHASCAN <span class="text-white">MATRIX</span> v2.7</h1>
+                <p id="t-subtitle" class="text-[9px] text-emerald-700 uppercase tracking-widest mt-0.5">High-Tech Arbitrage Surveillance</p>
             </div>
             <div class="flex flex-col items-end gap-2">
                 <div class="flex gap-1">
@@ -37,40 +41,40 @@
                     <button onclick="setLang('pt')" class="lang-btn px-1.5 py-0.5 text-[8px] uppercase rounded" id="btn-pt">PT</button>
                     <button onclick="setLang('zh')" class="lang-btn px-1.5 py-0.5 text-[8px] uppercase rounded" id="btn-zh">ZH</button>
                 </div>
-                <span class="text-[8px] pulse-dot flex items-center gap-1.5 bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-800/50">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                    <span id="t-status">SYSTEM LIVE</span>
+                <span class="text-[8px] flex items-center gap-1.5 bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-800/50">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span id="t-status">NODES ACTIVE</span>
                 </span>
             </div>
         </div>
 
-        <!-- Dashboard (Flexible Height) -->
+        <!-- Dashboard -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-grow overflow-hidden">
-            <!-- Left: Arbitrage Signals -->
-            <div class="lg:col-span-5 flex flex-col min-h-0">
+            <!-- Left: High-Confidence Arbitrage -->
+            <div class="lg:col-span-4 flex flex-col min-h-0">
                 <h2 class="text-[10px] font-black uppercase tracking-widest text-red-500 flex items-center gap-2 mb-3">
-                    <span class="w-1.5 h-1.5 bg-red-600 rounded-full pulse-dot"></span>
-                    <span id="t-signals">Arbitrage Alerts</span>
+                    <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+                    <span id="t-signals">Top Arbitrage Opportunities</span>
                 </h2>
-                <div id="signals" class="flex-grow overflow-y-auto terminal-scroll space-y-3 pr-1 min-h-[300px] max-h-[500px]">
+                <div id="signals" class="flex-grow overflow-y-auto terminal-scroll space-y-3 pr-1 min-h-[300px] max-h-[600px]">
                     <div id="t-waiting-signals" class="text-[9px] text-slate-700 italic border border-slate-900/50 p-3">Execute scan to analyze profits...</div>
                 </div>
             </div>
 
-            <!-- Right: Live Markets -->
-            <div class="lg:col-span-7 flex flex-col min-h-0">
+            <!-- Right: Intelligent Matrix Feed -->
+            <div class="lg:col-span-8 flex flex-col min-h-0">
                 <h2 class="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-3">
-                    <span id="t-feed">Global Market Feed</span>
+                    <span id="t-feed">Global Market Matrix</span>
                 </h2>
-                <div id="terminal" class="flex-grow overflow-y-auto terminal-scroll grid grid-cols-1 md:grid-cols-2 gap-3 pr-1 min-h-[300px] max-h-[500px]">
-                    <div id="t-waiting-feed" class="col-span-full text-[9px] text-slate-700 italic border border-slate-900/50 p-3 text-center uppercase tracking-widest">Awaiting Data...</div>
+                <div id="terminal" class="flex-grow overflow-y-auto terminal-scroll grid grid-cols-1 md:grid-cols-2 gap-3 pr-1 min-h-[300px] max-h-[600px] content-start">
+                    <div id="t-waiting-feed" class="col-span-full text-[9px] text-slate-700 italic border border-slate-900/50 p-3 text-center uppercase tracking-widest">Awaiting Data Stream...</div>
                 </div>
             </div>
         </div>
 
-        <!-- Control Bar (Fixed Bottom) -->
+        <!-- Control Bar -->
         <div class="mt-4 pt-4 border-t border-emerald-900/30 flex flex-col md:flex-row gap-4 items-center">
-            <button onclick="executeScan()" id="scanBtn" class="w-full md:w-1/2 py-3.5 bg-emerald-500/5 border border-emerald-500/50 hover:bg-emerald-500/20 hover:border-emerald-400 transition-all font-black uppercase tracking-[0.2em] text-xs shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+            <button onclick="executeScan()" id="scanBtn" class="w-full md:w-1/2 py-4 bg-emerald-500/5 border border-emerald-500/50 hover:bg-emerald-500/20 hover:border-emerald-400 transition-all font-black uppercase tracking-[0.2em] text-xs shadow-[0_0_20px_rgba(16,185,129,0.1)]">
                 <span id="t-btn">Execute Market Scan</span>
             </button>
             <div class="flex-1 grid grid-cols-3 gap-2 w-full text-center">
@@ -79,11 +83,11 @@
                     <div id="latency" class="text-[10px] font-bold text-emerald-400 italic">-- ms</div>
                 </div>
                 <div class="bg-slate-900/30 border border-emerald-900/30 p-1.5">
-                    <div id="t-markets" class="text-[7px] text-slate-600 uppercase">Markets</div>
+                    <div id="t-markets" class="text-[7px] text-slate-600 uppercase">Events</div>
                     <div id="count" class="text-[10px] font-bold text-emerald-400 italic">0</div>
                 </div>
                 <div class="bg-slate-900/30 border border-emerald-900/30 p-1.5">
-                    <div class="text-[7px] text-slate-600 uppercase">Sync</div>
+                    <div class="text-[7px] text-slate-600 uppercase">Last Sync</div>
                     <div id="timestamp" class="text-[10px] font-bold text-slate-400 italic">--:--</div>
                 </div>
             </div>
@@ -93,72 +97,76 @@
     <script>
         const i18n = {
             de: {
-                subtitle: "Echtzeit-Arbitrage-Gewinnberechnung",
-                status: "SYSTEM LIVE",
-                signals: "Arbitrage-Signale",
-                feed: "Globaler Marktdaten-Feed",
-                waiting_signals: "Scan starten, um Profitpotenzial zu analysieren...",
+                subtitle: "Hochtechnische Arbitrage-Überwachung",
+                status: "NODES AKTIV",
+                signals: "Top Arbitrage-Chancen",
+                feed: "Globale Markt-Matrix",
+                waiting_signals: "Scan starten für Profit-Analyse...",
                 waiting_feed: "Warte auf Dateneinspeisung...",
                 btn: "Markt-Scan ausführen",
                 latency: "Latenz",
-                markets: "Märkte",
+                markets: "Events",
                 diff: "DIFF",
-                view: "LINK ↗",
+                view: "VER",
                 buy: "KAUFEN @",
                 sell: "VERKAUFEN @",
                 profit_est: "PROFIT",
-                at_stake: "Einsatz"
+                at_stake: "Einsatz",
+                arb_detected: "ARB ERKANNT"
             },
             en: {
-                subtitle: "Real-Time Arbitrage Profit Engine",
-                status: "SYSTEM LIVE",
-                signals: "Arbitrage Alerts",
-                feed: "Global Market Feed",
-                waiting_signals: "Execute scan to analyze profit potential...",
-                waiting_feed: "Awaiting data injection...",
+                subtitle: "High-Tech Arbitrage Surveillance",
+                status: "NODES ACTIVE",
+                signals: "Top Arbitrage Opportunities",
+                feed: "Global Market Matrix",
+                waiting_signals: "Execute scan for profit analysis...",
+                waiting_feed: "Awaiting data stream...",
                 btn: "Execute Market Scan",
                 latency: "Latency",
-                markets: "Markets",
+                markets: "Events",
                 diff: "DIFF",
-                view: "LINK ↗",
+                view: "VIEW",
                 buy: "BUY @",
                 sell: "SELL @",
                 profit_est: "PROFIT",
-                at_stake: "Stake"
+                at_stake: "Stake",
+                arb_detected: "ARB DETECTED"
             },
             pt: {
-                subtitle: "Motor de Lucro de Arbitragem em Tempo Real",
-                status: "SISTEMA LIVE",
-                signals: "Alertas de Arbitragem",
-                feed: "Feed de Mercado Global",
-                waiting_signals: "Execute o scan para analisar o potencial de lucro...",
-                waiting_feed: "Aguardando injeção de dados...",
+                subtitle: "Vigilância de Arbitragem de Alta Tecnologia",
+                status: "NODES ATIVOS",
+                signals: "Top Oportunidades de Arbitragem",
+                feed: "Matriz de Mercado Global",
+                waiting_signals: "Execute o scan para análise de lucro...",
+                waiting_feed: "Aguardando fluxo de dados...",
                 btn: "Executar Scan de Mercado",
                 latency: "Latência",
-                markets: "Mercados",
+                markets: "Eventos",
                 diff: "DIF",
-                view: "VER ↗",
+                view: "VER",
                 buy: "COMPRAR @",
                 sell: "VENDER @",
                 profit_est: "LUCRO",
-                at_stake: "Aposta"
+                at_stake: "Aposta",
+                arb_detected: "ARB DETECTADO"
             },
             zh: {
-                subtitle: "实时套利利润引擎",
-                status: "系统在线",
-                signals: "套利信号",
-                feed: "全球市场数据流",
-                waiting_signals: "执行扫描以分析利润潜力...",
-                waiting_feed: "等待数据注入...",
+                subtitle: "高科技套利监控系统",
+                status: "节点活跃",
+                signals: "顶级套利机会",
+                feed: "全球市场矩阵",
+                waiting_signals: "执行扫描以进行利润分析...",
+                waiting_feed: "等待数据流...",
                 btn: "执行市场扫描",
                 latency: "延迟",
-                markets: "市场",
+                markets: "事件",
                 diff: "差价",
-                view: "查看 ↗",
+                view: "查看",
                 buy: "买入 @",
                 sell: "卖出 @",
                 profit_est: "利润",
-                at_stake: "本金"
+                at_stake: "本金",
+                arb_detected: "检测到套利"
             }
         };
 
@@ -186,7 +194,7 @@
             const btn = document.getElementById('scanBtn');
             const ts = document.getElementById('timestamp');
             
-            term.innerHTML = `<div class="col-span-full animate-pulse text-emerald-400 text-[9px] uppercase">Syncing...</div>`;
+            term.innerHTML = `<div class="col-span-full animate-pulse text-emerald-400 text-[9px] uppercase text-center py-20">Syncing Matrix...</div>`;
             signals.innerHTML = `<div class="animate-pulse text-red-400 text-[9px] uppercase tracking-widest text-center py-10">Calculating...</div>`;
             btn.disabled = true;
 
@@ -195,33 +203,30 @@
                 const data = await response.json();
                 
                 document.getElementById('latency').innerText = data.t + ' ms';
-                document.getElementById('count').innerText = data.m.length;
+                document.getElementById('count').innerText = data.f.length;
                 ts.innerText = new Date(data.ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-                // Render Signals with Profit Calculator
+                // Render Arbitrage Signals (Left)
                 if (data.s && data.s.length > 0) {
                     signals.innerHTML = data.s.map(s => {
-                        const lowMarket = s.m1.v < s.m2.v ? s.m1 : s.m2;
-                        const highMarket = s.m1.v < s.m2.v ? s.m2 : s.m1;
                         const diffVal = parseFloat(s.d) / 100;
                         const calcProfit = (stake) => (stake * diffVal).toFixed(2);
-
                         return `
                             <div class="p-3 arb-card rounded text-[10px]">
                                 <div class="flex justify-between items-center mb-2">
                                     <span class="bg-red-600 text-white px-1.5 py-0.5 font-black rounded text-[8px]">${i18n[currentLang].diff}: ${s.d}%</span>
                                     <span class="text-white font-bold text-[8px] uppercase tracking-tighter italic">SCORE: ${s.score}</span>
                                 </div>
-                                <div class="text-white font-black mb-2 leading-tight border-b border-red-900/20 pb-1.5 truncate">${s.m1.n}</div>
+                                <div class="text-white font-black mb-2 leading-tight border-b border-red-900/20 pb-1.5">${s.name}</div>
                                 
                                 <div class="grid grid-cols-2 gap-2 mb-3">
-                                    <div class="bg-black/40 p-1.5 border border-red-900/20 cursor-pointer hover:border-red-500 transition-colors" onclick="window.open('${lowMarket.u}', '_blank')">
-                                        <div class="text-[7px] text-red-400 uppercase font-bold truncate">${i18n[currentLang].buy} ${lowMarket.p}</div>
-                                        <div class="text-white font-black text-[10px]">${lowMarket.v.toFixed(1)}% <span class="text-red-500">↗</span></div>
+                                    <div class="bg-black/40 p-1.5 border border-red-900/20 cursor-pointer hover:border-red-500" onclick="window.open('${s.m1.u}', '_blank')">
+                                        <div class="text-[7px] text-red-400 uppercase font-bold">${i18n[currentLang].buy} ${s.m1.p}</div>
+                                        <div class="text-white font-black text-[10px]">${s.m1.v.toFixed(1)}%</div>
                                     </div>
-                                    <div class="bg-black/40 p-1.5 border border-red-900/20 cursor-pointer hover:border-red-500 transition-colors" onclick="window.open('${highMarket.u}', '_blank')">
-                                        <div class="text-[7px] text-red-400 uppercase font-bold truncate">${i18n[currentLang].sell} ${highMarket.p}</div>
-                                        <div class="text-white font-black text-[10px]">${highMarket.v.toFixed(1)}% <span class="text-red-500">↗</span></div>
+                                    <div class="bg-black/40 p-1.5 border border-red-900/20 cursor-pointer hover:border-red-500" onclick="window.open('${s.m2.u}', '_blank')">
+                                        <div class="text-[7px] text-red-400 uppercase font-bold">${i18n[currentLang].sell} ${s.m2.p}</div>
+                                        <div class="text-white font-black text-[10px]">${s.m2.v.toFixed(1)}%</div>
                                     </div>
                                 </div>
 
@@ -246,21 +251,44 @@
                     signals.innerHTML = `<div class="p-4 border border-slate-900 text-slate-700 text-[9px] uppercase text-center italic tracking-widest">${i18n[currentLang].waiting_signals}</div>`;
                 }
 
-                // Render Market Feed
-                if (data.m && data.m.length > 0) {
-                    term.innerHTML = data.m.map(m => `
-                        <div class="p-3 bg-slate-900/20 market-card group" onclick="window.open('${m.u}', '_blank')">
-                            <div class="flex justify-between items-start mb-1.5">
-                                <span class="text-[8px] px-1.5 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-800/50 uppercase font-black">${m.p}</span>
-                                <span class="text-emerald-400 font-black text-xs italic">${m.v.toFixed(1)}%</span>
+                // Render Matrix Feed (Right)
+                if (data.f && data.f.length > 0) {
+                    term.innerHTML = data.f.map(group => {
+                        const hasArb = group.arb !== null;
+                        return `
+                            <div class="p-3 bg-slate-900/20 market-card group">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex gap-1 flex-wrap">
+                                        ${group.markets.map(m => `<span class="platform-tag ${m.p.toLowerCase().substring(0,4)}">${m.p}</span>`).join('')}
+                                    </div>
+                                    ${hasArb ? `<span class="arb-badge">${i18n[currentLang].arb_detected}</span>` : ''}
+                                </div>
+                                <div class="text-white text-[10px] font-bold mb-3 leading-tight border-b border-emerald-900/10 pb-2">${group.name}</div>
+                                
+                                <div class="space-y-1.5">
+                                    ${group.markets.map(m => `
+                                        <div class="flex justify-between items-center text-[9px] bg-black/30 p-1.5 rounded border border-emerald-900/5 hover:border-emerald-500 cursor-pointer" onclick="window.open('${m.u}', '_blank')">
+                                            <span class="text-slate-400 uppercase font-bold">${m.p}</span>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-white font-black">${m.v.toFixed(1)}%</span>
+                                                <span class="text-emerald-800 text-[7px] italic">Vol: ${Math.round(m.vol).toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+
+                                ${hasArb ? `
+                                    <div class="mt-3 p-2 bg-red-950/20 border border-red-900/30 rounded flex justify-between items-center">
+                                        <span class="text-[8px] text-red-400 font-black uppercase tracking-tighter">${i18n[currentLang].diff}: ${group.arb.diff}%</span>
+                                        <div class="flex gap-2">
+                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="text-[7px] bg-red-900 text-white px-1.5 py-0.5 rounded font-bold uppercase">BUY ${group.arb.buy.p}</button>
+                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="text-[7px] bg-slate-800 text-white px-1.5 py-0.5 rounded font-bold uppercase">SELL ${group.arb.sell.p}</button>
+                                        </div>
+                                    </div>
+                                ` : ''}
                             </div>
-                            <div class="text-white text-[10px] font-bold mb-2 leading-tight h-8 overflow-hidden line-clamp-2">${m.n}</div>
-                            <div class="flex justify-between items-center mt-2 pt-2 border-t border-emerald-900/10">
-                                <span class="text-[7px] text-slate-600 uppercase font-bold italic tracking-tighter">VOL: ${Math.round(m.vol).toLocaleString()}</span>
-                                <span class="text-[8px] text-emerald-600 font-black group-hover:text-emerald-400 uppercase tracking-tighter">${i18n[currentLang].view}</span>
-                            </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
             } catch (err) {
                 ts.innerText = 'ERROR';
