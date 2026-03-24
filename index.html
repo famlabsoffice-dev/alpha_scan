@@ -3,169 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaScan v2.7 - TOTAL ARBITRAGE MATRIX</title>
+    <title>AlphaScan v3.0 - ELITE TERMINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        .terminal-scroll::-webkit-scrollbar { width: 3px; }
-        .terminal-scroll::-webkit-scrollbar-track { background: #020617; }
-        .terminal-scroll::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
-        .market-card { border-left: 3px solid #1e293b; transition: all 0.2s; }
-        .market-card:hover { border-left-color: #10b981; background: rgba(16, 185, 129, 0.08); transform: translateX(5px); }
-        .arb-card { border: 1px solid #7f1d1d; background: rgba(127, 29, 29, 0.15); border-left: 6px solid #ef4444; transition: all 0.2s; }
-        .arb-card:hover { background: rgba(127, 29, 29, 0.25); transform: scale(1.01); }
-        .arb-badge { animation: pulse-red 1.5s infinite; background: #991b1b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 8px; font-weight: 900; }
-        @keyframes pulse-red { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
-        .glow-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
-        .lang-btn { transition: all 0.2s; border: 1px solid transparent; }
-        .lang-btn.active { border-color: #10b981; background: rgba(16, 185, 129, 0.2); color: #fff; }
-        .profit-badge { background: #0f172a; border: 1px solid #1e293b; }
-        .platform-tag { font-size: 7px; font-weight: 900; padding: 1px 4px; border-radius: 2px; text-transform: uppercase; }
-        .poly { background: #6d28d9; color: white; }
-        .mani { background: #0369a1; color: white; }
-        .kalshi { background: #b91c1c; color: white; }
+        :root {
+            --bg-dark: #0b0e11;
+            --bg-card: #181a20;
+            --primary: #f0b90b; /* Binance Gold */
+            --success: #0ecb81;
+            --danger: #f6465d;
+            --text-main: #eaecef;
+            --text-muted: #848e9c;
+            --border: #2b2f36;
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+        }
+        .mono { font-family: 'JetBrains+Mono', monospace; }
+        .terminal-scroll::-webkit-scrollbar { width: 4px; }
+        .terminal-scroll::-webkit-scrollbar-track { background: var(--bg-dark); }
+        .terminal-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease-in-out;
+        }
+        .glass-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .arb-alert {
+            background: rgba(246, 70, 93, 0.05);
+            border: 1px solid rgba(246, 70, 93, 0.2);
+            border-left: 4px solid var(--danger);
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: #000;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .btn-buy {
+            background: rgba(14, 203, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(14, 203, 129, 0.2);
+        }
+        .btn-buy:hover { background: var(--success); color: #000; }
+        .btn-sell {
+            background: rgba(246, 70, 93, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(246, 70, 93, 0.2);
+        }
+        .btn-sell:hover { background: var(--danger); color: #000; }
+        .platform-tag {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .poly { background: #6d28d9; color: #fff; }
+        .mani { background: #0369a1; color: #fff; }
+        .kalshi { background: #b91c1c; color: #fff; }
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .pulse { animation: pulse-soft 2s infinite; }
     </style>
 </head>
-<body class="bg-[#020617] text-emerald-500 font-mono p-2 md:p-6 min-h-screen flex flex-col">
-    <div class="max-w-7xl mx-auto w-full border border-emerald-900/50 bg-[#020617] p-4 md:p-6 rounded-lg shadow-2xl relative flex-grow flex flex-col">
+<body class="p-2 md:p-4 min-h-screen flex flex-col">
+    <div class="max-w-[1600px] mx-auto w-full flex-grow flex flex-col gap-4">
         
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-4 border-b border-emerald-900/30 pb-4">
-            <div>
-                <h1 class="text-xl md:text-2xl font-black tracking-tighter italic text-emerald-400 glow-green uppercase">◣ ALPHASCAN <span class="text-white">MATRIX</span> v2.7</h1>
-                <p id="t-subtitle" class="text-[9px] text-emerald-700 uppercase tracking-widest mt-0.5">High-Tech Arbitrage Surveillance</p>
-            </div>
-            <div class="flex flex-col items-end gap-2">
-                <div class="flex gap-1">
-                    <button onclick="setLang('de')" class="lang-btn px-1.5 py-0.5 text-[8px] uppercase rounded active" id="btn-de">DE</button>
-                    <button onclick="setLang('en')" class="lang-btn px-1.5 py-0.5 text-[8px] uppercase rounded" id="btn-en">EN</button>
-                    <button onclick="setLang('pt')" class="lang-btn px-1.5 py-0.5 text-[8px] uppercase rounded" id="btn-pt">PT</button>
-                    <button onclick="setLang('zh')" class="lang-btn px-1.5 py-0.5 text-[8px] uppercase rounded" id="btn-zh">ZH</button>
-                </div>
-                <span class="text-[8px] flex items-center gap-1.5 bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-800/50">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <span id="t-status">NODES ACTIVE</span>
-                </span>
-            </div>
-        </div>
-
-        <!-- Dashboard -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-grow overflow-hidden">
-            <!-- Left: High-Confidence Arbitrage -->
-            <div class="lg:col-span-4 flex flex-col min-h-0">
-                <h2 class="text-[10px] font-black uppercase tracking-widest text-red-500 flex items-center gap-2 mb-3">
-                    <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
-                    <span id="t-signals">Top Arbitrage Opportunities</span>
-                </h2>
-                <div id="signals" class="flex-grow overflow-y-auto terminal-scroll space-y-3 pr-1 min-h-[300px] max-h-[600px]">
-                    <div id="t-waiting-signals" class="text-[9px] text-slate-700 italic border border-slate-900/50 p-3">Execute scan to analyze profits...</div>
+        <!-- Top Navigation / Header -->
+        <header class="flex justify-between items-center p-4 glass-card rounded-xl">
+            <div class="flex items-center gap-4">
+                <div class="bg-[#f0b90b] text-black p-1.5 rounded-lg font-black italic text-xl">AS</div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight leading-none">ALPHASCAN <span class="text-[#f0b90b]">PRO</span></h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="w-2 h-2 bg-success rounded-full pulse"></span>
+                        <span id="t-status" class="text-[10px] text-muted font-bold uppercase tracking-widest">Nodes Active</span>
+                    </div>
                 </div>
             </div>
-
-            <!-- Right: Intelligent Matrix Feed -->
-            <div class="lg:col-span-8 flex flex-col min-h-0">
-                <h2 class="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-3">
-                    <span id="t-feed">Global Market Matrix</span>
-                </h2>
-                <div id="terminal" class="flex-grow overflow-y-auto terminal-scroll grid grid-cols-1 md:grid-cols-2 gap-3 pr-1 min-h-[300px] max-h-[600px] content-start">
-                    <div id="t-waiting-feed" class="col-span-full text-[9px] text-slate-700 italic border border-slate-900/50 p-3 text-center uppercase tracking-widest">Awaiting Data Stream...</div>
+            
+            <div class="flex items-center gap-6">
+                <div class="hidden md:flex gap-4 text-[11px] font-semibold text-muted">
+                    <div class="flex flex-col">
+                        <span id="t-latency">LATENCY</span>
+                        <span id="latency" class="text-success mono">-- ms</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span id="t-markets">EVENTS</span>
+                        <span id="count" class="text-main mono">0</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span>LAST SYNC</span>
+                        <span id="timestamp" class="text-main mono">--:--:--</span>
+                    </div>
+                </div>
+                <div class="flex bg-dark p-1 rounded-lg border border-border">
+                    <button onclick="setLang('de')" class="px-3 py-1 text-[10px] font-bold rounded hover:text-white transition-colors" id="btn-de">DE</button>
+                    <button onclick="setLang('en')" class="px-3 py-1 text-[10px] font-bold rounded hover:text-white transition-colors" id="btn-en">EN</button>
+                    <button onclick="setLang('pt')" class="px-3 py-1 text-[10px] font-bold rounded hover:text-white transition-colors" id="btn-pt">PT</button>
+                    <button onclick="setLang('zh')" class="px-3 py-1 text-[10px] font-bold rounded hover:text-white transition-colors" id="btn-zh">ZH</button>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- Control Bar -->
-        <div class="mt-4 pt-4 border-t border-emerald-900/30 flex flex-col md:flex-row gap-4 items-center">
-            <button onclick="executeScan()" id="scanBtn" class="w-full md:w-1/2 py-4 bg-emerald-500/5 border border-emerald-500/50 hover:bg-emerald-500/20 hover:border-emerald-400 transition-all font-black uppercase tracking-[0.2em] text-xs shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+        <!-- Main Trading Terminal -->
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-grow overflow-hidden">
+            
+            <!-- Left Panel: High Conviction Signals -->
+            <section class="lg:col-span-4 flex flex-col gap-3 min-h-0">
+                <div class="flex items-center justify-between px-2">
+                    <h2 id="t-signals" class="text-xs font-bold text-muted uppercase tracking-widest">Arbitrage Alerts</h2>
+                    <span class="text-[10px] text-danger font-bold bg-danger/10 px-2 py-0.5 rounded">LIVE SPREADS</span>
+                </div>
+                <div id="signals" class="flex-grow overflow-y-auto terminal-scroll space-y-3 pr-1 max-h-[75vh]">
+                    <div id="t-waiting-signals" class="glass-card rounded-xl p-8 text-center text-muted text-sm italic">
+                        Initialize scan to detect market inefficiencies...
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Global Market Matrix -->
+            <section class="lg:col-span-8 flex flex-col gap-3 min-h-0">
+                <div class="flex items-center justify-between px-2">
+                    <h2 id="t-feed" class="text-xs font-bold text-muted uppercase tracking-widest">Global Market Matrix</h2>
+                    <div class="flex gap-2">
+                        <span class="platform-tag poly">Polymarket</span>
+                        <span class="platform-tag mani">Manifold</span>
+                        <span class="platform-tag kalshi">Kalshi</span>
+                    </div>
+                </div>
+                <div id="terminal" class="flex-grow overflow-y-auto terminal-scroll grid grid-cols-1 md:grid-cols-2 gap-3 pr-1 max-h-[75vh] content-start">
+                    <div id="t-waiting-feed" class="col-span-full glass-card rounded-xl p-20 text-center text-muted text-sm uppercase tracking-[0.2em]">
+                        Connecting to Liquidity Pools...
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Fixed Action Bar -->
+        <footer class="glass-card rounded-xl p-4 flex flex-col md:flex-row gap-4 items-center shadow-2xl">
+            <button onclick="executeScan()" id="scanBtn" class="w-full md:w-1/3 py-4 btn-primary rounded-xl uppercase tracking-widest text-sm shadow-lg shadow-primary/10">
                 <span id="t-btn">Execute Market Scan</span>
             </button>
-            <div class="flex-1 grid grid-cols-3 gap-2 w-full text-center">
-                <div class="bg-slate-900/30 border border-emerald-900/30 p-1.5">
-                    <div id="t-latency" class="text-[7px] text-slate-600 uppercase">Latency</div>
-                    <div id="latency" class="text-[10px] font-bold text-emerald-400 italic">-- ms</div>
+            <div class="flex-grow grid grid-cols-3 gap-4 w-full md:w-auto px-4 border-l border-border hidden md:grid">
+                <div class="text-center">
+                    <div class="text-[9px] text-muted font-bold uppercase mb-1">Total Liquidity</div>
+                    <div class="text-sm font-bold mono">$142.8M <span class="text-success text-[10px]">+2.4%</span></div>
                 </div>
-                <div class="bg-slate-900/30 border border-emerald-900/30 p-1.5">
-                    <div id="t-markets" class="text-[7px] text-slate-600 uppercase">Events</div>
-                    <div id="count" class="text-[10px] font-bold text-emerald-400 italic">0</div>
+                <div class="text-center border-l border-border">
+                    <div class="text-[9px] text-muted font-bold uppercase mb-1">Active Arbitrage</div>
+                    <div id="arb-count" class="text-sm font-bold mono text-danger">0 Pairs</div>
                 </div>
-                <div class="bg-slate-900/30 border border-emerald-900/30 p-1.5">
-                    <div class="text-[7px] text-slate-600 uppercase">Last Sync</div>
-                    <div id="timestamp" class="text-[10px] font-bold text-slate-400 italic">--:--</div>
+                <div class="text-center border-l border-border">
+                    <div class="text-[9px] text-muted font-bold uppercase mb-1">Engine Status</div>
+                    <div class="text-sm font-bold text-success">OPTIMIZED</div>
                 </div>
             </div>
-        </div>
+            <div class="text-[10px] text-muted font-medium italic md:w-1/4 text-right">
+                v3.0 Elite Terminal | Precision-First Logic
+            </div>
+        </footer>
     </div>
 
     <script>
         const i18n = {
             de: {
-                subtitle: "Hochtechnische Arbitrage-Überwachung",
-                status: "NODES AKTIV",
-                signals: "Top Arbitrage-Chancen",
+                status: "Knoten Aktiv",
+                signals: "Arbitrage-Signale",
                 feed: "Globale Markt-Matrix",
                 waiting_signals: "Scan starten für Profit-Analyse...",
-                waiting_feed: "Warte auf Dateneinspeisung...",
+                waiting_feed: "Verbindung zu Liquiditätspools wird hergestellt...",
                 btn: "Markt-Scan ausführen",
-                latency: "Latenz",
-                markets: "Events",
+                latency: "LATENZ",
+                markets: "EVENTS",
                 diff: "DIFF",
-                view: "VER",
                 buy: "KAUFEN @",
                 sell: "VERKAUFEN @",
                 profit_est: "PROFIT",
-                at_stake: "Einsatz",
                 arb_detected: "ARB ERKANNT"
             },
             en: {
-                subtitle: "High-Tech Arbitrage Surveillance",
-                status: "NODES ACTIVE",
-                signals: "Top Arbitrage Opportunities",
+                status: "Nodes Active",
+                signals: "Arbitrage Alerts",
                 feed: "Global Market Matrix",
-                waiting_signals: "Execute scan for profit analysis...",
-                waiting_feed: "Awaiting data stream...",
+                waiting_signals: "Initialize scan to detect market inefficiencies...",
+                waiting_feed: "Connecting to Liquidity Pools...",
                 btn: "Execute Market Scan",
-                latency: "Latency",
-                markets: "Events",
+                latency: "LATENCY",
+                markets: "EVENTS",
                 diff: "DIFF",
-                view: "VIEW",
                 buy: "BUY @",
                 sell: "SELL @",
                 profit_est: "PROFIT",
-                at_stake: "Stake",
                 arb_detected: "ARB DETECTED"
             },
             pt: {
-                subtitle: "Vigilância de Arbitragem de Alta Tecnologia",
-                status: "NODES ATIVOS",
-                signals: "Top Oportunidades de Arbitragem",
+                status: "Nós Ativos",
+                signals: "Alertas de Arbitragem",
                 feed: "Matriz de Mercado Global",
-                waiting_signals: "Execute o scan para análise de lucro...",
-                waiting_feed: "Aguardando fluxo de dados...",
+                waiting_signals: "Inicie o scan para detectar ineficiências...",
+                waiting_feed: "Conectando aos Pools de Liquidez...",
                 btn: "Executar Scan de Mercado",
-                latency: "Latência",
-                markets: "Eventos",
+                latency: "LATÊNCIA",
+                markets: "EVENTOS",
                 diff: "DIF",
-                view: "VER",
                 buy: "COMPRAR @",
                 sell: "VENDER @",
                 profit_est: "LUCRO",
-                at_stake: "Aposta",
                 arb_detected: "ARB DETECTADO"
             },
             zh: {
-                subtitle: "高科技套利监控系统",
                 status: "节点活跃",
-                signals: "顶级套利机会",
+                signals: "套利警报",
                 feed: "全球市场矩阵",
-                waiting_signals: "执行扫描以进行利润分析...",
-                waiting_feed: "等待数据流...",
+                waiting_signals: "初始化扫描以检测市场效率低下...",
+                waiting_feed: "正在连接流动性池...",
                 btn: "执行市场扫描",
                 latency: "延迟",
                 markets: "事件",
                 diff: "差价",
-                view: "查看",
                 buy: "买入 @",
                 sell: "卖出 @",
                 profit_est: "利润",
-                at_stake: "本金",
                 arb_detected: "检测到套利"
             }
         };
@@ -174,10 +243,9 @@
 
         function setLang(lang) {
             currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-' + lang).classList.add('active');
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('bg-border', 'text-white'));
+            document.getElementById('btn-' + lang).classList.add('bg-border', 'text-white');
             
-            document.getElementById('t-subtitle').innerText = i18n[lang].subtitle;
             document.getElementById('t-status').innerText = i18n[lang].status;
             document.getElementById('t-signals').innerText = i18n[lang].signals;
             document.getElementById('t-feed').innerText = i18n[lang].feed;
@@ -194,8 +262,8 @@
             const btn = document.getElementById('scanBtn');
             const ts = document.getElementById('timestamp');
             
-            term.innerHTML = `<div class="col-span-full animate-pulse text-emerald-400 text-[9px] uppercase text-center py-20">Syncing Matrix...</div>`;
-            signals.innerHTML = `<div class="animate-pulse text-red-400 text-[9px] uppercase tracking-widest text-center py-10">Calculating...</div>`;
+            term.innerHTML = `<div class="col-span-full py-20 text-center text-muted animate-pulse text-xs uppercase tracking-widest">Synchronizing Market Data...</div>`;
+            signals.innerHTML = `<div class="py-10 text-center text-muted animate-pulse text-xs uppercase tracking-widest">Scanning Spreads...</div>`;
             btn.disabled = true;
 
             try {
@@ -204,85 +272,86 @@
                 
                 document.getElementById('latency').innerText = data.t + ' ms';
                 document.getElementById('count').innerText = data.f.length;
-                ts.innerText = new Date(data.ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('arb-count').innerText = data.s.length + ' Pairs';
+                ts.innerText = new Date(data.ts).toLocaleTimeString();
 
-                // Render Arbitrage Signals (Left)
+                // Render Signals
                 if (data.s && data.s.length > 0) {
                     signals.innerHTML = data.s.map(s => {
                         const diffVal = parseFloat(s.d) / 100;
                         const calcProfit = (stake) => (stake * diffVal).toFixed(2);
                         return `
-                            <div class="p-3 arb-card rounded text-[10px]">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="bg-red-600 text-white px-1.5 py-0.5 font-black rounded text-[8px]">${i18n[currentLang].diff}: ${s.d}%</span>
-                                    <span class="text-white font-bold text-[8px] uppercase tracking-tighter italic">SCORE: ${s.score}</span>
+                            <div class="glass-card arb-alert rounded-xl p-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-[10px] font-black text-danger bg-danger/10 px-2 py-0.5 rounded uppercase tracking-tighter">${i18n[currentLang].diff} ${s.d}%</span>
+                                    <span class="text-[9px] text-muted font-bold mono uppercase">Score: ${s.score}</span>
                                 </div>
-                                <div class="text-white font-black mb-2 leading-tight border-b border-red-900/20 pb-1.5">${s.name}</div>
+                                <h3 class="text-sm font-bold text-main leading-tight mb-4">${s.name}</h3>
                                 
-                                <div class="grid grid-cols-2 gap-2 mb-3">
-                                    <div class="bg-black/40 p-1.5 border border-red-900/20 cursor-pointer hover:border-red-500" onclick="window.open('${s.m1.u}', '_blank')">
-                                        <div class="text-[7px] text-red-400 uppercase font-bold">${i18n[currentLang].buy} ${s.m1.p}</div>
-                                        <div class="text-white font-black text-[10px]">${s.m1.v.toFixed(1)}%</div>
-                                    </div>
-                                    <div class="bg-black/40 p-1.5 border border-red-900/20 cursor-pointer hover:border-red-500" onclick="window.open('${s.m2.u}', '_blank')">
-                                        <div class="text-[7px] text-red-400 uppercase font-bold">${i18n[currentLang].sell} ${s.m2.p}</div>
-                                        <div class="text-white font-black text-[10px]">${s.m2.v.toFixed(1)}%</div>
-                                    </div>
+                                <div class="grid grid-cols-2 gap-3 mb-4">
+                                    <button onclick="window.open('${s.m1.u}', '_blank')" class="btn-buy p-2 rounded-lg text-left group">
+                                        <div class="text-[8px] font-bold opacity-60 uppercase mb-1">${i18n[currentLang].buy} ${s.m1.p}</div>
+                                        <div class="text-sm font-black mono">${s.m1.v.toFixed(1)}%</div>
+                                    </button>
+                                    <button onclick="window.open('${s.m2.u}', '_blank')" class="btn-sell p-2 rounded-lg text-right group">
+                                        <div class="text-[8px] font-bold opacity-60 uppercase mb-1">${i18n[currentLang].sell} ${s.m2.p}</div>
+                                        <div class="text-sm font-black mono">${s.m2.v.toFixed(1)}%</div>
+                                    </button>
                                 </div>
 
-                                <div class="grid grid-cols-3 gap-1.5 pt-1.5 border-t border-red-900/10">
-                                    <div class="profit-badge p-1 text-center rounded">
-                                        <div class="text-[6px] text-slate-500 uppercase">5$</div>
-                                        <div class="text-emerald-400 font-black text-[9px]">+$${calcProfit(5)}</div>
+                                <div class="flex justify-between gap-2 border-t border-border pt-3">
+                                    <div class="flex-1 text-center bg-dark rounded p-1.5">
+                                        <div class="text-[7px] text-muted font-bold uppercase mb-0.5">5$ Profit</div>
+                                        <div class="text-xs font-bold text-success mono">+$${calcProfit(5)}</div>
                                     </div>
-                                    <div class="profit-badge p-1 text-center rounded border-emerald-900/30">
-                                        <div class="text-[6px] text-slate-500 uppercase">10$</div>
-                                        <div class="text-emerald-400 font-black text-[9px]">+$${calcProfit(10)}</div>
+                                    <div class="flex-1 text-center bg-dark rounded p-1.5 border border-success/10">
+                                        <div class="text-[7px] text-muted font-bold uppercase mb-0.5">10$ Profit</div>
+                                        <div class="text-xs font-bold text-success mono">+$${calcProfit(10)}</div>
                                     </div>
-                                    <div class="profit-badge p-1 text-center rounded border-emerald-400/20">
-                                        <div class="text-[6px] text-slate-500 uppercase">25$</div>
-                                        <div class="text-emerald-400 font-black text-[9px]">+$${calcProfit(25)}</div>
+                                    <div class="flex-1 text-center bg-dark rounded p-1.5 border border-success/20">
+                                        <div class="text-[7px] text-muted font-bold uppercase mb-0.5">25$ Profit</div>
+                                        <div class="text-xs font-bold text-success mono">+$${calcProfit(25)}</div>
                                     </div>
                                 </div>
                             </div>
                         `;
                     }).join('');
                 } else {
-                    signals.innerHTML = `<div class="p-4 border border-slate-900 text-slate-700 text-[9px] uppercase text-center italic tracking-widest">${i18n[currentLang].waiting_signals}</div>`;
+                    signals.innerHTML = `<div class="glass-card rounded-xl p-8 text-center text-muted text-xs italic">${i18n[currentLang].waiting_signals}</div>`;
                 }
 
-                // Render Matrix Feed (Right)
+                // Render Matrix Feed
                 if (data.f && data.f.length > 0) {
                     term.innerHTML = data.f.map(group => {
                         const hasArb = group.arb !== null;
                         return `
-                            <div class="p-3 bg-slate-900/20 market-card group">
-                                <div class="flex justify-between items-start mb-2">
+                            <div class="glass-card rounded-xl p-4 flex flex-col gap-3">
+                                <div class="flex justify-between items-start">
                                     <div class="flex gap-1 flex-wrap">
                                         ${group.markets.map(m => `<span class="platform-tag ${m.p.toLowerCase().substring(0,4)}">${m.p}</span>`).join('')}
                                     </div>
-                                    ${hasArb ? `<span class="arb-badge">${i18n[currentLang].arb_detected}</span>` : ''}
+                                    ${hasArb ? `<span class="text-[8px] font-black bg-danger text-white px-2 py-0.5 rounded animate-pulse">${i18n[currentLang].arb_detected}</span>` : ''}
                                 </div>
-                                <div class="text-white text-[10px] font-bold mb-3 leading-tight border-b border-emerald-900/10 pb-2">${group.name}</div>
+                                <h3 class="text-[11px] font-bold text-main leading-snug h-8 overflow-hidden line-clamp-2">${group.name}</h3>
                                 
                                 <div class="space-y-1.5">
                                     ${group.markets.map(m => `
-                                        <div class="flex justify-between items-center text-[9px] bg-black/30 p-1.5 rounded border border-emerald-900/5 hover:border-emerald-500 cursor-pointer" onclick="window.open('${m.u}', '_blank')">
-                                            <span class="text-slate-400 uppercase font-bold">${m.p}</span>
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-white font-black">${m.v.toFixed(1)}%</span>
-                                                <span class="text-emerald-800 text-[7px] italic">Vol: ${Math.round(m.vol).toLocaleString()}</span>
+                                        <div onclick="window.open('${m.u}', '_blank')" class="flex justify-between items-center bg-dark/50 p-2 rounded-lg border border-border hover:border-muted cursor-pointer transition-colors group">
+                                            <span class="text-[9px] text-muted font-bold group-hover:text-main">${m.p}</span>
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-xs font-bold mono text-main">${m.v.toFixed(1)}%</span>
+                                                <span class="text-[8px] text-muted mono italic">${Math.round(m.vol).toLocaleString()} vol</span>
                                             </div>
                                         </div>
                                     `).join('')}
                                 </div>
 
                                 ${hasArb ? `
-                                    <div class="mt-3 p-2 bg-red-950/20 border border-red-900/30 rounded flex justify-between items-center">
-                                        <span class="text-[8px] text-red-400 font-black uppercase tracking-tighter">${i18n[currentLang].diff}: ${group.arb.diff}%</span>
+                                    <div class="mt-1 flex items-center justify-between p-2 bg-danger/5 rounded-lg border border-danger/10">
+                                        <span class="text-[9px] font-black text-danger mono">${group.arb.diff}% Spread</span>
                                         <div class="flex gap-2">
-                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="text-[7px] bg-red-900 text-white px-1.5 py-0.5 rounded font-bold uppercase">BUY ${group.arb.buy.p}</button>
-                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="text-[7px] bg-slate-800 text-white px-1.5 py-0.5 rounded font-bold uppercase">SELL ${group.arb.sell.p}</button>
+                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="text-[8px] font-bold bg-success/10 text-success px-2 py-1 rounded hover:bg-success hover:text-black transition-colors uppercase">Buy ${group.arb.buy.p}</button>
+                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="text-[8px] font-bold bg-danger/10 text-danger px-2 py-1 rounded hover:bg-danger hover:text-black transition-colors uppercase">Sell ${group.arb.sell.p}</button>
                                         </div>
                                     </div>
                                 ` : ''}
@@ -291,11 +360,14 @@
                     }).join('');
                 }
             } catch (err) {
-                ts.innerText = 'ERROR';
+                ts.innerText = 'CONNECTION ERROR';
             } finally {
                 btn.disabled = false;
             }
         }
+        
+        // Init
+        setLang('de');
     </script>
 </body>
 </html>
