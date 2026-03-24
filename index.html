@@ -2,53 +2,24 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaScan Terminal | v1.1</title>
+    <title>AlphaScan Terminal | v1.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #020617; color: #00ff88; font-family: 'JetBrains Mono', monospace; }
-        .terminal-box { border: 1px solid rgba(0, 255, 136, 0.2); background: rgba(15, 23, 42, 0.8); }
-        .live-dot { height: 8px; width: 8px; background: #00ff88; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #00ff88; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #00ff88; }
+        body { background: #020617; color: #00ff88; font-family: monospace; }
+        .terminal { border: 1px solid #00ff8833; background: #0f172a; padding: 20px; border-radius: 8px; max-width: 600px; margin: 40px auto; }
     </style>
 </head>
-<body class="p-4 md:p-10 flex flex-col items-center">
-
-    <div class="w-full max-w-4xl terminal-box rounded-xl p-6 md:p-8 shadow-2xl">
-        <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-6">
-            <h1 class="text-xl font-bold tracking-widest text-white">◣ ALPHASCAN <span class="text-emerald-500 font-black">v1.1</span></h1>
-            <div class="text-right">
-                <span class="live-dot mr-2"></span> <span class="text-[10px] uppercase font-bold text-emerald-400">Scanner Active</span>
-            </div>
+<body>
+    <div class="terminal">
+        <h1 class="text-white border-b border-slate-800 pb-2">◣ ALPHASCAN v1.2</h1>
+        <div class="flex justify-between my-4 text-[10px] text-slate-500">
+            <span>Poly: <span id="stat-poly">--</span></span>
+            <span>Kalshi: <span id="stat-kals">--</span></span>
         </div>
-
-        <div class="grid grid-cols-3 gap-4 mb-8">
-            <div class="bg-slate-900/50 p-4 border border-slate-800 rounded text-center">
-                <div class="text-slate-500 text-[9px] uppercase mb-1 tracking-widest">Polymarket</div>
-                <div id="stat-poly" class="text-xl font-bold text-white">--</div>
-            </div>
-            <div class="bg-slate-900/50 p-4 border border-slate-800 rounded text-center">
-                <div class="text-slate-500 text-[9px] uppercase mb-1 tracking-widest">Kalshi</div>
-                <div id="stat-kals" class="text-xl font-bold text-white">--</div>
-            </div>
-            <div class="bg-slate-900/50 p-4 border border-slate-800 rounded text-center">
-                <div class="text-slate-500 text-[9px] uppercase mb-1 tracking-widest">Manifold</div>
-                <div id="stat-mani" class="text-xl font-bold text-white">--</div>
-            </div>
+        <div id="display" class="bg-black p-4 h-48 overflow-y-auto border border-slate-800 mb-4 text-[10px] text-emerald-400">
+            System bereit...
         </div>
-
-        <div id="display" class="bg-black/60 border border-slate-800 rounded-lg p-4 h-[400px] overflow-y-auto mb-8 shadow-inner">
-            <div class="text-slate-600 italic text-xs">Awaiting operator command... [Type: SCAN]</div>
-        </div>
-
-        <button onclick="runScan()" id="btn" class="w-full py-4 bg-emerald-500/5 border border-emerald-500/30 text-emerald-500 font-bold uppercase tracking-[0.3em] hover:bg-emerald-500/20 hover:border-emerald-500 transition-all duration-300 rounded">
-            Execute Full Market Scan
-        </button>
+        <button onclick="runScan()" id="btn" class="w-full py-2 bg-emerald-600/20 border border-emerald-500 text-emerald-500 font-bold uppercase hover:bg-emerald-500 hover:text-black transition-all">Scan starten</button>
     </div>
 
     <script>
@@ -56,57 +27,28 @@
 
         async function runScan() {
             const display = document.getElementById('display');
-            const btn = document.getElementById('btn');
-            
-            btn.disabled = true;
-            btn.innerText = "CONNECTING TO WORKER...";
-            display.innerHTML = '<div class="flex items-center justify-center h-full text-emerald-500 animate-pulse text-xs tracking-widest">INITIATING DEEP SCAN...</div>';
-
+            display.innerHTML = "LADE DATEN (LIMITIERTER SPEICHER)...";
             try {
                 const response = await fetch(WORKER_URL);
-                if(!response.ok) throw new Error("HTTP-Status " + response.status);
-                
                 const data = await response.json();
+                
+                if (data.error) {
+                    display.innerHTML = `<span class="text-red-500">FEHLER: ${data.error}</span>`;
+                    return;
+                }
+
                 const res = data.opportunities;
+                document.getElementById('stat-poly').innerText = res.poly_count;
+                document.getElementById('stat-kals').innerText = res.kals_count;
 
-                document.getElementById('stat-poly').innerText = res.poly_count || 0;
-                document.getElementById('stat-kals').innerText = res.kals_count || 0;
-                document.getElementById('stat-mani').innerText = res.mani_count || 0;
-
-                renderMatches(res.matches);
-
+                if (res.matches.length === 0) {
+                    display.innerHTML = "KEINE OPPORTUNITIES IM AKTUELLEN BUFFER.";
+                } else {
+                    display.innerHTML = res.matches.map(m => `<div>[!] ${m.event} (${m.potential})</div>`).join('');
+                }
             } catch (err) {
-                display.innerHTML = `<div class="text-red-500 text-xs p-4 border border-red-900/50 uppercase font-bold text-center mt-20">Link Failure: ${err.message}<br><span class="text-[10px] opacity-50 mt-2 block italic text-white">Check if Worker URL is correct and deployed.</span></div>`;
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Execute Full Market Scan";
+                display.innerHTML = `<span class="text-red-500">NETZWERK-FEHLER: ${err.message}</span>`;
             }
-        }
-
-        function renderMatches(matches) {
-            const display = document.getElementById('display');
-            if (!matches || matches.length === 0) {
-                display.innerHTML = '<div class="flex items-center justify-center h-full opacity-40 text-xs tracking-widest uppercase">No Arbitrage Found</div>';
-                return;
-            }
-
-            let html = `<div class="text-[10px] text-emerald-500/50 uppercase font-bold mb-4 border-b border-emerald-500/10 pb-2">SCAN RESULTS: ${matches.length} OPPORTUNITIES</div>`;
-
-            matches.forEach(match => {
-                html += `
-                    <div class="bg-slate-900/40 border border-slate-800 p-4 rounded mb-3">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-white text-xs font-bold leading-tight">${match.event}</h3>
-                            <span class="text-emerald-400 text-[8px] border border-emerald-500/20 px-1 font-black">MATCH</span>
-                        </div>
-                        <div class="flex gap-4 mt-3 text-[9px]">
-                            <div><span class="text-slate-600 block text-[7px] uppercase mb-1">Bridge</span><span class="text-blue-400 font-bold">${match.platforms.join(' ↔ ')}</span></div>
-                            <div><span class="text-slate-600 block text-[7px] uppercase mb-1">Status</span><span class="text-emerald-400 font-bold animate-pulse">${match.potential}</span></div>
-                            <div class="ml-auto text-right"><span class="text-slate-600 block text-[7px] uppercase mb-1">Price Trace</span><span class="text-slate-400 italic text-[8px]">${match.details}</span></div>
-                        </div>
-                    </div>`;
-            });
-            display.innerHTML = html;
         }
     </script>
 </body>
