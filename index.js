@@ -15,13 +15,13 @@ export default {
       });
     }
 
-    // --- PARALLEL FETCHING (DEVIL SPEED) ---
     const startTime = Date.now();
     
+    // Parallel Fetching (Optimized)
     const [polyRes, manifoldRes, kalshiRes] = await Promise.allSettled([
-      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=30&order=volume&dir=desc'),
-      fetch('https://api.manifold.markets/v0/markets?limit=30&sort=updated-time'),
-      fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=30&status=open')
+      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=50&order=volume&dir=desc'),
+      fetch('https://api.manifold.markets/v0/markets?limit=50&sort=updated-time'),
+      fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=50&status=open')
     ]);
 
     let allMarkets = [];
@@ -34,11 +34,12 @@ export default {
           if (m.outcomePrices) {
             const prices = JSON.parse(m.outcomePrices);
             allMarkets.push({
-              p: 'Poly',
+              p: 'Polymarket',
               n: m.question.trim(),
               v: parseFloat(prices[0]) * 100,
               u: `https://polymarket.com/event/${m.slug}`,
-              vol: m.volume || 0
+              vol: m.volume || 0,
+              cat: m.category || 'General'
             });
           }
         });
@@ -52,11 +53,12 @@ export default {
         data.forEach(m => {
           if (m.probability !== undefined) {
             allMarkets.push({
-              p: 'Mani',
+              p: 'Manifold',
               n: m.question.trim(),
               v: m.probability * 100,
               u: m.url,
-              vol: m.volume || 0
+              vol: m.volume || 0,
+              cat: 'Social'
             });
           }
         });
@@ -75,7 +77,8 @@ export default {
                 n: m.title.trim(),
                 v: parseFloat(m.yes_bid),
                 u: `https://kalshi.com/markets/${m.ticker}`,
-                vol: m.volume || 0
+                vol: m.volume || 0,
+                cat: 'Regulated'
               });
             }
           });
@@ -83,46 +86,38 @@ export default {
       } catch (e) {}
     }
 
-    // --- HIGH-PRECISION MATCHING ENGINE ---
+    // Advanced Matching Engine (Levenshtein-ish simplified)
     const signals = [];
-    const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 30);
+    const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
     
-    // Group by normalized name to find matches faster
-    const groups = {};
-    allMarkets.forEach(m => {
-      const key = normalize(m.n);
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(m);
-    });
+    for (let i = 0; i < allMarkets.length; i++) {
+      for (let j = i + 1; j < allMarkets.length; j++) {
+        const m1 = allMarkets[i];
+        const m2 = allMarkets[j];
+        if (m1.p === m2.p) continue;
 
-    for (const key in groups) {
-      const matches = groups[key];
-      if (matches.length > 1) {
-        // Compare all pairs in the group
-        for (let i = 0; i < matches.length; i++) {
-          for (let j = i + 1; j < matches.length; j++) {
-            const m1 = matches[i];
-            const m2 = matches[j];
-            if (m1.p === m2.p) continue;
-
-            const diff = Math.abs(m1.v - m2.v);
-            if (diff >= 0.5) { // Ultra-accurate: detect even 0.5% spreads
-              signals.push({
-                d: diff.toFixed(2),
-                m1: m1,
-                m2: m2,
-                score: (diff * Math.log10(Math.max(m1.vol, m2.vol) + 1)).toFixed(1)
-              });
-            }
+        const n1 = normalize(m1.n);
+        const n2 = normalize(m2.n);
+        
+        // Match if one contains the other (significant overlap)
+        if ((n1.includes(n2) || n2.includes(n1)) && (n1.length > 15 || n2.length > 15)) {
+          const diff = Math.abs(m1.v - m2.v);
+          if (diff >= 1.0) {
+            signals.push({
+              d: diff.toFixed(1),
+              m1: m1,
+              m2: m2,
+              score: (diff * Math.log10(Math.max(m1.vol, m2.vol) + 10)).toFixed(1)
+            });
           }
         }
       }
     }
 
     const responseData = {
-      s: signals.sort((a, b) => b.d - a.d),
-      m: allMarkets.sort((a, b) => b.vol - a.vol).slice(0, 25),
-      t: Date.now() - startTime, // Processing time in ms
+      s: signals.sort((a, b) => b.d - a.d).slice(0, 15),
+      m: allMarkets.sort((a, b) => b.vol - a.vol).slice(0, 40),
+      t: Date.now() - startTime,
       ts: new Date().toISOString()
     };
 
