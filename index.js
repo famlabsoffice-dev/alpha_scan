@@ -17,16 +17,16 @@ export default {
 
     const startTime = Date.now();
     
-    // Parallel Fetching (Increased Limits for Matrix)
+    // Multi-Source Data Ingestion (Increased Limits)
     const [polyRes, manifoldRes, kalshiRes] = await Promise.allSettled([
-      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=60&order=volume&dir=desc'),
-      fetch('https://api.manifold.markets/v0/markets?limit=60&sort=updated-time'),
-      fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=60&status=open')
+      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=100&order=volume&dir=desc'),
+      fetch('https://api.manifold.markets/v0/markets?limit=100&sort=updated-time'),
+      fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=100&status=open')
     ]);
 
     let allMarkets = [];
 
-    // Polymarket Parser
+    // Polymarket (Fee approx 0.2%)
     if (polyRes.status === 'fulfilled') {
       try {
         const data = await polyRes.value.json();
@@ -38,14 +38,15 @@ export default {
               n: m.question.trim(),
               v: parseFloat(prices[0]) * 100,
               u: `https://polymarket.com/event/${m.slug}`,
-              vol: m.volume || 0
+              vol: parseFloat(m.volume) || 0,
+              fee: 0.002
             });
           }
         });
       } catch (e) {}
     }
 
-    // Manifold Parser
+    // Manifold (Fee 0% - Virtual)
     if (manifoldRes.status === 'fulfilled') {
       try {
         const data = await manifoldRes.value.json();
@@ -56,14 +57,15 @@ export default {
               n: m.question.trim(),
               v: m.probability * 100,
               u: m.url,
-              vol: m.volume || 0
+              vol: m.volume || 0,
+              fee: 0
             });
           }
         });
       } catch (e) {}
     }
 
-    // Kalshi Parser
+    // Kalshi (Fee approx 0.5%)
     if (kalshiRes.status === 'fulfilled') {
       try {
         const data = await kalshiRes.value.json();
@@ -75,7 +77,8 @@ export default {
                 n: m.title.trim(),
                 v: parseFloat(m.yes_bid),
                 u: `https://kalshi.com/markets/${m.ticker}`,
-                vol: m.volume || 0
+                vol: m.volume || 0,
+                fee: 0.005
               });
             }
           });
@@ -83,25 +86,25 @@ export default {
       } catch (e) {}
     }
 
-    // --- INTELLIGENT GROUPING ENGINE ---
-    const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 35);
+    // --- ORACLE MATCHING ENGINE v4.0 ---
+    const semanticNormalize = (s) => {
+      return s.toLowerCase()
+        .replace(/will|is|the|be|over|under|above|below|at|in|on|by/g, '')
+        .replace(/[^a-z0-9]/g, '')
+        .substring(0, 40);
+    };
+
     const grouped = {};
-    
     allMarkets.forEach(m => {
-      const key = normalize(m.n);
+      const key = semanticNormalize(m.n);
       if (!grouped[key]) {
-        grouped[key] = {
-          name: m.n,
-          markets: [],
-          maxVol: 0
-        };
+        grouped[key] = { name: m.n, markets: [], totalVol: 0 };
       }
       grouped[key].markets.push(m);
-      grouped[key].maxVol = Math.max(grouped[key].maxVol, m.vol);
+      grouped[key].totalVol += m.vol;
     });
 
-    // Convert to Array and calculate arbitrage within groups
-    const feed = Object.values(grouped).map(group => {
+    const matrix = Object.values(grouped).map(group => {
       let arb = null;
       if (group.markets.length > 1) {
         let min = group.markets[0], max = group.markets[0];
@@ -109,31 +112,36 @@ export default {
           if (m.v < min.v) min = m;
           if (m.v > max.v) max = m;
         });
-        const diff = max.v - min.v;
-        if (diff >= 0.5) {
+        
+        const rawDiff = max.v - min.v;
+        // Fee Deduction Logic (Net Profit)
+        const totalFees = (min.fee + max.fee) * 100;
+        const netDiff = rawDiff - totalFees;
+
+        if (netDiff > 0.2) {
           arb = {
-            diff: diff.toFixed(1),
+            raw: rawDiff.toFixed(1),
+            net: netDiff.toFixed(1),
             buy: min,
             sell: max,
-            score: (diff * Math.log10(group.maxVol + 10)).toFixed(1)
+            // Confidence Score (Volume + Net Spread)
+            score: Math.min(100, (netDiff * 10 + Math.log10(group.totalVol + 1) * 5)).toFixed(1)
           };
         }
       }
       return { ...group, arb };
     });
 
-    // Separate standalone signals for the left column
-    const signals = feed.filter(f => f.arb !== null).map(f => ({
-      d: f.arb.diff,
-      m1: f.arb.buy,
-      m2: f.arb.sell,
-      score: f.arb.score,
-      name: f.name
-    })).sort((a, b) => b.d - a.d);
-
     const responseData = {
-      s: signals,
-      f: feed.sort((a, b) => b.maxVol - a.maxVol).slice(0, 30),
+      s: matrix.filter(f => f.arb).map(f => ({
+        n: f.name,
+        d: f.arb.net,
+        rd: f.arb.raw,
+        m1: f.arb.buy,
+        m2: f.arb.sell,
+        sc: f.arb.score
+      })).sort((a, b) => b.d - a.d),
+      f: matrix.sort((a, b) => b.totalVol - a.totalVol).slice(0, 40),
       t: Date.now() - startTime,
       ts: new Date().toISOString()
     };
