@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMILYLABORATORIES | ALPHA SCAN v2.0</title>
+    <title>FAMILYLABORATORIES | ALPHA SCAN v2.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #05070a;
-            --bg-surface: #0d1117;
-            --primary: #c5a059;
-            --success: #10b981;
-            --danger: #ef4444;
+            --bg-deep:      #05070a;
+            --bg-surface:   #0d1117;
+            --primary:      #c5a059;
+            --success:      #10b981;
+            --danger:       #ef4444;
             --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border: #1e293b;
+            --text-secondary:#94a3b8;
+            --border:       #1e293b;
         }
         body {
             background-color: var(--bg-deep);
             color: var(--text-primary);
             font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             overflow-x: hidden;
             word-wrap: break-word;
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        
+
+        /* ── Cards ── */
         .corporate-card {
             background: var(--bg-surface);
             border: 1px solid var(--border);
@@ -36,14 +36,15 @@
             height: fit-content;
         }
         .corporate-card:hover { border-color: var(--primary); }
-        
+
         .alpha-signal-card {
-            background: linear-gradient(180deg, rgba(197, 160, 89, 0.05) 0%, var(--bg-surface) 100%);
-            border: 1px solid rgba(197, 160, 89, 0.3);
+            background: linear-gradient(180deg, rgba(197,160,89,0.05) 0%, var(--bg-surface) 100%);
+            border: 1px solid rgba(197,160,89,0.3);
             border-left: 4px solid var(--primary);
             box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
 
+        /* ── Buttons ── */
         .btn-gold {
             background: var(--primary);
             color: #000;
@@ -52,59 +53,7 @@
             letter-spacing: 0.15em;
             transition: all 0.3s;
         }
-        .btn-gold:hover { background: #d4b475; transform: translateY(-1px); box-shadow: 0 10px 30px rgba(197, 160, 89, 0.2); }
-
-        #login-overlay {
-            position: fixed;
-            inset: 0;
-            background: #05070a;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        .ticker-wrap {
-            width: 100%;
-            overflow: hidden;
-            background: rgba(197, 160, 89, 0.05);
-            border-bottom: 1px solid rgba(197, 160, 89, 0.1);
-            padding: 8px 0;
-        }
-        .ticker {
-            display: inline-block;
-            white-space: nowrap;
-            animation: ticker 40s linear infinite;
-        }
-        @keyframes ticker {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        .ticker-item {
-            display: inline-block;
-            padding: 0 40px;
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .lang-btn {
-            padding: 4px 10px;
-            font-size: 10px;
-            font-weight: 800;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-        .lang-btn.active {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: rgba(197, 160, 89, 0.1);
-        }
+        .btn-gold:hover { background: #d4b475; transform: translateY(-1px); box-shadow: 0 10px 30px rgba(197,160,89,0.2); }
 
         .trade-btn {
             display: flex;
@@ -117,38 +66,96 @@
             transition: all 0.2s;
             cursor: pointer;
         }
-        .trade-btn.buy { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
-        .trade-btn.buy:hover { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
-        .trade-btn.sell { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
-        .trade-btn.sell:hover { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
+        .trade-btn.buy  { background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.3); }
+        .trade-btn.buy:hover  { background: rgba(16,185,129,0.20); border-color: var(--success); }
+        .trade-btn.sell { background: rgba(239,68,68,0.10);  border-color: rgba(239,68,68,0.3); }
+        .trade-btn.sell:hover { background: rgba(239,68,68,0.20);  border-color: var(--danger); }
 
         .matrix-row-btn {
-            padding: 4px 8px;
-            font-size: 8px;
+            padding: 5px 10px;
+            font-size: 9px;
             font-weight: 900;
             text-transform: uppercase;
             border-radius: 4px;
             transition: all 0.2s;
             border: 1px solid transparent;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
         }
-        .matrix-row-btn.buy { color: var(--success); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
-        .matrix-row-btn.buy:hover { background: var(--success); color: #000; }
-        .matrix-row-btn.sell { color: var(--danger); border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); }
-        .matrix-row-btn.sell:hover { background: var(--danger); color: #000; }
+        .matrix-row-btn.yes { color: var(--success); border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05); }
+        .matrix-row-btn.yes:hover { background: var(--success); color: #000; }
+        .matrix-row-btn.no  { color: var(--danger);  border-color: rgba(239,68,68,0.3);  background: rgba(239,68,68,0.05); }
+        .matrix-row-btn.no:hover  { background: var(--danger);  color: #fff; }
 
-        .contract-price {
-            font-size: 9px;
+        /* ── Login Overlay ── */
+        #login-overlay {
+            position: fixed; inset: 0;
+            background: #05070a;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        /* ── Ticker ── */
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            background: rgba(197,160,89,0.05);
+            border-bottom: 1px solid rgba(197,160,89,0.1);
+            padding: 8px 0;
+        }
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 50s linear infinite;
+        }
+        @keyframes ticker {
+            0%   { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+        .ticker-item {
+            display: inline-block;
+            padding: 0 40px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* ── Language Buttons ── */
+        .lang-btn {
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: 800;
+            border: 1px solid var(--border);
+            border-radius: 4px;
             color: var(--text-secondary);
-            font-weight: 600;
-            margin-top: 2px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .lang-btn.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(197,160,89,0.1);
         }
 
+        /* ── Arbitrage Card ── */
         .arb-opportunity {
-            background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, var(--bg-surface) 100%);
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: linear-gradient(180deg, rgba(16,185,129,0.05) 0%, var(--bg-surface) 100%);
+            border: 1px solid rgba(16,185,129,0.3);
             border-left: 4px solid var(--success);
         }
+        .arb-primary {
+            border-left-color: var(--primary);
+            background: linear-gradient(180deg, rgba(197,160,89,0.07) 0%, var(--bg-surface) 100%);
+            border-color: rgba(197,160,89,0.35);
+        }
 
+        /* ── Chain Badge ── */
         .chain-badge {
             display: inline-block;
             padding: 2px 6px;
@@ -156,343 +163,597 @@
             font-weight: 900;
             border-radius: 3px;
             text-transform: uppercase;
-            background: rgba(197, 160, 89, 0.1);
-            border: 1px solid rgba(197, 160, 89, 0.3);
+            background: rgba(197,160,89,0.1);
+            border: 1px solid rgba(197,160,89,0.3);
             color: var(--primary);
         }
+        .chain-badge.solana { background: rgba(153,69,255,0.1); border-color: rgba(153,69,255,0.3); color: #9945ff; }
+        .chain-badge.polygon { background: rgba(130,71,229,0.1); border-color: rgba(130,71,229,0.3); color: #8247e5; }
+
+        /* ── Profit Tiers ── */
+        .profit-tier {
+            background: rgba(16,185,129,0.05);
+            border: 1px solid rgba(16,185,129,0.15);
+            border-radius: 6px;
+            padding: 6px 8px;
+            text-align: center;
+        }
+        .profit-tier .amount { font-size: 7px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; }
+        .profit-tier .value  { font-size: 11px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+        .profit-tier .value.pos { color: var(--success); }
+        .profit-tier .value.neg { color: var(--danger); }
+        .profit-tier .roi   { font-size: 7px; color: var(--text-secondary); }
+
+        /* ── Price Live Badge ── */
+        .live-dot {
+            display: inline-block;
+            width: 6px; height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            margin-right: 4px;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.3; }
+        }
+
+        /* ── Crypto Price Bar ── */
+        .crypto-bar {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .crypto-price-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        /* ── Market Card ── */
+        .market-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            transition: border-color 0.2s;
+        }
+        .market-card:hover { border-color: rgba(197,160,89,0.4); }
+
+        /* ── Priority Badge ── */
+        .priority-badge {
+            font-size: 7px;
+            font-weight: 900;
+            padding: 2px 5px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+        .priority-1 { background: rgba(197,160,89,0.15); color: var(--primary); border: 1px solid rgba(197,160,89,0.4); }
+        .priority-2 { background: rgba(16,185,129,0.10); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+        .priority-3 { background: rgba(148,163,184,0.10); color: var(--text-secondary); border: 1px solid rgba(148,163,184,0.2); }
     </style>
 </head>
 <body>
 
-    <!-- Access Gate -->
-    <div id="login-overlay">
-        <div class="max-w-md w-full p-10 text-center flex flex-col items-center">
-            <div class="mb-12">
-                <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] block mb-3 uppercase">FamilyLaboratories</span>
-                <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-primary">v2.0</span></h1>
-            </div>
-            <div class="w-full space-y-6">
-                <input type="password" id="pass-input" placeholder="ACCESS KEY" class="w-full bg-[#0a0a0a] border border-[#222] rounded-lg p-5 text-center text-white text-lg tracking-[0.6em] focus:border-[#c5a059] outline-none transition-all">
-                <button onclick="checkAuth()" class="w-full py-5 btn-gold rounded-lg text-[11px]">Initialize Terminal</button>
-            </div>
-            <p class="mt-12 text-[9px] text-slate-600 font-bold tracking-[0.3em] uppercase italic">C•J•V•K | Cross-DEX Arbitrage Engine</p>
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     ACCESS GATE
+═══════════════════════════════════════════════════════════════════════════ -->
+<div id="login-overlay">
+    <div class="max-w-md w-full p-10 text-center flex flex-col items-center">
+        <div class="mb-12">
+            <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] block mb-3 uppercase">FamilyLaboratories</span>
+            <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.1</span></h1>
+            <p class="text-[9px] text-slate-600 mt-3 tracking-widest uppercase">Cross-DEX Arbitrage Engine</p>
+        </div>
+        <div class="w-full space-y-6">
+            <input
+                type="password"
+                id="pass-input"
+                placeholder="ACCESS KEY"
+                class="w-full bg-[#0a0a0a] border border-[#222] rounded-lg p-5 text-center text-white text-lg tracking-[0.6em] focus:border-[#c5a059] outline-none transition-all"
+                onkeydown="if(event.key==='Enter') checkAuth()"
+            >
+            <button onclick="checkAuth()" class="w-full py-5 btn-gold rounded-lg text-[11px]">Initialize Terminal</button>
+        </div>
+        <p class="mt-12 text-[9px] text-slate-600 font-bold tracking-[0.3em] uppercase italic">C•J•V•K | Cross-DEX Arbitrage Engine</p>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     TERMINAL CONTENT
+═══════════════════════════════════════════════════════════════════════════ -->
+<div id="main-content" style="display:none;">
+
+    <!-- Ticker -->
+    <div class="ticker-wrap">
+        <div class="ticker" id="ticker-content">
+            <span class="ticker-item">FamLabs Alpha Scan v2.1 Online</span>
+            <span class="ticker-item">Cross-DEX Arbitrage Engine Active</span>
+            <span class="ticker-item">Monaco / Hxro Solana – Primary Focus</span>
+            <span class="ticker-item">Polymarket CLOB Integration Live</span>
+            <span class="ticker-item">Kraken + Jupiter Price Feeds Active</span>
+            <span class="ticker-item">Security Protocol TGMFAM2026 Engaged</span>
+            <span class="ticker-item">Profit Calc: 5€ / 10€ / 25€</span>
         </div>
     </div>
 
-    <!-- Terminal Content -->
-    <div id="main-content" style="display: none;">
-        <div class="ticker-wrap">
-            <div class="ticker" id="ticker-content">
-                <span class="ticker-item">FamLabs Alpha Scan v2.0 Online</span>
-                <span class="ticker-item">Cross-DEX Arbitrage Engine Active</span>
-                <span class="ticker-item">Polymarket Gamma API Integration Active</span>
-                <span class="ticker-item">Binance & Jupiter Price Feeds Live</span>
-                <span class="ticker-item">Security Protocol TGMFAM2026 Engaged</span>
+    <div class="max-w-[1600px] mx-auto p-4 md:p-10 space-y-10">
+
+        <!-- ── Header ── -->
+        <header class="flex flex-col lg:flex-row justify-between items-center border-b border-slate-800 pb-10 gap-8">
+            <div class="flex items-center gap-10">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] uppercase mb-1">FamilyLaboratories</span>
+                    <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.1</span></h1>
+                </div>
+                <div class="h-12 w-px bg-slate-800 hidden lg:block"></div>
+                <nav class="hidden sm:flex gap-8 text-[11px] font-bold tracking-widest uppercase text-slate-500">
+                    <span class="text-white border-b-2 border-[#c5a059] pb-1 cursor-pointer">Terminal</span>
+                    <span class="hover:text-white cursor-pointer transition-all">Cross-DEX</span>
+                    <span class="hover:text-white cursor-pointer transition-all">Arbitrage</span>
+                </nav>
+            </div>
+            <div class="flex items-center gap-6 flex-wrap justify-center">
+                <!-- Live Crypto Prices -->
+                <div class="crypto-bar" id="crypto-bar">
+                    <div class="crypto-price-item">
+                        <span class="text-[7px] font-black text-slate-600 uppercase tracking-widest">SOL</span>
+                        <span class="text-[11px] font-black mono text-white" id="price-sol">–</span>
+                        <span class="text-[7px] text-slate-600 mono" id="price-sol-jup">–</span>
+                    </div>
+                    <div class="crypto-price-item">
+                        <span class="text-[7px] font-black text-slate-600 uppercase tracking-widest">BTC</span>
+                        <span class="text-[11px] font-black mono text-white" id="price-btc">–</span>
+                    </div>
+                    <div class="crypto-price-item">
+                        <span class="text-[7px] font-black text-slate-600 uppercase tracking-widest">ETH</span>
+                        <span class="text-[11px] font-black mono text-white" id="price-eth">–</span>
+                    </div>
+                </div>
+                <!-- Engine Status -->
+                <div class="flex flex-col items-end">
+                    <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Engine Status</span>
+                    <div class="flex items-center gap-2">
+                        <span class="live-dot"></span>
+                        <span class="text-[10px] font-bold text-[#10b981] uppercase tracking-widest" id="engine-status">Active</span>
+                    </div>
+                    <span class="text-[7px] text-slate-700 mono mt-1" id="last-update">–</span>
+                </div>
+                <!-- Language Switcher -->
+                <div class="flex gap-1 bg-slate-900/50 p-1 rounded border border-slate-800">
+                    <button onclick="setLang('de')" class="lang-btn active" id="btn-de">DE</button>
+                    <button onclick="setLang('en')" class="lang-btn" id="btn-en">EN</button>
+                    <button onclick="setLang('pt')" class="lang-btn" id="btn-pt">PT</button>
+                    <button onclick="setLang('zh')" class="lang-btn" id="btn-zh">ZH</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ── Main Grid ── -->
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+            <!-- Left: Arbitrage Opportunities -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                <div class="flex items-center justify-between px-1">
+                    <h2 id="t-signals" class="text-[11px] font-black text-[#c5a059] uppercase tracking-[0.3em]">Cross-DEX Arbitrage Chancen</h2>
+                    <span id="opp-count" class="text-[9px] font-bold text-[#10b981] border border-[#10b981]/30 px-2 py-0.5 rounded uppercase">0 Found</span>
+                </div>
+                <div id="signals" class="space-y-6">
+                    <div id="t-waiting-signals" class="corporate-card p-16 text-center text-slate-600 text-[10px] uppercase tracking-widest border-dashed border-2">
+                        Initialisiere Arbitrage-Scan...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Market Data Feed -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+                <div class="flex items-center justify-between px-1">
+                    <h2 id="t-feed" class="text-[11px] font-black text-[#c5a059] uppercase tracking-[0.3em]">Markt-Daten Feed</h2>
+                    <span id="t-markets-count" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Märkte: 0</span>
+                </div>
+                <div id="terminal" class="grid grid-cols-1 md:grid-cols-2 gap-6 content-start">
+                    <div id="t-waiting-feed" class="col-span-full corporate-card p-32 text-center text-slate-600 text-[10px] uppercase tracking-[0.6em] font-light">
+                        Verbindung zum DEX-Netzwerk...
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ── Footer ── -->
+        <footer class="border-t border-slate-800 pt-10 flex flex-col md:flex-row justify-between items-center gap-10">
+            <div class="w-full md:w-1/3 flex flex-col gap-4">
+                <button onclick="executeScan()" id="scanBtn" class="w-full py-6 btn-gold rounded-xl text-sm shadow-2xl">
+                    <span id="t-btn">Cross-DEX Scan Ausführen</span>
+                </button>
+                <div class="text-center text-[8px] text-slate-700 font-bold tracking-widest uppercase">
+                    Auto-Refresh alle 30s
+                </div>
+            </div>
+            <div class="text-center md:text-right">
+                <div class="text-[#c5a059] text-[12px] font-black tracking-[0.5em] uppercase italic mb-2">
+                    Polymarket Gamma | Kraken &amp; Jupiter Price Feeds
+                </div>
+                <div class="flex items-center justify-center md:justify-end gap-4">
+                    <span class="text-[10px] text-slate-600 font-bold tracking-widest uppercase">C•J•V•K | Private Access</span>
+                    <span class="text-[10px] text-slate-700 uppercase tracking-widest">&copy; 2026 FamilyLaboratories</span>
+                </div>
+            </div>
+        </footer>
+
+    </div><!-- /max-w -->
+</div><!-- /main-content -->
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════════════════ -->
+<script>
+// ── i18n ─────────────────────────────────────────────────────────────────────
+const i18n = {
+    de: {
+        signals: "Cross-DEX Arbitrage Chancen",
+        feed: "Markt-Daten Feed",
+        btn: "Cross-DEX Scan Ausführen",
+        waiting_signals: "Initialisiere Arbitrage-Scan...",
+        waiting_feed: "Verbindung zum DEX-Netzwerk...",
+        buy: "KAUFEN", sell: "VERKAUFEN", profit: "GEWINN",
+        spread: "SPREAD", chain: "CHAIN", volume: "VOLUMEN",
+        nodes: "Märkte", yes: "JA", no: "NEIN",
+        profit5: "Gewinn 5€", profit10: "Gewinn 10€", profit25: "Gewinn 25€",
+        roi: "ROI", fee: "Gebühr", priority: "Priorität",
+    },
+    en: {
+        signals: "Cross-DEX Arbitrage Opportunities",
+        feed: "Market Data Feed",
+        btn: "Execute Cross-DEX Scan",
+        waiting_signals: "Initializing Arbitrage Scan...",
+        waiting_feed: "Connecting to DEX Network...",
+        buy: "BUY", sell: "SELL", profit: "PROFIT",
+        spread: "SPREAD", chain: "CHAIN", volume: "VOLUME",
+        nodes: "Markets", yes: "YES", no: "NO",
+        profit5: "Profit 5€", profit10: "Profit 10€", profit25: "Profit 25€",
+        roi: "ROI", fee: "Fee", priority: "Priority",
+    },
+    pt: {
+        signals: "Oportunidades de Arbitragem Cross-DEX",
+        feed: "Feed de Dados de Mercado",
+        btn: "Executar Scan Cross-DEX",
+        waiting_signals: "Inicializando Scan de Arbitragem...",
+        waiting_feed: "Conectando à Rede DEX...",
+        buy: "COMPRAR", sell: "VENDER", profit: "LUCRO",
+        spread: "SPREAD", chain: "CADEIA", volume: "VOLUME",
+        nodes: "Mercados", yes: "SIM", no: "NÃO",
+        profit5: "Lucro 5€", profit10: "Lucro 10€", profit25: "Lucro 25€",
+        roi: "ROI", fee: "Taxa", priority: "Prioridade",
+    },
+    zh: {
+        signals: "跨DEX套利机会",
+        feed: "市场数据源",
+        btn: "执行跨DEX扫描",
+        waiting_signals: "正在初始化套利扫描...",
+        waiting_feed: "正在连接DEX网络...",
+        buy: "买入", sell: "卖出", profit: "利润",
+        spread: "点差", chain: "链", volume: "交易量",
+        nodes: "市场", yes: "是", no: "否",
+        profit5: "利润 5€", profit10: "利润 10€", profit25: "利润 25€",
+        roi: "ROI", fee: "费用", priority: "优先级",
+    },
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentLang    = 'de';
+let authToken      = localStorage.getItem('famlabs_auth') || '';
+let refreshInterval = null;
+let lastCrypto     = {};
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+function checkAuth() {
+    const pass = document.getElementById('pass-input').value.trim();
+    if (pass === 'TGMFAM2026') {
+        authToken = pass;
+        localStorage.setItem('famlabs_auth', pass);
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        startAutoRefresh();
+    } else {
+        const inp = document.getElementById('pass-input');
+        inp.style.borderColor = '#ef4444';
+        setTimeout(() => inp.style.borderColor = '#222', 1500);
+    }
+}
+
+window.onload = function () {
+    if (localStorage.getItem('famlabs_auth') === 'TGMFAM2026') {
+        authToken = 'TGMFAM2026';
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        startAutoRefresh();
+    }
+};
+
+// ── Auto Refresh ──────────────────────────────────────────────────────────────
+function startAutoRefresh() {
+    executeScan();
+    if (refreshInterval) clearInterval(refreshInterval);
+    refreshInterval = setInterval(executeScan, 30000);
+}
+
+// ── Language ──────────────────────────────────────────────────────────────────
+function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + lang).classList.add('active');
+    const L = i18n[lang];
+    document.getElementById('t-signals').innerText        = L.signals;
+    document.getElementById('t-feed').innerText           = L.feed;
+    document.getElementById('t-waiting-signals').innerText = L.waiting_signals;
+    document.getElementById('t-waiting-feed').innerText   = L.waiting_feed;
+    document.getElementById('t-btn').innerText            = L.btn;
+}
+
+// ── Formatters ────────────────────────────────────────────────────────────────
+function fmt(n, d = 2) {
+    if (n === null || n === undefined || isNaN(n)) return '–';
+    return parseFloat(n).toFixed(d);
+}
+function fmtPrice(n) { return n >= 100 ? fmt(n, 2) : fmt(n, 4); }
+function fmtEUR(n)   { return (n >= 0 ? '+' : '') + fmt(n, 2) + '€'; }
+function fmtROI(n)   { return (n >= 0 ? '+' : '') + fmt(n, 2) + '%'; }
+
+// ── Profit Tier HTML ──────────────────────────────────────────────────────────
+function profitTierHTML(label, net, roi) {
+    const cls = net >= 0 ? 'pos' : 'neg';
+    return `
+        <div class="profit-tier">
+            <div class="amount">${label}</div>
+            <div class="value ${cls}">${fmtEUR(net)}</div>
+            <div class="roi">${fmtROI(roi)}</div>
+        </div>`;
+}
+
+// ── Arbitrage Card HTML ───────────────────────────────────────────────────────
+function arbCardHTML(opp) {
+    const L = i18n[currentLang];
+    const isPrimary = opp.pairId === 'monaco-hxro-solana';
+    const cardClass = isPrimary ? 'corporate-card arb-primary p-6 shadow-2xl' : 'corporate-card arb-opportunity p-6 shadow-2xl';
+    const chainClass = opp.chain === 'Solana' ? 'chain-badge solana' : opp.chain === 'Polygon' ? 'chain-badge polygon' : 'chain-badge';
+    const priorityBadge = opp.priority ? `<span class="priority-badge priority-${opp.priority}">${L.priority} ${opp.priority}</span>` : '';
+
+    const profitColor = opp.profitMargin >= 1 ? 'text-[#10b981]' : opp.profitMargin >= 0 ? 'text-[#c5a059]' : 'text-[#ef4444]';
+
+    return `
+    <div class="${cardClass}">
+        <div class="flex justify-between items-start mb-4">
+            <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-black text-[#10b981] uppercase tracking-widest">${L.profit}</span>
+                    ${priorityBadge}
+                </div>
+                <span class="text-3xl font-black ${profitColor} mono">${fmt(opp.profitMargin)}%</span>
+            </div>
+            <div class="text-right">
+                <span class="text-[8px] text-slate-500 font-black uppercase tracking-widest">${L.spread}</span>
+                <div class="text-sm font-black mono text-[#c5a059]">${fmt(opp.percentageDifference)}%</div>
+                <span class="${chainClass} mt-1">${opp.chain}</span>
             </div>
         </div>
 
-        <div class="max-w-[1600px] mx-auto p-4 md:p-10 space-y-10">
-            <header class="flex flex-col lg:flex-row justify-between items-center border-b border-slate-800 pb-10 gap-8">
-                <div class="flex items-center gap-10">
-                    <div class="flex flex-col">
-                        <span class="text-[10px] font-bold tracking-[0.6em] text-primary uppercase mb-1">FamilyLaboratories</span>
-                        <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-primary">v2.0</span></h1>
-                    </div>
-                    <div class="h-12 w-px bg-slate-800 hidden lg:block"></div>
-                    <nav class="hidden sm:flex gap-8 text-[11px] font-bold tracking-widest uppercase text-slate-500">
-                        <span class="text-white border-b-2 border-primary pb-1 cursor-pointer">Terminal</span>
-                        <span class="hover:text-white cursor-pointer transition-all">Cross-DEX</span>
-                        <span class="hover:text-white cursor-pointer transition-all">Arbitrage</span>
-                    </nav>
-                </div>
-                <div class="flex items-center gap-6">
-                    <div class="flex flex-col items-end">
-                        <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Engine Status</span>
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
-                            <span class="text-[10px] font-bold text-success uppercase tracking-widest">Active</span>
-                        </div>
-                    </div>
-                    <div class="flex gap-1 bg-slate-900/50 p-1 rounded border border-slate-800">
-                        <button onclick="setLang('de')" class="lang-btn active" id="btn-de">DE</button>
-                        <button onclick="setLang('en')" class="lang-btn" id="btn-en">EN</button>
-                        <button onclick="setLang('pt')" class="lang-btn" id="btn-pt">PT</button>
-                        <button onclick="setLang('zh')" class="lang-btn" id="btn-zh">ZH</button>
-                    </div>
-                </div>
-            </header>
+        <h3 class="text-sm font-bold text-white leading-snug mb-1 border-b border-slate-800 pb-3">
+            ${opp.buyDex} ↔ ${opp.sellDex}
+        </h3>
+        <p class="text-[8px] text-slate-600 mb-4 italic">${opp.description || ''}</p>
 
-            <main class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                <div class="lg:col-span-4 flex flex-col gap-6">
-                    <div class="flex items-center justify-between px-1">
-                        <h2 id="t-signals" class="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Cross-DEX Opportunities</h2>
-                        <span id="opp-count" class="text-[9px] font-bold text-success border border-success/30 px-2 py-0.5 rounded uppercase">0 Found</span>
-                    </div>
-                    <div id="signals" class="space-y-6">
-                        <div id="t-waiting-signals" class="corporate-card p-16 text-center text-slate-600 text-[10px] uppercase tracking-widest border-dashed border-2">
-                            Awaiting Arbitrage Scan...
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-8 flex flex-col gap-6">
-                    <div class="flex items-center justify-between px-1">
-                        <h2 id="t-feed" class="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Market Data Feed</h2>
-                        <span id="t-markets-count" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Markets: 0</span>
-                    </div>
-                    <div id="terminal" class="grid grid-cols-1 md:grid-cols-2 gap-6 content-start">
-                        <div id="t-waiting-feed" class="col-span-full corporate-card p-32 text-center text-slate-600 text-[10px] uppercase tracking-[0.6em] font-light">
-                            Connecting to DEX Network...
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-            <footer class="border-t border-slate-800 pt-10 flex flex-col md:flex-row justify-between items-center gap-10">
-                <div class="w-full md:w-1/3 flex flex-col gap-4">
-                    <button onclick="executeScan()" id="scanBtn" class="w-full py-6 btn-gold rounded-xl text-sm shadow-2xl">
-                        <span id="t-btn">Execute Cross-DEX Scan</span>
-                    </button>
-                </div>
-                <div class="text-center md:text-right">
-                    <div class="text-primary text-[12px] font-black tracking-[0.5em] uppercase italic mb-2">Polymarket Gamma | Binance & Jupiter Price Feeds</div>
-                    <div class="flex items-center justify-center md:justify-end gap-4">
-                        <span class="text-[10px] text-slate-600 font-bold tracking-widest uppercase">C•J•V•K | Private Access</span>
-                        <span class="text-[10px] text-slate-700 uppercase tracking-widest">&copy; 2026 FamilyLaboratories</span>
-                    </div>
-                </div>
-            </footer>
+        <!-- Buy / Sell Prices -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="trade-btn buy">
+                <span class="text-[7px] font-black text-[#10b981] uppercase mb-1">${L.buy}</span>
+                <span class="text-[9px] font-black text-white uppercase mb-1">${opp.buyDex}</span>
+                <span class="text-lg font-black mono text-[#10b981]">$${fmtPrice(opp.buyPrice)}</span>
+                <span class="text-[7px] text-slate-500 mt-1">${opp.buyMarket || ''}</span>
+            </div>
+            <div class="trade-btn sell">
+                <span class="text-[7px] font-black text-[#ef4444] uppercase mb-1">${L.sell}</span>
+                <span class="text-[9px] font-black text-white uppercase mb-1">${opp.sellDex}</span>
+                <span class="text-lg font-black mono text-[#ef4444]">$${fmtPrice(opp.sellPrice)}</span>
+                <span class="text-[7px] text-slate-500 mt-1">${opp.sellMarket || ''}</span>
+            </div>
         </div>
-    </div>
 
-    <script>
-        const i18n = {
-            de: { 
-                signals: "Cross-DEX Arbitrage Chancen", 
-                feed: "Markt-Daten Feed", 
-                btn: "Cross-DEX Scan Ausführen", 
-                waiting_signals: "Initialisiere Arbitrage-Scan...", 
-                waiting_feed: "Verbindung zum DEX-Netzwerk...", 
-                buy: "KAUFEN", 
-                sell: "VERKAUFEN", 
-                profit: "GEWINN", 
-                spread: "SPREAD",
-                chain: "CHAIN",
-                volume: "VOLUMEN",
-                nodes: "Märkte"
-            },
-            en: { 
-                signals: "Cross-DEX Arbitrage Opportunities", 
-                feed: "Market Data Feed", 
-                btn: "Execute Cross-DEX Scan", 
-                waiting_signals: "Initializing Arbitrage Scan...", 
-                waiting_feed: "Connecting to DEX Network...", 
-                buy: "BUY", 
-                sell: "SELL", 
-                profit: "PROFIT", 
-                spread: "SPREAD",
-                chain: "CHAIN",
-                volume: "VOLUME",
-                nodes: "Markets"
-            },
-            pt: { 
-                signals: "Oportunidades de Arbitragem Cross-DEX", 
-                feed: "Feed de Dados de Mercado", 
-                btn: "Executar Scan Cross-DEX", 
-                waiting_signals: "Inicializando Scan de Arbitragem...", 
-                waiting_feed: "Conectando à Rede DEX...", 
-                buy: "COMPRAR", 
-                sell: "VENDER", 
-                profit: "LUCRO", 
-                spread: "SPREAD",
-                chain: "CADEIA",
-                volume: "VOLUME",
-                nodes: "Mercados"
-            },
-            zh: { 
-                signals: "跨DEX套利机会", 
-                feed: "市场数据源", 
-                btn: "执行跨DEX扫描", 
-                waiting_signals: "正在初始化套利扫描...", 
-                waiting_feed: "正在连接DEX网络...", 
-                buy: "买入", 
-                sell: "卖出", 
-                profit: "利润", 
-                spread: "点差",
-                chain: "链",
-                volume: "交易量",
-                nodes: "市场"
-            }
-        };
+        <!-- Profit Tiers -->
+        <div class="grid grid-cols-3 gap-2 mb-4">
+            ${profitTierHTML('5€', opp.profit5, opp.roi5)}
+            ${profitTierHTML('10€', opp.profit10, opp.roi10)}
+            ${profitTierHTML('25€', opp.profit25, opp.roi25)}
+        </div>
 
-        let currentLang = 'de';
-        let authToken = localStorage.getItem('famlabs_auth') || '';
-        let refreshInterval = null;
+        <!-- Token / Volume -->
+        <div class="flex justify-between items-center text-[8px] text-slate-600 border-t border-slate-800 pt-3">
+            <span>Token: <span class="text-slate-400 font-bold">${opp.token}</span></span>
+            <span>${L.volume}: <span class="text-[#c5a059] font-bold">$${fmt(opp.volume, 0)}</span></span>
+        </div>
+    </div>`;
+}
 
-        function checkAuth() {
-            const pass = document.getElementById('pass-input').value;
-            if (pass === 'TGMFAM2026') {
-                authToken = pass;
-                localStorage.setItem('famlabs_auth', pass);
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-                startAutoRefresh();
-            } else {
-                alert('ACCESS DENIED');
-            }
+// ── Market Card HTML ──────────────────────────────────────────────────────────
+function marketCardHTML(market) {
+    const L = i18n[currentLang];
+    const yesPrice = market.yes_raw || (market.v / 100);
+    const noPrice  = market.no_raw  || (market.no_v / 100);
+
+    // Profit calculations
+    function calcProfit(buyPrice, sellPrice, amount, fee = 0.002) {
+        if (buyPrice <= 0 || sellPrice <= 0) return { net: 0, roi: 0 };
+        const shares    = amount / buyPrice;
+        const gross     = shares * sellPrice;
+        const totalFees = amount * fee * 2;
+        const net       = gross - amount - totalFees;
+        return { net: parseFloat(net.toFixed(4)), roi: parseFloat(((net / amount) * 100).toFixed(4)) };
+    }
+
+    // YES profits (buy YES, resolve at 1.0)
+    const yesP5  = calcProfit(yesPrice, 1.0, 5,  market.fee || 0.002);
+    const yesP10 = calcProfit(yesPrice, 1.0, 10, market.fee || 0.002);
+    const yesP25 = calcProfit(yesPrice, 1.0, 25, market.fee || 0.002);
+
+    // NO profits (buy NO, resolve at 1.0)
+    const noP5   = calcProfit(noPrice, 1.0, 5,  market.fee || 0.002);
+    const noP10  = calcProfit(noPrice, 1.0, 10, market.fee || 0.002);
+    const noP25  = calcProfit(noPrice, 1.0, 25, market.fee || 0.002);
+
+    const chainClass = market.chain === 'Polygon' ? 'chain-badge polygon' : 'chain-badge';
+
+    return `
+    <div class="market-card">
+        <!-- Title + Chain -->
+        <div class="flex justify-between items-start gap-3 mb-4">
+            <div class="flex-1">
+                <h3 class="text-[11px] font-bold text-white leading-relaxed">${market.n}</h3>
+                <span class="${chainClass} mt-2">${market.p}</span>
+            </div>
+            <div class="text-right flex-shrink-0">
+                <div class="text-[7px] text-slate-600 font-black uppercase mb-1">YES / NO</div>
+                <div class="text-[13px] font-black mono text-[#10b981]">$${fmt(yesPrice, 4)}</div>
+                <div class="text-[11px] font-black mono text-[#ef4444]">$${fmt(noPrice, 4)}</div>
+            </div>
+        </div>
+
+        <!-- YES Profits -->
+        <div class="mb-3">
+            <div class="text-[7px] font-black text-[#10b981] uppercase tracking-widest mb-2">
+                <span class="live-dot" style="width:5px;height:5px;"></span>${L.yes} – ${L.profit}
+            </div>
+            <div class="grid grid-cols-3 gap-1">
+                ${profitTierHTML('5€', yesP5.net, yesP5.roi)}
+                ${profitTierHTML('10€', yesP10.net, yesP10.roi)}
+                ${profitTierHTML('25€', yesP25.net, yesP25.roi)}
+            </div>
+        </div>
+
+        <!-- NO Profits -->
+        <div class="mb-4">
+            <div class="text-[7px] font-black text-[#ef4444] uppercase tracking-widest mb-2">
+                <span class="live-dot" style="width:5px;height:5px;background:#ef4444;"></span>${L.no} – ${L.profit}
+            </div>
+            <div class="grid grid-cols-3 gap-1">
+                ${profitTierHTML('5€', noP5.net, noP5.roi)}
+                ${profitTierHTML('10€', noP10.net, noP10.roi)}
+                ${profitTierHTML('25€', noP25.net, noP25.roi)}
+            </div>
+        </div>
+
+        <!-- Fee + Volume -->
+        <div class="text-[8px] text-slate-600 mb-4 border-t border-slate-800 pt-3 flex justify-between">
+            <span>${L.fee}: ${fmt((market.fee || 0.002) * 100, 2)}%</span>
+            <span>${L.volume}: $${fmt(market.vol || 0, 0)}</span>
+        </div>
+
+        <!-- YES / NO Buy Buttons with Live Price -->
+        <div class="grid grid-cols-2 gap-2">
+            <button
+                onclick="window.open('${market.u}', '_blank')"
+                class="matrix-row-btn yes"
+            >
+                ${L.yes} $${fmt(yesPrice, 4)}
+            </button>
+            <button
+                onclick="window.open('${market.u}', '_blank')"
+                class="matrix-row-btn no"
+            >
+                ${L.no} $${fmt(noPrice, 4)}
+            </button>
+        </div>
+    </div>`;
+}
+
+// ── Main Scan ─────────────────────────────────────────────────────────────────
+async function executeScan() {
+    const term     = document.getElementById('terminal');
+    const signals  = document.getElementById('signals');
+    const btn      = document.getElementById('scanBtn');
+    const count    = document.getElementById('t-markets-count');
+    const oppCount = document.getElementById('opp-count');
+    const L        = i18n[currentLang];
+
+    btn.disabled = true;
+    document.getElementById('engine-status').innerText = 'Scanning...';
+
+    try {
+        const response = await fetch(`https://alphascan.famlabsoffice.workers.dev/?auth=${authToken}`);
+        const data     = await response.json();
+
+        if (data.error) {
+            localStorage.removeItem('famlabs_auth');
+            location.reload();
+            return;
         }
 
-        window.onload = function() {
-            if (localStorage.getItem('famlabs_auth') === 'TGMFAM2026') {
-                authToken = 'TGMFAM2026';
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-                startAutoRefresh();
-            }
-        };
+        // ── Update Crypto Prices in Header ──
+        if (data.crypto) {
+            lastCrypto = data.crypto;
+            const sol = data.crypto.SOL || data.crypto.SOL_KRAKEN;
+            const btc = data.crypto.BTC || data.crypto.BTC_KRAKEN;
+            const eth = data.crypto.ETH || data.crypto.ETH_KRAKEN;
+            const solJup = data.crypto.SOL_JUPITER;
 
-        function startAutoRefresh() {
-            executeScan();
-            if (refreshInterval) clearInterval(refreshInterval);
-            refreshInterval = setInterval(executeScan, 30000); // 30 seconds
-        }
+            if (sol)    document.getElementById('price-sol').innerText = '$' + fmt(sol, 2);
+            if (solJup) document.getElementById('price-sol-jup').innerText = 'JUP $' + fmt(solJup, 2);
+            if (btc)    document.getElementById('price-btc').innerText = '$' + fmt(btc, 0);
+            if (eth)    document.getElementById('price-eth').innerText = '$' + fmt(eth, 2);
 
-        function setLang(lang) {
-            currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-' + lang).classList.add('active');
-            document.getElementById('t-signals').innerText = i18n[lang].signals;
-            document.getElementById('t-feed').innerText = i18n[lang].feed;
-            document.getElementById('t-waiting-signals').innerText = i18n[lang].waiting_signals;
-            document.getElementById('t-waiting-feed').innerText = i18n[lang].waiting_feed;
-            document.getElementById('t-btn').innerText = i18n[lang].btn;
-        }
-
-        function calculateProfit(price, amount) {
-            // Formula: Profit = (1/Preis - 1) * Kaufbetrag wenn Preis < 0.5
-            const p = price / 100;
-            if (p <= 0) return 0;
-            return (1/p - 1) * amount;
-        }
-
-        async function executeScan() {
-            const term = document.getElementById('terminal');
-            const signals = document.getElementById('signals');
-            const btn = document.getElementById('scanBtn');
-            const count = document.getElementById('t-markets-count');
-            const oppCount = document.getElementById('opp-count');
-            
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(`https://alphascan.famlabsoffice.workers.dev/?auth=${authToken}`);
-                const data = await response.json();
-                
-                if (data.error) {
-                    alert(data.msg);
-                    localStorage.removeItem('famlabs_auth');
-                    location.reload();
-                    return;
-                }
-
-                count.innerText = i18n[currentLang].nodes + ': ' + data.totalMarkets;
-                oppCount.innerText = data.opportunitiesFound + ' Found';
-
-                // Display Arbitrage Opportunities
-                if (data.opportunities && data.opportunities.length > 0) {
-                    signals.innerHTML = data.opportunities.map((opp, idx) => `
-                        <div class="corporate-card arb-opportunity p-6 shadow-2xl">
-                            <div class="flex justify-between items-start mb-6">
-                                <div class="flex flex-col">
-                                    <span class="text-[9px] font-black text-success uppercase tracking-widest mb-1">${i18n[currentLang].profit}</span>
-                                    <span class="text-3xl font-black text-success mono">${opp.profitMargin.toFixed(2)}%</span>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-[8px] text-slate-500 font-black uppercase tracking-widest mb-1">${i18n[currentLang].spread}</span>
-                                    <div class="text-sm font-black mono text-primary">${opp.percentageDifference.toFixed(2)}%</div>
-                                </div>
-                            </div>
-                            <h3 class="text-sm font-bold text-white leading-snug mb-4 border-b border-slate-800 pb-4">${opp.buyDex} ↔ ${opp.sellDex}</h3>
-                            <div class="grid grid-cols-2 gap-2 mb-4">
-                                <div class="text-xs">
-                                    <span class="chain-badge">${opp.chain}</span>
-                                    <div class="text-[9px] text-slate-400 mt-2">Token: ${opp.token}</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-[9px] text-slate-400">${i18n[currentLang].volume}</div>
-                                    <div class="text-sm font-bold text-primary">$${opp.volume.toFixed(0)}</div>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="trade-btn buy">
-                                    <span class="text-[7px] font-black text-success uppercase mb-1">${i18n[currentLang].buy}</span>
-                                    <span class="text-[10px] font-black text-white uppercase mb-1">${opp.buyDex}</span>
-                                    <span class="text-lg font-black mono text-success">$${opp.buyPrice.toFixed(opp.isCrypto ? 2 : 4)}</span>
-                                </div>
-                                <div class="trade-btn sell">
-                                    <span class="text-[7px] font-black text-danger uppercase mb-1">${i18n[currentLang].sell}</span>
-                                    <span class="text-[10px] font-black text-white uppercase mb-1">${opp.sellDex}</span>
-                                    <span class="text-lg font-black mono text-danger">$${opp.sellPrice.toFixed(opp.isCrypto ? 2 : 4)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-slate-900">No arbitrage opportunities detected.</div>`;
-                }
-
-                // Display Market Data
-                if (data.markets && data.markets.length > 0) {
-                    term.innerHTML = data.markets.slice(0, 20).map(market => {
-                        const p5 = calculateProfit(market.v, 5);
-                        const p10 = calculateProfit(market.v, 10);
-                        const p25 = calculateProfit(market.v, 25);
-                        
-                        return `
-                        <div class="corporate-card p-6">
-                            <div class="flex justify-between items-start gap-4 mb-4">
-                                <div>
-                                    <h3 class="text-xs font-bold text-white leading-relaxed">${market.n}</h3>
-                                    <span class="chain-badge mt-2">${market.p}</span>
-                                </div>
-                                <div class="text-right">
-                                    <div class="flex flex-col items-end">
-                                        <div class="text-[8px] text-slate-600 font-black uppercase">YES</div>
-                                        <div class="text-lg font-black mono text-success">$${(market.v/100).toFixed(2)}</div>
-                                        <span class="contract-price">$${(market.v/100).toFixed(2)}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2 mb-4 border-t border-slate-800 pt-4">
-                                <div class="text-center">
-                                    <div class="text-[7px] text-slate-500 uppercase">Profit 5€</div>
-                                    <div class="text-[10px] font-bold text-success">+${p5.toFixed(2)}€</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-[7px] text-slate-500 uppercase">Profit 10€</div>
-                                    <div class="text-[10px] font-bold text-success">+${p10.toFixed(2)}€</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-[7px] text-slate-500 uppercase">Profit 25€</div>
-                                    <div class="text-[10px] font-bold text-success">+${p25.toFixed(2)}€</div>
-                                </div>
-                            </div>
-                            <div class="text-[9px] text-slate-500 mb-4">
-                                Volume: $${market.vol.toFixed(0)} | Fee: ${(market.fee*100).toFixed(2)}%
-                            </div>
-                            <div class="grid grid-cols-1 gap-2">
-                                <button onclick="window.open('${market.u}', '_blank')" class="matrix-row-btn buy">BUY YES ($${(market.v/100).toFixed(2)})</button>
-                            </div>
-                        </div>
-                    `}).join('');
-                }
-            } catch (err) {
-                console.error(err);
-                // signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-danger/30">Error connecting to scanner.</div>`;
-            } finally {
-                btn.disabled = false;
+            // Update ticker with live prices
+            const tickerEl = document.getElementById('ticker-content');
+            if (sol && btc) {
+                tickerEl.innerHTML = `
+                    <span class="ticker-item">SOL: $${fmt(sol,2)}</span>
+                    <span class="ticker-item">BTC: $${fmt(btc,0)}</span>
+                    ${eth ? `<span class="ticker-item">ETH: $${fmt(eth,2)}</span>` : ''}
+                    <span class="ticker-item">FamLabs Alpha Scan v2.1 Online</span>
+                    <span class="ticker-item">Cross-DEX Arbitrage Engine Active</span>
+                    <span class="ticker-item">Monaco / Hxro Solana – Primary Focus</span>
+                    <span class="ticker-item">Polymarket CLOB Integration Live</span>
+                    <span class="ticker-item">Profit Calc: 5€ / 10€ / 25€</span>
+                    <span class="ticker-item">Exec Time: ${data.executionTime}ms</span>
+                `;
             }
         }
-    </script>
+
+        // ── Update Counts ──
+        count.innerText    = L.nodes + ': ' + (data.totalMarkets || 0);
+        oppCount.innerText = (data.opportunitiesFound || 0) + ' Found';
+
+        // ── Render Arbitrage Opportunities ──
+        if (data.opportunities && data.opportunities.length > 0) {
+            signals.innerHTML = data.opportunities.map(opp => arbCardHTML(opp)).join('');
+        } else {
+            signals.innerHTML = `
+                <div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-slate-900">
+                    No arbitrage opportunities detected.
+                </div>`;
+        }
+
+        // ── Render Market Data Feed ──
+        if (data.markets && data.markets.length > 0) {
+            term.innerHTML = data.markets.slice(0, 20).map(m => marketCardHTML(m)).join('');
+        } else {
+            term.innerHTML = `
+                <div class="col-span-full corporate-card p-16 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-slate-900">
+                    No market data available.
+                </div>`;
+        }
+
+        // ── Update Status ──
+        const now = new Date();
+        document.getElementById('engine-status').innerText = 'Active';
+        document.getElementById('last-update').innerText   =
+            'Updated ' + now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    } catch (err) {
+        console.error('Scan error:', err);
+        document.getElementById('engine-status').innerText = 'Error';
+    } finally {
+        btn.disabled = false;
+    }
+}
+</script>
 </body>
 </html>
