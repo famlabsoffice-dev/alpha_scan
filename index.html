@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMILYLABORATORIES | ALPHA SCAN v2.8</title>
+    <title>FAMILYLABORATORIES | ALPHA SCAN v2.9</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -49,7 +49,7 @@
     <div class="max-w-md w-full p-10 text-center flex flex-col items-center">
         <div class="mb-12">
             <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] block mb-3 uppercase">FamilyLaboratories</span>
-            <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.8</span></h1>
+            <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.9</span></h1>
             <p class="text-[9px] text-slate-600 mt-3 tracking-widest uppercase">Cross-DEX Arbitrage Engine</p>
         </div>
         <div class="w-full space-y-6">
@@ -65,7 +65,7 @@
             <div class="flex items-center gap-10">
                 <div class="flex flex-col">
                     <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] uppercase mb-1">FamilyLaboratories</span>
-                    <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.8</span></h1>
+                    <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.9</span></h1>
                 </div>
                 <div class="h-12 w-px bg-slate-800 hidden lg:block"></div>
                 <nav class="hidden sm:flex gap-8 text-[11px] font-bold tracking-widest uppercase text-slate-500">
@@ -232,27 +232,31 @@ function arbCardHTML(opp) {
 
 function marketCardHTML(market) {
     const L = i18n[currentLang];
-    if (!market || !market.yes_raw || !market.no_raw) return '';
-    const yesPrice = parseFloat(market.yes_raw) || 0;
-    const noPrice = parseFloat(market.no_raw) || 0;
+    if (!market || market.yes_price === undefined || market.no_price === undefined) return '';
+    
+    const yesPrice = parseFloat(market.yes_price) || 0;
+    const noPrice = parseFloat(market.no_price) || 0;
     const title = market.title || 'Unknown Market';
     const source = market.source || 'Unknown';
     const chain = market.chain || 'Web2';
-    const fee = market.fee || 0.002;
     
-    function calcP(buy, sell, amt, f = 0.002) {
-        if (buy <= 0) return { net: 0, roi: 0 };
-        const shares = amt / buy;
-        const net = (shares * sell) - amt - (amt * f * 2);
-        return { net: parseFloat(net.toFixed(2)), roi: parseFloat(((net/amt)*100).toFixed(2)) };
-    }
+    // Use pre-calculated ROI values from worker
+    const yes_roi_5 = parseFloat(market.yes_roi_5) || 0;
+    const yes_roi_10 = parseFloat(market.yes_roi_10) || 0;
+    const yes_roi_25 = parseFloat(market.yes_roi_25) || 0;
+    const no_roi_5 = parseFloat(market.no_roi_5) || 0;
+    const no_roi_10 = parseFloat(market.no_roi_10) || 0;
+    const no_roi_25 = parseFloat(market.no_roi_25) || 0;
     
-    const y5  = calcP(yesPrice, 1.0, 5, fee);
-    const y10 = calcP(yesPrice, 1.0, 10, fee);
-    const y25 = calcP(yesPrice, 1.0, 25, fee);
-    const n5  = calcP(noPrice, 1.0, 5, fee);
-    const n10 = calcP(noPrice, 1.0, 10, fee);
-    const n25 = calcP(noPrice, 1.0, 25, fee);
+    const yes_net_5 = parseFloat(market.yes_net_5) || 0;
+    const yes_net_10 = parseFloat(market.yes_net_10) || 0;
+    const yes_net_25 = parseFloat(market.yes_net_25) || 0;
+    const no_net_5 = parseFloat(market.no_net_5) || 0;
+    const no_net_10 = parseFloat(market.no_net_10) || 0;
+    const no_net_25 = parseFloat(market.no_net_25) || 0;
+    
+    const yesColor = yes_roi_25 >= 0 ? 'text-[#10b981]' : 'text-[#ef4444]';
+    const noColor = no_roi_25 >= 0 ? 'text-[#10b981]' : 'text-[#ef4444]';
     
     return `<div class="market-card p-4 corporate-card border border-slate-800 bg-slate-950/50">
         <div class="flex justify-between items-start gap-3 mb-4">
@@ -272,29 +276,46 @@ function marketCardHTML(market) {
             <div class="trade-btn buy flex flex-col items-center p-3 bg-slate-900 border border-[#10b981]/30 rounded">
                 <span class="text-[8px] font-black text-[#10b981] uppercase mb-1">YES</span>
                 <span class="text-[10px] font-black text-white">$${fmt(yesPrice, 4)}</span>
-                <span class="text-[7px] text-[#10b981] mt-1">${fmtROI(y25.roi)} ROI</span>
+                <span class="${yesColor} text-[7px] font-bold mt-1">${fmtROI(yes_roi_25)}</span>
             </div>
             <div class="trade-btn sell flex flex-col items-center p-3 bg-slate-900 border border-[#ef4444]/30 rounded">
                 <span class="text-[8px] font-black text-[#ef4444] uppercase mb-1">NO</span>
                 <span class="text-[10px] font-black text-white">$${fmt(noPrice, 4)}</span>
-                <span class="text-[7px] text-[#ef4444] mt-1">${fmtROI(n25.roi)} ROI</span>
+                <span class="${noColor} text-[7px] font-bold mt-1">${fmtROI(no_roi_25)}</span>
             </div>
         </div>
         <div class="grid grid-cols-3 gap-2 border-t border-slate-900 pt-3">
             <div class="text-center">
-                <div class="text-[7px] text-slate-600 uppercase mb-1">5€</div>
-                <div class="text-[9px] font-black text-[#10b981]">${fmtEUR(y5.net)}</div>
-                <div class="text-[7px] text-slate-600">YES</div>
+                <div class="text-[7px] text-slate-600 uppercase mb-1">5€ YES</div>
+                <div class="text-[9px] font-black text-[#10b981]">${fmtEUR(yes_net_5)}</div>
+                <div class="text-[7px] text-slate-600">${fmtROI(yes_roi_5)}</div>
             </div>
             <div class="text-center">
-                <div class="text-[7px] text-slate-600 uppercase mb-1">10€</div>
-                <div class="text-[9px] font-black text-[#10b981]">${fmtEUR(y10.net)}</div>
-                <div class="text-[7px] text-slate-600">YES</div>
+                <div class="text-[7px] text-slate-600 uppercase mb-1">10€ YES</div>
+                <div class="text-[9px] font-black text-[#10b981]">${fmtEUR(yes_net_10)}</div>
+                <div class="text-[7px] text-slate-600">${fmtROI(yes_roi_10)}</div>
             </div>
             <div class="text-center">
-                <div class="text-[7px] text-slate-600 uppercase mb-1">25€</div>
-                <div class="text-[9px] font-black text-[#10b981]">${fmtEUR(y25.net)}</div>
-                <div class="text-[7px] text-slate-600">YES</div>
+                <div class="text-[7px] text-slate-600 uppercase mb-1">25€ YES</div>
+                <div class="text-[9px] font-black text-[#10b981]">${fmtEUR(yes_net_25)}</div>
+                <div class="text-[7px] text-slate-600">${fmtROI(yes_roi_25)}</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 border-t border-slate-900 pt-3 mt-3">
+            <div class="text-center">
+                <div class="text-[7px] text-slate-600 uppercase mb-1">5€ NO</div>
+                <div class="text-[9px] font-black text-[#ef4444]">${fmtEUR(no_net_5)}</div>
+                <div class="text-[7px] text-slate-600">${fmtROI(no_roi_5)}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-[7px] text-slate-600 uppercase mb-1">10€ NO</div>
+                <div class="text-[9px] font-black text-[#ef4444]">${fmtEUR(no_net_10)}</div>
+                <div class="text-[7px] text-slate-600">${fmtROI(no_roi_10)}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-[7px] text-slate-600 uppercase mb-1">25€ NO</div>
+                <div class="text-[9px] font-black text-[#ef4444]">${fmtEUR(no_net_25)}</div>
+                <div class="text-[7px] text-slate-600">${fmtROI(no_roi_25)}</div>
             </div>
         </div>
     </div>`;
@@ -309,7 +330,7 @@ async function executeScan() {
         if (data.crypto) {
             const sol = data.crypto.SOL; const btc = data.crypto.BTC; const eth = data.crypto.ETH;
             document.getElementById('price-sol').innerText = '$' + fmt(sol, 2); document.getElementById('price-btc').innerText = '$' + fmt(btc, 0); document.getElementById('price-eth').innerText = '$' + fmt(eth, 2);
-            document.getElementById('ticker-content').innerHTML = `<span class="ticker-item">SOL: $${fmt(sol,2)}</span><span class="ticker-item">BTC: $${fmt(btc,0)}</span><span class="ticker-item">ETH: $${fmt(eth,2)}</span><span class="ticker-item">FamLabs Alpha Scan v2.8 Online</span><span class="ticker-item">Global Prediction Markets Scanned</span><span class="ticker-item">Polymarket | Manifold | PredictIt</span><span class="ticker-item">100% LIVE DATA – GLOBAL</span><span class="ticker-item">Exec Time: ${data.executionTime}ms</span>`;
+            document.getElementById('ticker-content').innerHTML = `<span class="ticker-item">SOL: $${fmt(sol,2)}</span><span class="ticker-item">BTC: $${fmt(btc,0)}</span><span class="ticker-item">ETH: $${fmt(eth,2)}</span><span class="ticker-item">FamLabs Alpha Scan v2.9 Online</span><span class="ticker-item">Global Prediction Markets Scanned</span><span class="ticker-item">Polymarket | Manifold | PredictIt</span><span class="ticker-item">100% LIVE DATA – PRECISE ROI</span><span class="ticker-item">Exec Time: ${data.executionTime}ms</span>`;
         }
         if (data.volatilityIndex !== undefined) {
             document.getElementById('volatility-value').innerText = data.volatilityIndex.toFixed(1);
@@ -319,7 +340,7 @@ async function executeScan() {
         document.getElementById('opp-count').innerText = (data.opportunitiesFound || 0) + ' Found';
         if (data.opportunities?.length > 0) { signals.innerHTML = data.opportunities.map(opp => arbCardHTML(opp)).join(''); }
         else { signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase italic border-dashed border-2 border-slate-900">No opportunities detected.</div>`; }
-        if (data.markets?.length > 0) { term.innerHTML = data.markets.slice(0, 20).map(m => marketCardHTML(m)).filter(h => h).join(''); }
+        if (data.markets?.length > 0) { term.innerHTML = data.markets.slice(0, 50).map(m => marketCardHTML(m)).filter(h => h).join(''); }
         document.getElementById('engine-status').innerText = 'Active';
         document.getElementById('last-update').innerText = 'Updated ' + new Date().toLocaleTimeString('de-DE');
     } catch (err) {
