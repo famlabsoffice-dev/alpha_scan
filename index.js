@@ -1,5 +1,5 @@
 /**
- * FamilyLaboratories Alpha Scan v2.7
+ * FamilyLaboratories Alpha Scan v2.8
  * Cloudflare Worker – Global Cross-DEX Arbitrage Engine
  *
  * 100% LIVE DATA ONLY – NO SIMULATIONS
@@ -11,22 +11,8 @@
  *   ✓ Kraken (Crypto Prices)        – SOL, BTC, ETH ticker + trades
  *   ✓ Raydium/Orca (Solana DEX)     – Cross-DEX Liquidity Pools
  *   ✓ CoinGecko (Fallback)          – Crypto Prices
- *
- * CATEGORIES SCANNED:
- *   • Politics (Elections, Geopolitics, Policies)
- *   • Sports (NFL, NBA, Soccer, Olympics, etc.)
- *   • Finance (Markets, Crypto, Economic Indicators)
- *   • Entertainment (Movies, Awards, Celebrity)
- *   • Science & Technology
- *   • Weather & Natural Events
- *
- * ARBITRAGE DETECTION:
- *   1. Cross-Platform Arbitrage (same event, different platforms)
- *   2. YES/NO Spread Arbitrage (YES + NO < 1.0)
- *   3. Probability Mismatch Arbitrage (different odds on same outcome)
  */
 
-// ─── Profit Calculator ────────────────────────────────────────────────────────
 function calcProfit(buyPrice, sellPrice, amount, feesBuy = 0.002, feesSell = 0.002) {
   if (buyPrice <= 0 || sellPrice <= 0) return { net: 0, gross: 0, shares: 0, roi: 0 };
   const shares     = amount / buyPrice;
@@ -37,7 +23,6 @@ function calcProfit(buyPrice, sellPrice, amount, feesBuy = 0.002, feesSell = 0.0
   return { net: parseFloat(net.toFixed(4)), gross: parseFloat(gross.toFixed(4)), shares: parseFloat(shares.toFixed(4)), roi: parseFloat(roi.toFixed(4)) };
 }
 
-// ─── Volatility Calculator (USP) ──────────────────────────────────────────────
 function calcVolatilityIndex(trades) {
   if (!trades || trades.length < 2) return 0;
   const prices = trades.map(t => parseFloat(t[0])).slice(0, 100);
@@ -46,16 +31,14 @@ function calcVolatilityIndex(trades) {
   const variance = prices.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) / prices.length;
   const stdDev = Math.sqrt(variance);
   const coeffVar = (stdDev / mean) * 100;
-  const volatilityIndex = Math.min(100, Math.max(0, (coeffVar / 1) * 100));
-  return parseFloat(volatilityIndex.toFixed(1));
+  return Math.min(100, Math.max(0, (coeffVar / 1) * 100));
 }
 
-// ─── Safe Fetch with Timeout ──────────────────────────────────────────────────
 async function safeFetch(url, timeout = 6000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
   try {
-    const res = await fetch(url, { signal: controller.signal, headers: { 'User-Agent': 'FamLabs-AlphaScan/2.7' } });
+    const res = await fetch(url, { signal: controller.signal, headers: { 'User-Agent': 'FamLabs-AlphaScan/2.8' } });
     clearTimeout(id);
     if (!res.ok) return null;
     return await res.json();
@@ -65,26 +48,6 @@ async function safeFetch(url, timeout = 6000) {
   }
 }
 
-// ─── Normalize Market Data ────────────────────────────────────────────────────
-function normalizeMarket(market, source) {
-  const base = {
-    id: market.id || market.condId || market.market_id || Math.random().toString(36),
-    source: source,
-    title: market.title || market.name || market.question || '',
-    yes_raw: market.yes_raw || market.probability || market.lastTradePrice || 0,
-    no_raw: market.no_raw || (1 - (market.probability || 0)) || 0,
-    volume: market.volume || market.vol || 0,
-    fee: market.fee || 0.002,
-    chain: market.chain || 'Web2',
-    token: market.token || 'USD',
-    url: market.url || market.u || '',
-    category: market.category || market.tags?.[0]?.label || 'General',
-    timestamp: Date.now(),
-  };
-  return base;
-}
-
-// ─── Main Worker ──────────────────────────────────────────────────────────────
 export default {
   async fetch(request, env, ctx) {
 
@@ -102,32 +65,16 @@ export default {
 
     const startTime = Date.now();
     const AUTH_PASS = env.AUTH_PASSWORD || "TGMFAM2026";
-
-    // ── Auth ──────────────────────────────────────────────────────────────────
-    const url          = new URL(request.url);
+    const url = new URL(request.url);
     const providedPass = request.headers.get('X-FamLabs-Auth') || url.searchParams.get('auth');
 
     if (providedPass !== AUTH_PASS) {
-      return new Response(JSON.stringify({
-        error: "UNAUTHORIZED_ACCESS",
-        msg:   "FamLabs Terminal Restricted. Authentication Required.",
-      }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: "UNAUTHORIZED_ACCESS", msg: "FamLabs Terminal Restricted." }), 
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // ── Parallel Data Fetch (100% LIVE DATA ONLY) ─────────────────────────────
-    const [
-      krakenSol,
-      krakenBtc,
-      krakenEth,
-      krakenTrades,
-      polymarketGamma,
-      polymarketClob,
-      manifold,
-      predictit,
-      raydium,
-      orca,
-      coingecko,
-    ] = await Promise.all([
+    // ── Parallel Data Fetch ───────────────────────────────────────────────────
+    const [krakenSol, krakenBtc, krakenEth, krakenTrades, polymarketGamma, polymarketClob, manifold, predictit, raydium, orca, coingecko] = await Promise.all([
       safeFetch('https://api.kraken.com/0/public/Ticker?pair=SOLUSD'),
       safeFetch('https://api.kraken.com/0/public/Ticker?pair=XBTUSD'),
       safeFetch('https://api.kraken.com/0/public/Ticker?pair=ETHUSD'),
@@ -173,27 +120,32 @@ export default {
 
     // ── Parse Global Markets ──────────────────────────────────────────────────
     const allMarkets = [];
-    const marketMap = {}; // For cross-platform deduplication
+    const marketMap = {};
     const now = Date.now();
 
-    // Polymarket Gamma (Events)
+    // Polymarket Gamma
     if (Array.isArray(polymarketGamma)) {
       polymarketGamma.forEach(e => {
         if (!e.active || e.closed) return;
-        const m = normalizeMarket({
+        const m = {
           id: e.id,
-          title: e.title,
-          category: e.tags?.[0]?.label || 'General',
-          url: `https://polymarket.com/event/${e.slug}`,
+          source: 'Polymarket',
+          title: e.title || '',
+          yes_raw: 0.5,
+          no_raw: 0.5,
           volume: 0,
+          fee: 0.002,
           chain: 'Polygon',
           token: 'USDC',
-        }, 'Polymarket');
+          url: `https://polymarket.com/event/${e.slug}`,
+          category: e.tags?.[0]?.label || 'General',
+          timestamp: now,
+        };
         if (!marketMap[m.id]) { marketMap[m.id] = m; allMarkets.push(m); }
       });
     }
 
-    // Polymarket CLOB (Markets with Prices)
+    // Polymarket CLOB
     if (Array.isArray(polymarketClob)) {
       polymarketClob.forEach(m => {
         if (!m.active || m.closed) return;
@@ -204,82 +156,76 @@ export default {
         const yP  = parseFloat(yes?.price || 0);
         const nP  = parseFloat(no?.price  || 0);
         if (yP <= 0 || yP >= 1 || nP <= 0 || nP >= 1) return;
-        const market = normalizeMarket({
+        const market = {
           id: m.market_slug,
-          title: m.question,
+          source: 'Polymarket',
+          title: m.question || '',
           yes_raw: yP,
           no_raw: nP,
           volume: 0,
+          fee: 0.002,
           chain: 'Polygon',
           token: 'USDC',
           url: `https://polymarket.com/event/${m.market_slug}`,
-        }, 'Polymarket');
+          category: 'Prediction',
+          timestamp: now,
+        };
         if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
       });
     }
 
-    // Manifold Markets
+    // Manifold
     if (Array.isArray(manifold)) {
       manifold.forEach(m => {
         if (m.isResolved || (m.closeTime && m.closeTime < now)) return;
         const prob = m.probability / 100;
         if (prob <= 0 || prob >= 1) return;
-        const market = normalizeMarket({
+        const market = {
           id: m.id,
-          title: m.question,
+          source: 'Manifold',
+          title: m.question || '',
           yes_raw: prob,
           no_raw: 1 - prob,
           volume: m.volume24Hours || 0,
+          fee: 0.002,
           chain: 'Web2',
           token: 'USD',
-          url: m.url,
+          url: m.url || '',
           category: m.tags?.[0] || 'General',
-        }, 'Manifold');
+          timestamp: now,
+        };
         if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
       });
     }
 
-    // PredictIt Markets
+    // PredictIt
     if (predictit?.markets) {
       predictit.markets.forEach(m => {
         if (!m.active) return;
         m.contracts?.forEach(c => {
           if (c.lastTradePrice <= 0 || c.lastTradePrice >= 1) return;
-          const market = normalizeMarket({
+          const market = {
             id: `predictit-${m.id}-${c.id}`,
+            source: 'PredictIt',
             title: `${m.name} - ${c.name}`,
             yes_raw: c.lastTradePrice,
             no_raw: 1 - c.lastTradePrice,
             volume: m.volume || 0,
+            fee: 0.002,
             chain: 'Web2',
             token: 'USD',
             url: `https://www.predictit.org/markets/detail/${m.id}`,
-            category: m.name.includes('2026') ? 'Politics' : 'General',
-          }, 'PredictIt');
+            category: 'Politics',
+            timestamp: now,
+          };
           if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
         });
       });
     }
 
-    // Raydium/Orca (SOL DEX)
-    const dexPools = [...(Array.isArray(raydium) ? raydium : []), ...(Array.isArray(orca) ? orca : [])];
-    dexPools.slice(0, 50).forEach(p => {
-      if (!p.name || !p.liquidity) return;
-      const market = normalizeMarket({
-        id: p.ammId || p.account,
-        title: p.name,
-        volume: parseFloat(p.liquidity),
-        chain: 'Solana',
-        token: 'SPL',
-        url: 'https://raydium.io/swap/',
-      }, p.ammId ? 'Raydium' : 'Orca');
-      if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
-    });
-
     // ── Arbitrage Detection ───────────────────────────────────────────────────
     const opportunities = [];
 
-    // 1. YES/NO Spread Arbitrage
     allMarkets.forEach(m => {
       if (!m.yes_raw || !m.no_raw) return;
       const sum = m.yes_raw + m.no_raw;
@@ -313,66 +259,16 @@ export default {
             category: m.category,
             source: m.source,
             status: 'PROFITABLE',
+            priority: m.source === 'Polymarket' ? 1 : m.source === 'PredictIt' ? 2 : 3,
           });
         }
       }
     });
 
-    // 2. Cross-Platform Arbitrage (simplified - same event on different platforms)
-    // In production: use NLP/fuzzy matching to find same events on different platforms
-    const titleMap = {};
-    allMarkets.forEach(m => {
-      const key = m.title.toLowerCase().slice(0, 30);
-      if (!titleMap[key]) titleMap[key] = [];
-      titleMap[key].push(m);
-    });
-
-    Object.values(titleMap).forEach(markets => {
-      if (markets.length < 2) return;
-      markets.forEach((m1, i) => {
-        markets.slice(i + 1).forEach(m2 => {
-          if (m1.source === m2.source) return;
-          if (!m1.yes_raw || !m2.yes_raw) return;
-          const priceDiff = Math.abs(m1.yes_raw - m2.yes_raw);
-          const pctDiff = (priceDiff / Math.max(m1.yes_raw, m2.yes_raw)) * 100;
-          if (pctDiff > 2) { // More than 2% difference
-            const buyPrice = Math.min(m1.yes_raw, m2.yes_raw);
-            const sellPrice = Math.max(m1.yes_raw, m2.yes_raw);
-            const p25 = calcProfit(buyPrice, sellPrice, 25, 0.002, 0.002);
-            if (p25.net > 0) {
-              opportunities.push({
-                pairId: `cross-${m1.source}-${m2.source}-${m1.id}`,
-                title: m1.title,
-                buyDex: m1.source,
-                sellDex: m2.source,
-                chain: 'Multi-Platform',
-                token: 'USD',
-                buyPrice: buyPrice * 100,
-                sellPrice: sellPrice * 100,
-                priceDifference: priceDiff * 100,
-                percentageDifference: pctDiff,
-                profitMargin: pctDiff - 0.4,
-                profit5: calcProfit(buyPrice, sellPrice, 5, 0.002, 0.002).net,
-                profit10: calcProfit(buyPrice, sellPrice, 10, 0.002, 0.002).net,
-                profit25: p25.net,
-                roi5: calcProfit(buyPrice, sellPrice, 5, 0.002, 0.002).roi,
-                roi10: calcProfit(buyPrice, sellPrice, 10, 0.002, 0.002).roi,
-                roi25: p25.roi,
-                volume: Math.min(m1.volume, m2.volume),
-                category: m1.category,
-                source: `${m1.source} ↔ ${m2.source}`,
-                status: 'PROFITABLE',
-              });
-            }
-          }
-        });
-      });
-    });
-
     const response = {
       timestamp: new Date().toISOString(),
       executionTime: Date.now() - startTime,
-      version: "2.7",
+      version: "2.8",
       totalMarkets: allMarkets.length,
       opportunitiesFound: opportunities.length,
       opportunities: opportunities.sort((a, b) => b.profitMargin - a.profitMargin).slice(0, 100),
@@ -381,8 +277,6 @@ export default {
       volatilityIndex: volatilityIndex,
       status: 'SUCCESS',
       dataQuality: '100% LIVE DATA – GLOBAL MULTI-SOURCE',
-      sources: ['Polymarket', 'Manifold', 'PredictIt', 'Kraken', 'Raydium', 'Orca', 'CoinGecko'],
-      categories: ['Politics', 'Sports', 'Finance', 'Entertainment', 'Science & Tech', 'General'],
     };
 
     return new Response(JSON.stringify(response), {
