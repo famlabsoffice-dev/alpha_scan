@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaScan v4.0 - ORACLE ENGINE</title>
+    <title>FamLabs Oracle v4.1 - FamilyLaboratories Elite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-dark: #0b0e11;
             --bg-card: #181a20;
-            --primary: #f0b90b; /* Binance Gold */
+            --primary: #f0b90b; /* FamLabs Gold */
             --success: #0ecb81;
             --danger: #f6465d;
             --text-main: #eaecef;
@@ -100,21 +100,30 @@
             animation: scan-line 3s linear infinite;
             pointer-events: none;
         }
+        .famlabs-badge {
+            background: linear-gradient(90deg, #f0b90b, #e2b007);
+            color: #000;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body class="p-2 md:p-6 min-h-screen flex flex-col">
     <div class="max-w-[1800px] mx-auto w-full flex-grow flex flex-col gap-6 relative">
         <div class="scan-line" id="scan-indicator" style="display: none;"></div>
         
-        <!-- Header -->
+        <!-- Header: FamLabs Oracle -->
         <header class="flex justify-between items-center p-5 glass-card rounded-2xl border-b-2 border-primary/20">
             <div class="flex items-center gap-5">
-                <div class="bg-[#f0b90b] text-black w-12 h-12 flex items-center justify-center rounded-xl font-black italic text-2xl shadow-lg shadow-primary/20">Ω</div>
+                <div class="bg-[#f0b90b] text-black w-12 h-12 flex items-center justify-center rounded-xl font-black italic text-2xl shadow-lg shadow-primary/20">FL</div>
                 <div>
-                    <h1 class="text-2xl font-black tracking-tight leading-none">ORACLE <span class="text-[#f0b90b]">ENGINE</span> <span class="text-[10px] text-muted font-bold ml-2">v4.0 ALPHA</span></h1>
+                    <h1 class="text-2xl font-black tracking-tight leading-none">FAMLABS <span class="text-[#f0b90b]">ORACLE</span> <span class="text-[10px] text-muted font-bold ml-2">v4.1 BY ACK</span></h1>
                     <div class="flex items-center gap-2 mt-2">
                         <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
-                        <span id="t-status" class="text-[10px] text-muted font-black uppercase tracking-[0.2em]">Matrix Synchronization Active</span>
+                        <span id="t-status" class="text-[10px] text-muted font-black uppercase tracking-[0.2em]">FamilyLaboratories Core Synchronized</span>
                     </div>
                 </div>
             </div>
@@ -149,8 +158,8 @@
             <!-- Oracle Signals Panel -->
             <section class="lg:col-span-4 flex flex-col gap-4 min-h-0">
                 <div class="flex items-center justify-between px-2">
-                    <h2 id="t-signals" class="text-[11px] font-black text-muted uppercase tracking-[0.3em]">Oracle Spread Alerts</h2>
-                    <span class="text-[9px] text-danger font-black bg-danger/10 px-3 py-1 rounded-full border border-danger/20">NET PROFIT MODE</span>
+                    <h2 id="t-signals" class="text-[11px] font-black text-muted uppercase tracking-[0.3em]">FamLabs Arbitrage Alerts</h2>
+                    <span class="famlabs-badge">ACK EDITION</span>
                 </div>
                 <div id="signals" class="flex-grow overflow-y-auto terminal-scroll space-y-4 pr-2 max-h-[75vh]">
                     <div id="t-waiting-signals" class="glass-card rounded-2xl p-12 text-center text-muted text-sm font-medium border-dashed">
@@ -192,12 +201,15 @@
                     <div id="arb-count" class="text-lg font-black mono text-danger">0 Signal(s)</div>
                 </div>
                 <div class="text-center border-l border-border">
-                    <div class="text-[9px] text-muted font-black uppercase tracking-widest mb-2">Network Load</div>
-                    <div class="text-lg font-black text-success mono">OPTIMIZED</div>
+                    <div class="text-[9px] text-muted font-black uppercase tracking-widest mb-2">Engine Status</div>
+                    <div class="text-lg font-black text-success mono italic tracking-widest">C•J•V•K</div>
                 </div>
             </div>
-            <div class="text-[10px] text-muted font-black italic md:w-1/4 text-right uppercase tracking-widest">
-                Oracle Engine v4.0 | Exclusive Access
+            <div class="flex flex-col items-end md:w-1/4 text-right">
+                <div class="text-[10px] text-primary font-black tracking-widest uppercase mb-1">Born in four, build for billions!</div>
+                <div class="text-[9px] text-muted font-black italic uppercase tracking-widest">
+                    C•J•V•K | FamLabs Oracle v4.1
+                </div>
             </div>
         </footer>
     </div>
@@ -205,8 +217,8 @@
     <script>
         const i18n = {
             de: {
-                status: "Matrix-Synchronisierung Aktiv",
-                signals: "Oracle Spread-Alarme",
+                status: "FamilyLaboratories Kern Synchronisiert",
+                signals: "FamLabs Arbitrage-Alarme",
                 feed: "Semantische Markt-Matrix",
                 waiting_signals: "Warte auf Markt-Divergenz-Signale...",
                 waiting_feed: "Analysiere globale Liquiditätspools...",
@@ -221,8 +233,8 @@
                 confidence: "ORACLE CONFIDENCE SCORE"
             },
             en: {
-                status: "Matrix Synchronization Active",
-                signals: "Oracle Spread Alerts",
+                status: "FamilyLaboratories Core Synchronized",
+                signals: "FamLabs Arbitrage Alerts",
                 feed: "Semantic Market Matrix",
                 waiting_signals: "Awaiting market divergence signals...",
                 waiting_feed: "Analyzing Global Liquidity Pools...",
@@ -237,8 +249,8 @@
                 confidence: "ORACLE CONFIDENCE SCORE"
             },
             pt: {
-                status: "Sincronização de Matriz Ativa",
-                signals: "Alertas de Spread Oracle",
+                status: "Núcleo FamilyLaboratories Sincronizado",
+                signals: "Alertas de Arbitragem FamLabs",
                 feed: "Matriz Semântica de Mercado",
                 waiting_signals: "Aguardando sinais de divergência...",
                 waiting_feed: "Analisando Pools de Liquidez Globais...",
@@ -253,8 +265,8 @@
                 confidence: "SCORE DE CONFIANÇA ORACLE"
             },
             zh: {
-                status: "矩阵同步激活",
-                signals: "Oracle 价差警报",
+                status: "FamilyLaboratories 核心同步",
+                signals: "FamLabs 套利警报",
                 feed: "语义市场矩阵",
                 waiting_signals: "等待市场背离信号...",
                 waiting_feed: "分析全球流动性池...",
@@ -295,7 +307,7 @@
             const indicator = document.getElementById('scan-indicator');
             
             indicator.style.display = 'block';
-            term.innerHTML = `<div class="col-span-full py-24 text-center text-muted animate-pulse text-xs font-black uppercase tracking-[0.5em]">Defragmenting Global Matrix...</div>`;
+            term.innerHTML = `<div class="col-span-full py-24 text-center text-muted animate-pulse text-xs font-black uppercase tracking-[0.5em]">Defragmenting FamLabs Matrix...</div>`;
             signals.innerHTML = `<div class="py-12 text-center text-muted animate-pulse text-xs font-black uppercase tracking-[0.3em]">Calculating Oracle Spreads...</div>`;
             btn.disabled = true;
 
