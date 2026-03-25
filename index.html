@@ -10,9 +10,9 @@
     <style>
         :root { 
             --bg: #020617; 
-            --card-bg: rgba(15, 23, 42, 0.8); 
+            --card-bg: rgba(15, 23, 42, 0.85); 
             --gold: #fbbf24; 
-            --gold-glow: rgba(251, 191, 36, 0.3);
+            --gold-glow: rgba(251, 191, 36, 0.4);
             --yes: #10b981; 
             --no: #ef4444; 
             --accent: #fbbf24;
@@ -20,130 +20,134 @@
         body { background-color: var(--bg); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .font-mono { font-family: 'IBM Plex Mono', monospace; }
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        .glass { background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid rgba(251, 191, 36, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6); }
-        .gold-glow { text-shadow: 0 0 20px var(--gold-glow); }
-        .gold-border { border: 1px solid var(--gold); }
+        .glass { background: var(--card-bg); backdrop-filter: blur(24px); border: 1px solid rgba(251, 191, 36, 0.15); box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.7); }
+        .gold-glow { text-shadow: 0 0 25px var(--gold-glow); }
         .gold-gradient { background: linear-gradient(135deg, #f59e0b, #fbbf24, #fef3c7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .scan-line { position: fixed; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); animation: scan 3s linear infinite; z-index: 100; pointer-events: none; opacity: 0.4; }
+        .scan-line { position: fixed; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); animation: scan 3s linear infinite; z-index: 100; pointer-events: none; opacity: 0.5; }
         @keyframes scan { 0% { transform: translateY(-100vh); } 100% { transform: translateY(100vh); } }
         .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-        .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-8px); border-color: var(--gold); box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px var(--gold-glow); }
-        .tab-active { border-bottom: 2px solid var(--gold); color: var(--gold); opacity: 1 !important; }
+        .card-hover { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-12px) scale(1.02); border-color: var(--gold); box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 30px var(--gold-glow); }
+        .tab-active { border-bottom: 3px solid var(--gold); color: var(--gold); opacity: 1 !important; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
-        .btn-yes { background: var(--yes); color: white; transition: all 0.3s; }
-        .btn-yes:hover { background: #059669; transform: scale(1.05); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
-        .btn-no { background: var(--no); color: white; transition: all 0.3s; }
-        .btn-no:hover { background: #dc2626; transform: scale(1.05); box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+        .btn-yes { background: var(--yes); color: white; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .btn-yes:hover { background: #059669; transform: scale(1.05); box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+        .btn-no { background: var(--no); color: white; transition: all 0.3s; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+        .btn-no:hover { background: #dc2626; transform: scale(1.05); box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .branding-text { letter-spacing: 0.4em; font-weight: 900; }
     </style>
 </head>
 <body class="min-h-screen selection:bg-yellow-500/30">
     <div class="scan-line"></div>
     
     <!-- Header -->
-    <header class="glass sticky top-0 z-50 px-8 py-5 flex items-center justify-between border-b border-yellow-500/10">
-        <div class="flex items-center gap-6">
-            <h1 class="font-orbitron text-2xl font-black tracking-tighter text-white uppercase">ALPHA<span class="text-yellow-500">SCAN</span> <span class="ml-2 text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 GOLD PRO</span></h1>
-            <div class="hidden lg:flex items-center gap-3 text-[10px] font-mono tracking-[0.2em] text-slate-500">
-                <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full pulse"></span>
+    <header class="glass sticky top-0 z-50 px-10 py-6 flex items-center justify-between border-b border-yellow-500/20">
+        <div class="flex items-center gap-8">
+            <div class="flex flex-col">
+                <span class="text-[10px] font-orbitron font-black tracking-[0.5em] text-yellow-500 uppercase mb-1">FAMILYLABORATORIES</span>
+                <h1 class="font-orbitron text-3xl font-black tracking-tighter text-white uppercase leading-none">ALPHA<span class="text-yellow-500">SCAN</span> <span class="ml-2 text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 GOLD PRO</span></h1>
+            </div>
+            <div class="hidden lg:flex items-center gap-4 text-[10px] font-mono tracking-[0.3em] text-slate-500 border-l border-white/10 pl-8">
+                <span class="w-2 h-2 bg-yellow-500 rounded-full pulse"></span>
                 PREMIUM TRADING TERMINAL
             </div>
         </div>
-        <div class="flex items-center gap-6">
-            <div id="walletStatus" class="hidden md:flex items-center gap-3 bg-white/5 px-4 py-2 rounded-xl border border-white/10 text-[10px] font-mono">
-                <span class="opacity-40">WALLET:</span>
-                <span id="walletAddr" class="text-yellow-400">NOT CONNECTED</span>
+        <div class="flex items-center gap-8">
+            <div id="walletStatus" class="hidden md:flex items-center gap-4 bg-white/5 px-5 py-2.5 rounded-2xl border border-white/10 text-[10px] font-mono">
+                <span class="opacity-40 uppercase tracking-widest">Wallet:</span>
+                <span id="walletAddr" class="text-yellow-400 font-bold">NOT CONNECTED</span>
             </div>
-            <button id="connectBtn" class="bg-yellow-600 hover:bg-yellow-700 text-black px-6 py-2.5 rounded-xl text-xs font-black transition-all uppercase tracking-[0.15em] shadow-lg shadow-yellow-600/20">Connect Wallet</button>
+            <button id="connectBtn" class="bg-yellow-500 hover:bg-yellow-600 text-black px-8 py-3 rounded-2xl text-xs font-black transition-all uppercase tracking-[0.2em] shadow-xl shadow-yellow-500/20">Connect Wallet</button>
         </div>
     </header>
 
     <!-- Hero -->
-    <section class="relative pt-32 pb-24 px-6 text-center overflow-hidden">
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-yellow-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+    <section class="relative pt-40 pb-32 px-6 text-center overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-yellow-600/5 blur-[150px] rounded-full pointer-events-none"></div>
         <div class="relative z-10">
-            <h2 class="font-orbitron text-7xl md:text-9xl font-black mb-8 tracking-tighter uppercase gold-glow leading-none">
+            <div class="inline-block px-6 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black tracking-[0.5em] uppercase mb-10">FamilyLaboratories Presents</div>
+            <h2 class="font-orbitron text-8xl md:text-[10rem] font-black mb-10 tracking-tighter uppercase gold-glow leading-none">
                 ALPHA <span class="gold-gradient">SCAN</span>
             </h2>
-            <p class="text-slate-400 max-w-3xl mx-auto mb-16 text-xl font-light tracking-widest leading-relaxed uppercase">
+            <p class="text-slate-400 max-w-4xl mx-auto mb-20 text-2xl font-light tracking-[0.2em] leading-relaxed uppercase">
                 Hyperprecise Prediction Arbitrage Scanner.<br>
                 <span class="text-yellow-500 font-bold">Underdog gewinnt immer.</span>
             </p>
             
-            <div class="flex flex-wrap justify-center gap-10 mb-20">
-                <div class="glass p-10 rounded-[2.5rem] min-w-[220px] border-yellow-500/10 group hover:border-yellow-500/40 transition-all">
-                    <div class="text-5xl font-orbitron font-black text-yellow-400 group-hover:scale-110 transition-transform" id="statPlatforms">4</div>
-                    <div class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em] mt-4">Plattformen</div>
+            <div class="flex flex-wrap justify-center gap-12 mb-24">
+                <div class="glass p-12 rounded-[3rem] min-w-[250px] border-yellow-500/20 group hover:border-yellow-500/50 transition-all">
+                    <div class="text-6xl font-orbitron font-black text-yellow-400 group-hover:scale-110 transition-transform" id="statPlatforms">4</div>
+                    <div class="text-[11px] text-slate-500 font-mono uppercase tracking-[0.5em] mt-6">Plattformen</div>
                 </div>
-                <div class="glass p-10 rounded-[2.5rem] min-w-[220px] border-yellow-500/10 group hover:border-yellow-500/40 transition-all">
-                    <div class="text-5xl font-orbitron font-black text-yellow-400 group-hover:scale-110 transition-transform" id="statSpeed">&lt;1.2s</div>
-                    <div class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em] mt-4">Scan-Speed</div>
+                <div class="glass p-12 rounded-[3rem] min-w-[250px] border-yellow-500/20 group hover:border-yellow-500/50 transition-all">
+                    <div class="text-6xl font-orbitron font-black text-yellow-400 group-hover:scale-110 transition-transform" id="statSpeed">&lt;1.2s</div>
+                    <div class="text-[11px] text-slate-500 font-mono uppercase tracking-[0.5em] mt-6">Scan-Speed</div>
                 </div>
-                <div class="glass p-10 rounded-[2.5rem] min-w-[220px] border-yellow-500/10 group hover:border-yellow-500/40 transition-all">
-                    <div class="text-5xl font-orbitron font-black text-yellow-400 group-hover:scale-110 transition-transform" id="statMarkets">0</div>
-                    <div class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em] mt-4">Märkte Live</div>
+                <div class="glass p-12 rounded-[3rem] min-w-[250px] border-yellow-500/20 group hover:border-yellow-500/50 transition-all">
+                    <div class="text-6xl font-orbitron font-black text-yellow-400 group-hover:scale-110 transition-transform" id="statMarkets">0</div>
+                    <div class="text-[11px] text-slate-500 font-mono uppercase tracking-[0.5em] mt-6">Märkte Live</div>
                 </div>
             </div>
 
-            <button id="scanBtn" class="group relative bg-yellow-500 text-black px-16 py-7 rounded-[2rem] font-orbitron font-black text-2xl hover:scale-105 transition-all shadow-[0_20px_60px_rgba(251,191,36,0.2)] uppercase tracking-tighter">
+            <button id="scanBtn" class="group relative bg-yellow-500 text-black px-20 py-8 rounded-[2.5rem] font-orbitron font-black text-3xl hover:scale-105 transition-all shadow-[0_30px_80px_rgba(251,191,36,0.3)] uppercase tracking-tighter">
                 <span class="relative z-10">Live Scan Ausführen</span>
-                <div class="absolute inset-0 bg-yellow-400 rounded-[2rem] blur-3xl opacity-0 group-hover:opacity-40 transition-all"></div>
+                <div class="absolute inset-0 bg-yellow-400 rounded-[2.5rem] blur-3xl opacity-0 group-hover:opacity-50 transition-all"></div>
             </button>
         </div>
     </section>
 
     <!-- Main -->
-    <main id="resultsArea" class="hidden px-8 pb-40 max-w-[1400px] mx-auto">
+    <main id="resultsArea" class="hidden px-10 pb-48 max-w-[1600px] mx-auto">
         <!-- Top Opportunities -->
-        <div class="mb-24">
-            <div class="flex items-center justify-between mb-12">
-                <h3 class="font-orbitron text-4xl font-black flex items-center gap-6 uppercase tracking-tighter">
-                    <span class="text-yellow-500 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]">★</span> Top 10 Opportunities
+        <div class="mb-32">
+            <div class="flex items-center justify-between mb-16">
+                <h3 class="font-orbitron text-5xl font-black flex items-center gap-8 uppercase tracking-tighter">
+                    <span class="text-yellow-500 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">★</span> Top 10 Opportunities
                 </h3>
-                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-[0.5em] border-b border-yellow-500/20 pb-2">Arbitrage & High ROI</div>
+                <div class="text-[11px] font-mono text-slate-500 uppercase tracking-[0.6em] border-b border-yellow-500/30 pb-3">Arbitrage & High ROI</div>
             </div>
-            <div id="top10Grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8"></div>
+            <div id="top10Grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10"></div>
         </div>
 
         <!-- Filters -->
-        <div class="flex gap-12 border-b border-white/5 mb-16 overflow-x-auto no-scrollbar">
-            <button class="tab-btn tab-active pb-8 font-bold text-xs tracking-[0.3em] uppercase transition-all opacity-40" data-filter="ALL">Alle Märkte</button>
-            <button class="tab-btn pb-8 font-bold text-xs tracking-[0.3em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="ARB">Arbitrage</button>
-            <button class="tab-btn pb-8 font-bold text-xs tracking-[0.3em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="UNDERDOG">Underdogs</button>
-            <button class="tab-btn pb-8 font-bold text-xs tracking-[0.3em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="SOLANA">Solana Focus</button>
+        <div class="flex gap-16 border-b border-white/5 mb-20 overflow-x-auto no-scrollbar">
+            <button class="tab-btn tab-active pb-10 font-bold text-xs tracking-[0.4em] uppercase transition-all opacity-40" data-filter="ALL">Alle Märkte</button>
+            <button class="tab-btn pb-10 font-bold text-xs tracking-[0.4em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="ARB">Arbitrage</button>
+            <button class="tab-btn pb-10 font-bold text-xs tracking-[0.4em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="UNDERDOG">Underdogs</button>
+            <button class="tab-btn pb-10 font-bold text-xs tracking-[0.4em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="SOLANA">Solana Focus</button>
         </div>
 
         <!-- Feed -->
-        <div id="marketFeed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
+        <div id="marketFeed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"></div>
     </main>
 
     <!-- Loading -->
-    <div id="loadingOverlay" class="hidden fixed inset-0 z-[100] bg-slate-950/98 backdrop-blur-3xl flex flex-col items-center justify-center">
-        <div class="relative w-80 h-80 mb-16">
+    <div id="loadingOverlay" class="hidden fixed inset-0 z-[100] bg-slate-950/99 backdrop-blur-[40px] flex flex-col items-center justify-center">
+        <div class="relative w-96 h-96 mb-20">
             <div class="absolute inset-0 border-[1px] border-yellow-500/5 rounded-full"></div>
-            <div class="absolute inset-0 border-t-[1px] border-yellow-500 rounded-full animate-spin"></div>
-            <div class="absolute inset-0 flex items-center justify-center font-orbitron font-black text-4xl uppercase tracking-[0.2em] gold-glow">Scanning</div>
+            <div class="absolute inset-0 border-t-[2px] border-yellow-500 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center font-orbitron font-black text-5xl uppercase tracking-[0.3em] gold-glow">Scanning</div>
         </div>
-        <div class="w-96 h-[1px] bg-white/5 rounded-full overflow-hidden">
-            <div id="progressBar" class="h-full bg-yellow-500 w-0 transition-all duration-1000 shadow-[0_0_20px_rgba(251,191,36,1)]"></div>
+        <div class="w-[500px] h-[2px] bg-white/5 rounded-full overflow-hidden">
+            <div id="progressBar" class="h-full bg-yellow-500 w-0 transition-all duration-1000 shadow-[0_0_30px_rgba(251,191,36,1)]"></div>
         </div>
-        <p id="loadingText" class="mt-10 font-mono text-[10px] text-slate-500 uppercase tracking-[0.8em]">Deep-Scan Initialisierung...</p>
+        <p id="loadingText" class="mt-12 font-mono text-[11px] text-slate-500 uppercase tracking-[1em]">Deep-Scan Initialisierung...</p>
     </div>
 
     <!-- Footer -->
-    <footer class="px-8 py-24 border-t border-yellow-500/10 text-center text-slate-600">
-        <div class="mb-10 flex justify-center gap-16 uppercase tracking-[0.6em] font-black text-[10px] text-slate-500">
+    <footer class="px-10 py-32 border-t border-yellow-500/20 text-center text-slate-600">
+        <div class="mb-12 flex justify-center gap-20 uppercase tracking-[0.8em] font-black text-[11px] text-slate-500">
             <span class="hover:text-yellow-500 transition-colors cursor-default">C•J•V•K</span>
             <span class="hover:text-yellow-500 transition-colors cursor-default">© 2026 FamilyLaboratories</span>
             <span class="hover:text-yellow-500 transition-colors cursor-default">v4.1.0 GOLD PRO</span>
         </div>
-        <p class="max-w-3xl mx-auto opacity-30 text-[10px] leading-loose uppercase tracking-widest">
-            Alle Daten werden in Echtzeit über öffentliche APIs aggregiert. Arbitrage-Chancen auf Solana (Monaco/Hxro) nutzen identische SPL-Outcome-Tokens für sofortige Ausführung über Phantom-Wallet.
+        <p class="max-w-4xl mx-auto opacity-40 text-[11px] leading-loose uppercase tracking-[0.2em] font-medium">
+            Alle Daten werden in Echtzeit über öffentliche APIs aggregiert. Arbitrage-Chancen auf Solana (Monaco/Hxro) nutzen identische SPL-Outcome-Tokens für sofortige Ausführung über Phantom-Wallet. Ein Produkt von <span class="text-yellow-500 font-bold">FamilyLaboratories</span>.
         </p>
     </footer>
 
@@ -260,33 +264,33 @@
             const calcProfit = (stake, price) => (stake / price - stake).toFixed(2);
 
             return `
-                <div class="glass p-8 rounded-[2.5rem] card-hover flex flex-col gap-6 ${isTop ? 'border-yellow-500/30 shadow-[0_0_40px_rgba(251,191,36,0.15)]' : ''}">
+                <div class="glass p-10 rounded-[3rem] card-hover flex flex-col gap-8 ${isTop ? 'border-yellow-500/40 shadow-[0_0_50px_rgba(251,191,36,0.2)]' : ''}">
                     <div class="flex justify-between items-start">
-                        <span class="text-[9px] font-mono px-4 py-1.5 rounded-full bg-white/5 border border-white/10 tracking-[0.2em] uppercase font-bold" style="color: ${plat.color}">${market.platform}</span>
-                        <div class="flex gap-2">
-                            ${isArb ? '<span class="text-[9px] font-mono px-4 py-1.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 uppercase tracking-[0.2em] font-bold">Arb</span>' : ''}
-                            ${market.yes_price < 0.15 ? '<span class="text-[9px] font-mono px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 uppercase tracking-[0.2em] font-bold">Underdog</span>' : ''}
+                        <span class="text-[10px] font-mono px-5 py-2 rounded-full bg-white/5 border border-white/10 tracking-[0.3em] uppercase font-black" style="color: ${plat.color}">${market.platform}</span>
+                        <div class="flex gap-3">
+                            ${isArb ? '<span class="text-[10px] font-mono px-5 py-2 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 uppercase tracking-[0.3em] font-black">Arb</span>' : ''}
+                            ${market.yes_price < 0.15 ? '<span class="text-[10px] font-mono px-5 py-2 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 uppercase tracking-[0.3em] font-black">Underdog</span>' : ''}
                         </div>
                     </div>
-                    <h4 class="text-lg font-bold leading-tight h-14 overflow-hidden text-white/90">${market.question}</h4>
+                    <h4 class="text-xl font-bold leading-tight h-16 overflow-hidden text-white/90">${market.question}</h4>
                     
-                    <div class="flex gap-4">
-                        <button class="flex-1 btn-yes py-3 rounded-2xl font-orbitron font-black text-sm uppercase tracking-widest">YES ¢${(market.yes_price * 100).toFixed(0)}</button>
-                        <button class="flex-1 btn-no py-3 rounded-2xl font-orbitron font-black text-sm uppercase tracking-widest">NO ¢${(market.no_price * 100).toFixed(0)}</button>
+                    <div class="flex gap-6">
+                        <button class="flex-1 btn-yes py-4 rounded-2xl font-orbitron font-black text-base uppercase tracking-widest">YES ¢${(market.yes_price * 100).toFixed(0)}</button>
+                        <button class="flex-1 btn-no py-4 rounded-2xl font-orbitron font-black text-base uppercase tracking-widest">NO ¢${(market.no_price * 100).toFixed(0)}</button>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-4 pt-6 border-t border-white/5">
-                        <div class="text-center"><div class="text-[8px] text-slate-500 uppercase tracking-widest mb-1">5€ Profit</div><div class="text-[11px] font-mono text-green-400 font-bold">+${calcProfit(5, market.yes_price)}€</div></div>
-                        <div class="text-center"><div class="text-[8px] text-slate-500 uppercase tracking-widest mb-1">10€ Profit</div><div class="text-[11px] font-mono text-green-400 font-bold">+${calcProfit(10, market.yes_price)}€</div></div>
-                        <div class="text-center"><div class="text-[8px] text-slate-500 uppercase tracking-widest mb-1">25€ Profit</div><div class="text-[11px] font-mono text-green-400 font-bold">+${calcProfit(25, market.yes_price)}€</div></div>
+                    <div class="grid grid-cols-3 gap-6 pt-8 border-t border-white/5">
+                        <div class="text-center"><div class="text-[9px] text-slate-500 uppercase tracking-[0.2em] mb-2">5€ Profit</div><div class="text-[13px] font-mono text-green-400 font-black">+${calcProfit(5, market.yes_price)}€</div></div>
+                        <div class="text-center"><div class="text-[9px] text-slate-500 uppercase tracking-[0.2em] mb-2">10€ Profit</div><div class="text-[13px] font-mono text-green-400 font-black">+${calcProfit(10, market.yes_price)}€</div></div>
+                        <div class="text-center"><div class="text-[9px] text-slate-500 uppercase tracking-[0.2em] mb-2">25€ Profit</div><div class="text-[13px] font-mono text-green-400 font-black">+${calcProfit(25, market.yes_price)}€</div></div>
                     </div>
                     
-                    <div class="flex items-center justify-between px-2">
-                        <div class="text-[9px] text-slate-500 font-mono uppercase tracking-[0.3em]">ROI Potential</div>
-                        <div class="text-2xl font-orbitron font-black text-yellow-400 tracking-tighter">${roi}%</div>
+                    <div class="flex items-center justify-between px-4">
+                        <div class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em]">ROI Potential</div>
+                        <div class="text-3xl font-orbitron font-black text-yellow-400 tracking-tighter">${roi}%</div>
                     </div>
 
-                    <a href="${market.url}" target="_blank" class="mt-2 block text-center py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-[10px] font-black transition-all uppercase tracking-[0.4em] border border-white/5">Details Ansehen</a>
+                    <a href="${market.url}" target="_blank" class="mt-4 block text-center py-5 rounded-[1.5rem] bg-white/5 hover:bg-white/10 text-[11px] font-black transition-all uppercase tracking-[0.5em] border border-white/5">Details Ansehen</a>
                 </div>
             `;
         }
@@ -297,7 +301,7 @@
             document.getElementById('walletAddr').innerText = state.wallet.toUpperCase();
             document.getElementById('walletStatus').classList.remove('hidden');
             document.getElementById('connectBtn').innerText = "PRO ACTIVE";
-            document.getElementById('connectBtn').classList.replace('bg-yellow-600', 'bg-purple-600');
+            document.getElementById('connectBtn').classList.replace('bg-yellow-500', 'bg-purple-600');
             document.getElementById('connectBtn').classList.replace('text-black', 'text-white');
         });
         document.querySelectorAll('.tab-btn').forEach(btn => {
