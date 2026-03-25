@@ -121,6 +121,20 @@
         .trade-btn.buy:hover { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
         .trade-btn.sell { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
         .trade-btn.sell:hover { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
+
+        .matrix-row-btn {
+            padding: 4px 8px;
+            font-size: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .matrix-row-btn.buy { color: var(--success); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
+        .matrix-row-btn.buy:hover { background: var(--success); color: #000; }
+        .matrix-row-btn.sell { color: var(--danger); border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); }
+        .matrix-row-btn.sell:hover { background: var(--danger); color: #000; }
     </style>
 </head>
 <body>
@@ -226,10 +240,10 @@
 
     <script>
         const i18n = {
-            de: { signals: "Alpha Arbitrage Signale", feed: "Globale Markt-Matrix", btn: "Scan Ausführen", waiting_signals: "Initialisiere Scan...", waiting_feed: "Verbindung zum Netzwerk...", buy: "KAUFEN (YES)", sell: "VERKAUFEN (NO)", diff: "PROFIT", score: "SCORE", nodes: "Knoten" },
-            en: { signals: "Alpha Arbitrage Signals", feed: "Global Market Matrix", btn: "Execute Scan", waiting_signals: "Initializing Scan...", waiting_feed: "Connecting to Network...", buy: "BUY (YES)", sell: "SELL (NO)", diff: "PROFIT", score: "SCORE", nodes: "Nodes" },
-            pt: { signals: "Sinais de Arbitragem Alpha", feed: "Matriz de Mercado Global", btn: "Executar Scan", waiting_signals: "Inicializando Scan...", waiting_feed: "Conectando à Rede...", buy: "COMPRAR (YES)", sell: "VENDER (NO)", diff: "LUCRO", score: "PONTOS", nodes: "Nós" },
-            zh: { signals: "Alpha 套利信号", feed: "全球市场矩阵", btn: "执行扫描", waiting_signals: "正在初始化扫描...", waiting_feed: "正在连接网络...", buy: "买入 (YES)", sell: "卖出 (NO)", diff: "利润", score: "得分", nodes: "节点" }
+            de: { signals: "Alpha Arbitrage Signale", feed: "Globale Markt-Matrix", btn: "Scan Ausführen", waiting_signals: "Initialisiere Scan...", waiting_feed: "Verbindung zum Netzwerk...", buy: "KAUFEN (YES)", sell: "VERKAUFEN (NO)", diff: "PROFIT", score: "SCORE", nodes: "Knoten", arb_detected: "ARB ERKANNT" },
+            en: { signals: "Alpha Arbitrage Signals", feed: "Global Market Matrix", btn: "Execute Scan", waiting_signals: "Initializing Scan...", waiting_feed: "Connecting to Network...", buy: "BUY (YES)", sell: "SELL (NO)", diff: "PROFIT", score: "SCORE", nodes: "Nodes", arb_detected: "ARB DETECTED" },
+            pt: { signals: "Sinais de Arbitragem Alpha", feed: "Matriz de Mercado Global", btn: "Executar Scan", waiting_signals: "Inicializando Scan...", waiting_feed: "Conectando à Rede...", buy: "COMPRAR (YES)", sell: "VENDER (NO)", diff: "LUCRO", score: "PONTOS", nodes: "Nós", arb_detected: "ARB DETECTADO" },
+            zh: { signals: "Alpha 套利信号", feed: "全球市场矩阵", btn: "执行扫描", waiting_signals: "正在初始化扫描...", waiting_feed: "正在连接网络...", buy: "买入 (YES)", sell: "卖出 (NO)", diff: "利润", score: "得分", nodes: "节点", arb_detected: "发现套利" }
         };
 
         let currentLang = 'de';
@@ -328,34 +342,49 @@
                             <div class="corporate-card p-6 flex flex-col gap-6 ${hasArb ? 'border-primary/30 bg-primary/5' : ''}">
                                 <div class="flex justify-between items-start gap-4">
                                     <h3 class="text-xs font-bold text-white leading-relaxed flex-grow">${group.name}</h3>
-                                    <div class="flex flex-col items-end shrink-0">
-                                        <span class="text-[8px] text-slate-600 font-black uppercase tracking-widest mb-1">Volume</span>
-                                        <span class="text-[10px] font-bold mono text-slate-400">$${Math.round(group.totalVol).toLocaleString()}</span>
-                                    </div>
+                                    ${hasArb ? `<span class="text-[8px] font-black bg-primary text-black px-2 py-1 rounded uppercase animate-pulse">${i18n[currentLang].arb_detected}</span>` : ''}
                                 </div>
                                 <div class="space-y-2">
-                                    ${group.markets.map(m => `
-                                        <div onclick="window.open('${m.u}', '_blank')" class="flex justify-between items-center p-3 bg-black/30 rounded-lg border border-transparent hover:border-slate-800 cursor-pointer transition-all">
-                                            <div class="flex items-center gap-3">
-                                                <span class="text-[8px] font-black px-2 py-0.5 rounded border border-slate-700 text-slate-500 uppercase">${m.p}</span>
-                                                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Market Pool</span>
+                                    ${group.markets.map(m => {
+                                        const isBuy = hasArb && group.arb.buy.u === m.u;
+                                        const isSell = hasArb && group.arb.sell.u === m.u;
+                                        return `
+                                            <div class="p-3 bg-black/30 rounded-lg border ${isBuy ? 'border-success/30' : isSell ? 'border-danger/30' : 'border-transparent'} transition-all">
+                                                <div class="flex justify-between items-center mb-3">
+                                                    <div class="flex items-center gap-3">
+                                                        <span class="text-[8px] font-black px-2 py-0.5 rounded border border-slate-700 text-slate-500 uppercase">${m.p}</span>
+                                                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Pool</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-4">
+                                                        <div class="flex flex-col items-end">
+                                                            <span class="text-[7px] text-slate-600 font-black uppercase">YES</span>
+                                                            <span class="text-xs font-black mono ${isBuy ? 'text-success' : 'text-white'}">${m.v.toFixed(1)}%</span>
+                                                        </div>
+                                                        <div class="flex flex-col items-end">
+                                                            <span class="text-[7px] text-slate-600 font-black uppercase">NO</span>
+                                                            <span class="text-xs font-black mono ${isSell ? 'text-danger' : 'text-white'}">${(100 - m.v).toFixed(1)}%</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <button onclick="window.open('${m.u}', '_blank')" class="matrix-row-btn buy">BUY YES</button>
+                                                    <button onclick="window.open('${m.u}', '_blank')" class="matrix-row-btn sell">SELL NO</button>
+                                                </div>
                                             </div>
-                                            <div class="flex items-center gap-4">
-                                                <div class="text-right text-xs font-black mono text-white">${m.v.toFixed(1)}%</div>
-                                                <div class="text-right text-[9px] text-slate-600 mono hidden sm:block">$${Math.round(m.vol).toLocaleString()}</div>
-                                            </div>
-                                        </div>
-                                    `).join('')}
+                                        `;
+                                    }).join('')}
                                 </div>
                                 ${hasArb ? `
-                                    <div class="p-4 bg-primary/10 rounded-xl border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div class="p-4 bg-primary/10 rounded-xl border border-primary/20 flex items-center justify-between">
                                         <div class="flex flex-col">
-                                            <span class="text-[8px] text-primary font-black uppercase mb-1">Net Arbitrage</span>
+                                            <span class="text-[8px] text-primary font-black uppercase mb-1">Spread Advantage</span>
                                             <span class="text-xl font-black text-primary mono">${group.arb.net}%</span>
                                         </div>
-                                        <div class="flex gap-2 w-full sm:w-auto">
-                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="flex-grow sm:flex-grow-0 text-[8px] font-black bg-slate-900 text-success border border-success/30 px-4 py-3 rounded hover:bg-success hover:text-black transition-all uppercase">BUY YES @ ${group.arb.buy.p}</button>
-                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="flex-grow sm:flex-grow-0 text-[8px] font-black bg-slate-900 text-danger border border-danger/30 px-4 py-3 rounded hover:bg-danger hover:text-black transition-all uppercase">SELL NO @ ${group.arb.sell.p}</button>
+                                        <div class="flex flex-col items-end">
+                                            <span class="text-[8px] text-slate-500 font-black uppercase mb-1">Execution</span>
+                                            <div class="text-[9px] font-bold text-white uppercase tracking-tighter">
+                                                ${group.arb.buy.p} <span class="text-primary">→</span> ${group.arb.sell.p}
+                                            </div>
                                         </div>
                                     </div>
                                 ` : ''}
