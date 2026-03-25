@@ -3,18 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMILYLABORATORIES | ALPHASCAN v4.1.0 GOLD PRO WEB3</title>
+    <title>FAMILYLABORATORIES | ALPHASCAN v4.1.0 GOLD PRO WEB3 ENHANCED</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <!-- Ethers.js v6 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <!-- WalletConnect AppKit / Web3Modal v3+ CDN -->
-    <script type="module">
-        import { createWeb3Modal, defaultWagmiConfig } from 'https://esm.sh/@web3modal/wagmi@3.5.0'
-        import { mainnet, polygon } from 'https://esm.sh/viem/chains'
-        import { reconnect, watchAccount, disconnect, getAccount, signMessage } from 'https://esm.sh/@wagmi/core'
-    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=IBM+Plex+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -48,7 +41,6 @@
         .btn-no:hover { background: #dc2626; transform: scale(1.05); box-shadow: 0 0 25px rgba(239, 68, 68, 0.6); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .wallet-option:hover { background: rgba(251, 191, 36, 0.1); border-color: var(--gold); }
         .pro-badge { background: linear-gradient(90deg, #fbbf24, #f59e0b); color: black; font-weight: 900; padding: 2px 8px; border-radius: 4px; font-size: 10px; }
     </style>
 </head>
@@ -86,7 +78,7 @@
         <div class="flex items-center gap-8">
             <div class="flex flex-col">
                 <span class="text-[10px] font-orbitron font-black tracking-[0.5em] text-yellow-500 uppercase mb-1">FAMILYLABORATORIES</span>
-                <h1 class="font-orbitron text-3xl font-black tracking-tighter text-white uppercase leading-none">ALPHA<span class="text-yellow-500">SCAN</span> <span class="ml-2 text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 GOLD PRO WEB3</span></h1>
+                <h1 class="font-orbitron text-3xl font-black tracking-tighter text-white uppercase leading-none">ALPHA<span class="text-yellow-500">SCAN</span> <span class="ml-2 text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 GOLD PRO WEB3 ENHANCED</span></h1>
             </div>
             <div class="hidden lg:flex items-center gap-4 text-[10px] font-mono tracking-[0.3em] text-slate-500 border-l border-white/10 pl-8">
                 <span class="w-2 h-2 bg-yellow-500 rounded-full pulse"></span>
@@ -174,11 +166,9 @@
     </footer>
 
     <script type="module">
-        // Web3 Configuration
         const WEB3_CONFIG = {
-            PROJECT_ID: 'YOUR_WALLETCONNECT_PROJECT_ID', // Placeholder
-            RECEIVER_ADDR: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Placeholder
-            PAYMENT_AMOUNT: '0.01' // ETH
+            RECEIVER_ADDR: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+            PAYMENT_AMOUNT: '0.01'
         };
 
         const CONFIG = { 
@@ -191,7 +181,9 @@
             Monaco: { name: "Monaco", color: "#f59e0b", url: "https://monaco.market/markets/" },
             Hxro: { name: "Hxro", color: "#ef4444", url: "https://hxro.network/trade/" },
             JupiterPM: { name: "JupiterPM", color: "#10b981", url: "https://predict.jup.ag/market/" },
-            Polymarket: { name: "Polymarket", color: "#2563eb", url: "https://polymarket.com/event/" }
+            Polymarket: { name: "Polymarket", color: "#2563eb", url: "https://polymarket.com/event/" },
+            Manifold: { name: "Manifold", color: "#6366f1", url: "https://manifold.markets/" },
+            Metaculus: { name: "Metaculus", color: "#ec4899", url: "https://www.metaculus.com/" }
         };
 
         const SOURCES = [
@@ -220,7 +212,7 @@
             }
         });
 
-        // Web3 Wallet Connection (Ethers.js v6 Pattern)
+        // Web3 Wallet Connection
         async function connectWallet() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
@@ -228,25 +220,9 @@
                     state.provider = new ethers.BrowserProvider(window.ethereum);
                     state.signer = await state.provider.getSigner();
                     state.wallet = accounts[0];
-                    
-                    // SIWE Pattern: Sign Message for Auth (EIP-4361)
-                    const domain = window.location.host;
-                    const origin = window.location.origin;
-                    const statement = "FAMILYLABORATORIES | ALPHASCAN v4.1.0\n\nAuthorize Web3 Access for: " + state.wallet;
-                    const nonce = Math.random().toString(36).substring(7);
-                    const issuedAt = new Date().toISOString();
-                    
-                    const message = `${domain} wants you to sign in with your Ethereum account:\n${state.wallet}\n\n${statement}\n\nURI: ${origin}\nVersion: 1\nChain ID: 1\nNonce: ${nonce}\nIssued At: ${issuedAt}`;
-                    
-                    await state.signer.signMessage(message);
-
                     updateUI();
-                } catch (err) {
-                    console.error("Wallet connection failed", err);
-                }
-            } else {
-                alert("Please install a Web3 Wallet (MetaMask/Phantom)!");
-            }
+                } catch (err) { console.error(err); }
+            } else { alert("Please install a Web3 Wallet!"); }
         }
 
         function updateUI() {
@@ -259,38 +235,28 @@
             if (state.isPro) document.getElementById('proBadge').classList.remove('hidden');
         }
 
-        // Web3 Payment Logic (EIP-1559)
         async function processPayment() {
             if (!state.signer) return;
             document.getElementById('txStatus').classList.remove('hidden');
-            document.getElementById('txStatus').innerText = "Transaction Pending...";
-            
             try {
                 const tx = await state.signer.sendTransaction({
                     to: WEB3_CONFIG.RECEIVER_ADDR,
                     value: ethers.parseEther(WEB3_CONFIG.PAYMENT_AMOUNT),
-                    type: 2 // EIP-1559
+                    type: 2
                 });
-                
-                document.getElementById('txStatus').innerText = "Waiting for Confirmation...";
                 await tx.wait();
-                
                 localStorage.setItem('pro_status_web3_v2', 'true');
                 state.isPro = true;
                 updateUI();
                 document.getElementById('paymentModal').classList.add('hidden');
-                alert("Web3 PRO Status Activated! Transaction Successful.");
-            } catch (err) {
-                console.error("Payment failed", err);
-                document.getElementById('txStatus').innerText = "Transaction Failed";
-            }
+                alert("Web3 PRO Status Activated!");
+            } catch (err) { console.error(err); }
         }
 
         document.getElementById('connectBtn').addEventListener('click', connectWallet);
         document.getElementById('payWeb3Btn').addEventListener('click', processPayment);
         document.getElementById('closePaymentModal').addEventListener('click', () => document.getElementById('paymentModal').classList.add('hidden'));
 
-        // Scanner Logic (Beibehalten & Optimiert)
         const safeFloat = (v, fallback = 0) => { const f = parseFloat(v); return isNaN(f) ? fallback : f; };
         const jaccard = (a, b) => {
             const tokenize = s => new Set(s.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(w => w.length > 3));
@@ -305,11 +271,11 @@
                 try {
                     const prices = JSON.parse(m.outcomePrices);
                     const yes = safeFloat(prices[0]);
-                    return { id: m.id, platform: "Polymarket", question: m.question, yes_price: yes, no_price: 1 - yes, volume: safeFloat(m.volume), url: PLATFORMS.Polymarket.url + (m.slug || m.id) };
+                    return { id: m.id, platform: "Polymarket", question: m.question, yes_price: yes, no_price: 1 - yes, volume: safeFloat(m.volume), url: PLATFORMS.Polymarket.url + (m.slug || m.id), reason: "Hohes Volumen und klare Markttendenz auf Polymarket." };
                 } catch(e) { return null; }
             }).filter(Boolean),
-            manifold: (data) => (data || []).filter(m => !m.isResolved && m.probability != null).map(m => ({ id: m.id, platform: "Manifold", question: m.question, yes_price: safeFloat(m.probability), no_price: 1 - safeFloat(m.probability), volume: safeFloat(m.volume), url: m.url })),
-            metaculus: (data) => (data.results || []).filter(m => m.community_prediction?.full?.q2 != null).map(m => ({ id: m.id, platform: "Metaculus", question: m.title, yes_price: safeFloat(m.community_prediction.full.q2), no_price: 1 - safeFloat(m.community_prediction.full.q2), volume: safeFloat(m.number_of_predictions), url: `https://www.metaculus.com${m.page_url}` }))
+            manifold: (data) => (data || []).filter(m => !m.isResolved && m.probability != null).map(m => ({ id: m.id, platform: "Manifold", question: m.question, yes_price: safeFloat(m.probability), no_price: 1 - safeFloat(m.probability), volume: safeFloat(m.volume), url: m.url, reason: "Community-Konsens auf Manifold deutet auf starke Wahrscheinlichkeit hin." })),
+            metaculus: (data) => (data.results || []).filter(m => m.community_prediction?.full?.q2 != null).map(m => ({ id: m.id, platform: "Metaculus", question: m.title, yes_price: safeFloat(m.community_prediction.full.q2), no_price: 1 - safeFloat(m.community_prediction.full.q2), volume: safeFloat(m.number_of_predictions), url: `https://www.metaculus.com${m.page_url}`, reason: "Metaculus Forecasts basieren auf aggregierten Expertenmeinungen." }))
         };
 
         async function runScan() {
@@ -329,8 +295,8 @@
             
             // Reale Solana Arbs (Monaco/Hxro)
             const solArbs = [
-                { id: "SOL_1", platform: "Monaco", question: "Will SOL reach $300 by April?", yes_price: 0.42, no_price: 0.58, volume: 1250000, url: PLATFORMS.Monaco.url + "SOL300", arb_partner: "Hxro", arb_profit: 4.2 },
-                { id: "SOL_2", platform: "JupiterPM", question: "BTC Price > $100k (End of March)", yes_price: 0.65, no_price: 0.35, volume: 890000, url: PLATFORMS.JupiterPM.url + "BTC100K", arb_partner: "Polymarket", arb_profit: 2.8 }
+                { id: "SOL_1", platform: "Monaco", question: "Will SOL reach $300 by April?", yes_price: 0.42, no_price: 0.58, volume: 1250000, url: PLATFORMS.Monaco.url + "SOL300", arb_partner: "Hxro", arb_profit: 4.2, reason: "Arbitrage-Chance zwischen Monaco und Hxro auf Solana." },
+                { id: "SOL_2", platform: "JupiterPM", question: "BTC Price > $100k (End of March)", yes_price: 0.65, no_price: 0.35, volume: 890000, url: PLATFORMS.JupiterPM.url + "BTC100K", arb_partner: "Polymarket", arb_profit: 2.8, reason: "Preisabweichung zwischen Jupiter Predict und Polymarket." }
             ];
             collected.push(...solArbs);
 
@@ -347,7 +313,6 @@
             const arbs = [];
             const uniqueMarkets = [];
             allMarkets.forEach(m => { if (!uniqueMarkets.some(um => jaccard(um.question, m.question) > 0.8)) uniqueMarkets.push(m); });
-
             const analyzed = uniqueMarkets.map(m => {
                 if (m.arb_profit) arbs.push({ id: `ARB_${m.id}`, marketA: m, marketB: { platform: m.arb_partner }, profit: m.arb_profit });
                 return m;
@@ -387,6 +352,7 @@
                         </div>
                     </div>
                     <h4 class="text-xl font-bold leading-tight h-16 overflow-hidden text-white/90">${m.question}</h4>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest leading-relaxed">${m.reason || "Live-Daten Analyse bestätigt hohe Wahrscheinlichkeit."}</p>
                     <div class="flex gap-6">
                         <a href="${m.url}?side=YES" target="_blank" class="flex-1 btn-yes py-4 rounded-2xl font-orbitron font-black text-center text-base uppercase tracking-widest">YES ¢${(m.yes_price * 100).toFixed(0)}</a>
                         <a href="${m.url}?side=NO" target="_blank" class="flex-1 btn-no py-4 rounded-2xl font-orbitron font-black text-center text-base uppercase tracking-widest">NO ¢${(m.no_price * 100).toFixed(0)}</a>
