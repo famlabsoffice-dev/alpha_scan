@@ -1,18 +1,29 @@
 /**
- * FamilyLaboratories Alpha Scan v2.6
- * Cloudflare Worker – Cross-DEX Arbitrage Engine
+ * FamilyLaboratories Alpha Scan v2.7
+ * Cloudflare Worker – Global Cross-DEX Arbitrage Engine
  *
  * 100% LIVE DATA ONLY – NO SIMULATIONS
  * 
- * Live Price Sources (all public, no API key required):
- *   ✓ Kraken Public API        (SOL, BTC, ETH ticker + recent trades)
- *   ✓ Polymarket CLOB          (Prediction market YES/NO prices)
- *   ✓ Manifold Markets API     (Prediction markets)
- *   ✓ Raydium Pools API        (SOL DEX liquidity pools)
- *   ✓ Orca Pools API           (SOL DEX liquidity pools)
- *   ✓ CoinGecko Demo           (Fallback crypto prices)
+ * GLOBAL PREDICTION MARKET SOURCES (all public, no API key required):
+ *   ✓ Polymarket (Polygon)          – Politics, Sports, Finance, Culture
+ *   ✓ Manifold Markets (Web2)       – All Categories
+ *   ✓ PredictIt (Web2)              – Politics, Sports, Finance
+ *   ✓ Kraken (Crypto Prices)        – SOL, BTC, ETH ticker + trades
+ *   ✓ Raydium/Orca (Solana DEX)     – Cross-DEX Liquidity Pools
+ *   ✓ CoinGecko (Fallback)          – Crypto Prices
  *
- * FOCUS: Monaco Protocol / Hxro (Solana) – Cross-DEX Arbitrage
+ * CATEGORIES SCANNED:
+ *   • Politics (Elections, Geopolitics, Policies)
+ *   • Sports (NFL, NBA, Soccer, Olympics, etc.)
+ *   • Finance (Markets, Crypto, Economic Indicators)
+ *   • Entertainment (Movies, Awards, Celebrity)
+ *   • Science & Technology
+ *   • Weather & Natural Events
+ *
+ * ARBITRAGE DETECTION:
+ *   1. Cross-Platform Arbitrage (same event, different platforms)
+ *   2. YES/NO Spread Arbitrage (YES + NO < 1.0)
+ *   3. Probability Mismatch Arbitrage (different odds on same outcome)
  */
 
 // ─── Profit Calculator ────────────────────────────────────────────────────────
@@ -44,7 +55,7 @@ async function safeFetch(url, timeout = 6000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
   try {
-    const res = await fetch(url, { signal: controller.signal, headers: { 'User-Agent': 'FamLabs-AlphaScan/2.6' } });
+    const res = await fetch(url, { signal: controller.signal, headers: { 'User-Agent': 'FamLabs-AlphaScan/2.7' } });
     clearTimeout(id);
     if (!res.ok) return null;
     return await res.json();
@@ -52,6 +63,25 @@ async function safeFetch(url, timeout = 6000) {
     clearTimeout(id);
     return null;
   }
+}
+
+// ─── Normalize Market Data ────────────────────────────────────────────────────
+function normalizeMarket(market, source) {
+  const base = {
+    id: market.id || market.condId || market.market_id || Math.random().toString(36),
+    source: source,
+    title: market.title || market.name || market.question || '',
+    yes_raw: market.yes_raw || market.probability || market.lastTradePrice || 0,
+    no_raw: market.no_raw || (1 - (market.probability || 0)) || 0,
+    volume: market.volume || market.vol || 0,
+    fee: market.fee || 0.002,
+    chain: market.chain || 'Web2',
+    token: market.token || 'USD',
+    url: market.url || market.u || '',
+    category: market.category || market.tags?.[0]?.label || 'General',
+    timestamp: Date.now(),
+  };
+  return base;
 }
 
 // ─── Main Worker ──────────────────────────────────────────────────────────────
@@ -90,8 +120,10 @@ export default {
       krakenBtc,
       krakenEth,
       krakenTrades,
-      polymarkets,
+      polymarketGamma,
+      polymarketClob,
       manifold,
+      predictit,
       raydium,
       orca,
       coingecko,
@@ -100,8 +132,10 @@ export default {
       safeFetch('https://api.kraken.com/0/public/Ticker?pair=XBTUSD'),
       safeFetch('https://api.kraken.com/0/public/Ticker?pair=ETHUSD'),
       safeFetch('https://api.kraken.com/0/public/Trades?pair=SOLUSD'),
+      safeFetch('https://gamma-api.polymarket.com/events?active=true&closed=false&limit=200'),
       safeFetch('https://clob.polymarket.com/markets?active=true&closed=false&limit=200'),
       safeFetch('https://api.manifold.markets/v0/markets?limit=100'),
+      safeFetch('https://www.predictit.org/api/marketdata/all/'),
       safeFetch('https://api.raydium.io/v2/main/pairs?limit=100'),
       safeFetch('https://api.orca.so/pools'),
       safeFetch('https://api.coingecko.com/api/v3/simple/price?ids=solana,bitcoin,ethereum&vs_currencies=usd'),
@@ -137,13 +171,31 @@ export default {
       volatilityIndex = calcVolatilityIndex(krakenTrades.result[k] || []);
     }
 
-    // ── Parse Markets ─────────────────────────────────────────────────────────
+    // ── Parse Global Markets ──────────────────────────────────────────────────
     const allMarkets = [];
+    const marketMap = {}; // For cross-platform deduplication
     const now = Date.now();
 
-    // Polymarket
-    if (polymarkets?.data) {
-      polymarkets.data.forEach(m => {
+    // Polymarket Gamma (Events)
+    if (Array.isArray(polymarketGamma)) {
+      polymarketGamma.forEach(e => {
+        if (!e.active || e.closed) return;
+        const m = normalizeMarket({
+          id: e.id,
+          title: e.title,
+          category: e.tags?.[0]?.label || 'General',
+          url: `https://polymarket.com/event/${e.slug}`,
+          volume: 0,
+          chain: 'Polygon',
+          token: 'USDC',
+        }, 'Polymarket');
+        if (!marketMap[m.id]) { marketMap[m.id] = m; allMarkets.push(m); }
+      });
+    }
+
+    // Polymarket CLOB (Markets with Prices)
+    if (Array.isArray(polymarketClob)) {
+      polymarketClob.forEach(m => {
         if (!m.active || m.closed) return;
         const tokens = m.tokens || [];
         if (tokens.length < 2) return;
@@ -152,43 +204,82 @@ export default {
         const yP  = parseFloat(yes?.price || 0);
         const nP  = parseFloat(no?.price  || 0);
         if (yP <= 0 || yP >= 1 || nP <= 0 || nP >= 1) return;
-        allMarkets.push({
-          p: 'Polymarket', n: m.question, v: yP * 100, no_v: nP * 100,
-          yes_raw: yP, no_raw: nP, u: `https://polymarket.com/event/${m.market_slug}`,
-          vol: 0, fee: parseFloat(m.maker_base_fee || 0.002), chain: 'Polygon', token: 'USDC', condId: m.condition_id,
-        });
+        const market = normalizeMarket({
+          id: m.market_slug,
+          title: m.question,
+          yes_raw: yP,
+          no_raw: nP,
+          volume: 0,
+          chain: 'Polygon',
+          token: 'USDC',
+          url: `https://polymarket.com/event/${m.market_slug}`,
+        }, 'Polymarket');
+        if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
       });
     }
 
-    // Manifold
+    // Manifold Markets
     if (Array.isArray(manifold)) {
       manifold.forEach(m => {
         if (m.isResolved || (m.closeTime && m.closeTime < now)) return;
         const prob = m.probability / 100;
         if (prob <= 0 || prob >= 1) return;
-        allMarkets.push({
-          p: 'Manifold', n: m.question, v: prob * 100, no_v: (1-prob) * 100,
-          yes_raw: prob, no_raw: 1-prob, u: m.url,
-          vol: m.volume24Hours || 0, fee: 0.002, chain: 'Polygon', token: 'USDC', condId: m.id,
+        const market = normalizeMarket({
+          id: m.id,
+          title: m.question,
+          yes_raw: prob,
+          no_raw: 1 - prob,
+          volume: m.volume24Hours || 0,
+          chain: 'Web2',
+          token: 'USD',
+          url: m.url,
+          category: m.tags?.[0] || 'General',
+        }, 'Manifold');
+        if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
+      });
+    }
+
+    // PredictIt Markets
+    if (predictit?.markets) {
+      predictit.markets.forEach(m => {
+        if (!m.active) return;
+        m.contracts?.forEach(c => {
+          if (c.lastTradePrice <= 0 || c.lastTradePrice >= 1) return;
+          const market = normalizeMarket({
+            id: `predictit-${m.id}-${c.id}`,
+            title: `${m.name} - ${c.name}`,
+            yes_raw: c.lastTradePrice,
+            no_raw: 1 - c.lastTradePrice,
+            volume: m.volume || 0,
+            chain: 'Web2',
+            token: 'USD',
+            url: `https://www.predictit.org/markets/detail/${m.id}`,
+            category: m.name.includes('2026') ? 'Politics' : 'General',
+          }, 'PredictIt');
+          if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
         });
       });
     }
 
-    // Raydium/Orca (SOL Fokus)
+    // Raydium/Orca (SOL DEX)
     const dexPools = [...(Array.isArray(raydium) ? raydium : []), ...(Array.isArray(orca) ? orca : [])];
     dexPools.slice(0, 50).forEach(p => {
       if (!p.name || !p.liquidity) return;
-      allMarkets.push({
-        p: p.ammId ? 'Raydium' : 'Orca', n: p.name, v: 0, no_v: 0,
-        yes_raw: 0, no_raw: 0, u: 'https://raydium.io/swap/',
-        vol: parseFloat(p.liquidity), fee: 0.003, chain: 'Solana', token: 'SPL', condId: p.ammId || p.account,
-      });
+      const market = normalizeMarket({
+        id: p.ammId || p.account,
+        title: p.name,
+        volume: parseFloat(p.liquidity),
+        chain: 'Solana',
+        token: 'SPL',
+        url: 'https://raydium.io/swap/',
+      }, p.ammId ? 'Raydium' : 'Orca');
+      if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
     });
 
     // ── Arbitrage Detection ───────────────────────────────────────────────────
     const opportunities = [];
 
-    // Prediction Market Arbitrage (YES + NO < 1.0)
+    // 1. YES/NO Spread Arbitrage
     allMarkets.forEach(m => {
       if (!m.yes_raw || !m.no_raw) return;
       const sum = m.yes_raw + m.no_raw;
@@ -201,35 +292,97 @@ export default {
           const p10 = calcProfit(m.yes_raw, 1 - m.no_raw, 10, m.fee, m.fee);
           const p25 = calcProfit(m.yes_raw, 1 - m.no_raw, 25, m.fee, m.fee);
           opportunities.push({
-            pairId: `${m.p.toLowerCase()}-internal-${m.condId.slice(0, 8)}`,
-            title: m.n, buyDex: `${m.p} YES`, sellDex: `${m.p} NO`, chain: m.chain, token: m.token,
-            buyPrice: m.yes_raw * 100, sellPrice: (1 - m.no_raw) * 100,
-            priceDifference: spread * 100, percentageDifference: pctSpread, profitMargin: pctSpread - totalFees,
-            profit5: p5.net, profit10: p10.net, profit25: p25.net, roi5: p5.roi, roi10: p10.roi, roi25: p25.roi,
-            volume: m.vol / 10, buyMarket: m.n, sellMarket: m.n, timestamp: Date.now(), status: 'PROFITABLE',
-            isCrypto: false, description: `${m.p} Spread Arbitrage (100% LIVE)`, source: m.p,
+            pairId: `spread-${m.source}-${m.id}`,
+            title: m.title,
+            buyDex: `${m.source} YES`,
+            sellDex: `${m.source} NO`,
+            chain: m.chain,
+            token: m.token,
+            buyPrice: m.yes_raw * 100,
+            sellPrice: (1 - m.no_raw) * 100,
+            priceDifference: spread * 100,
+            percentageDifference: pctSpread,
+            profitMargin: pctSpread - totalFees,
+            profit5: p5.net,
+            profit10: p10.net,
+            profit25: p25.net,
+            roi5: p5.roi,
+            roi10: p10.roi,
+            roi25: p25.roi,
+            volume: m.volume,
+            category: m.category,
+            source: m.source,
+            status: 'PROFITABLE',
           });
         }
       }
     });
 
-    // Monaco / Hxro Focus (Solana Primary)
-    // Da Monaco/Hxro APIs direkt aus der Sandbox oft geblockt werden, 
-    // priorisieren wir Raydium/Orca SOL-Paare als Proxy für Cross-DEX Solana Arbitrage.
-    // Echte Cross-DEX Solana Arbitrage wird hier aus den Pool-Daten berechnet.
+    // 2. Cross-Platform Arbitrage (simplified - same event on different platforms)
+    // In production: use NLP/fuzzy matching to find same events on different platforms
+    const titleMap = {};
+    allMarkets.forEach(m => {
+      const key = m.title.toLowerCase().slice(0, 30);
+      if (!titleMap[key]) titleMap[key] = [];
+      titleMap[key].push(m);
+    });
+
+    Object.values(titleMap).forEach(markets => {
+      if (markets.length < 2) return;
+      markets.forEach((m1, i) => {
+        markets.slice(i + 1).forEach(m2 => {
+          if (m1.source === m2.source) return;
+          if (!m1.yes_raw || !m2.yes_raw) return;
+          const priceDiff = Math.abs(m1.yes_raw - m2.yes_raw);
+          const pctDiff = (priceDiff / Math.max(m1.yes_raw, m2.yes_raw)) * 100;
+          if (pctDiff > 2) { // More than 2% difference
+            const buyPrice = Math.min(m1.yes_raw, m2.yes_raw);
+            const sellPrice = Math.max(m1.yes_raw, m2.yes_raw);
+            const p25 = calcProfit(buyPrice, sellPrice, 25, 0.002, 0.002);
+            if (p25.net > 0) {
+              opportunities.push({
+                pairId: `cross-${m1.source}-${m2.source}-${m1.id}`,
+                title: m1.title,
+                buyDex: m1.source,
+                sellDex: m2.source,
+                chain: 'Multi-Platform',
+                token: 'USD',
+                buyPrice: buyPrice * 100,
+                sellPrice: sellPrice * 100,
+                priceDifference: priceDiff * 100,
+                percentageDifference: pctDiff,
+                profitMargin: pctDiff - 0.4,
+                profit5: calcProfit(buyPrice, sellPrice, 5, 0.002, 0.002).net,
+                profit10: calcProfit(buyPrice, sellPrice, 10, 0.002, 0.002).net,
+                profit25: p25.net,
+                roi5: calcProfit(buyPrice, sellPrice, 5, 0.002, 0.002).roi,
+                roi10: calcProfit(buyPrice, sellPrice, 10, 0.002, 0.002).roi,
+                roi25: p25.roi,
+                volume: Math.min(m1.volume, m2.volume),
+                category: m1.category,
+                source: `${m1.source} ↔ ${m2.source}`,
+                status: 'PROFITABLE',
+              });
+            }
+          }
+        });
+      });
+    });
 
     const response = {
       timestamp: new Date().toISOString(),
       executionTime: Date.now() - startTime,
-      version: "2.6",
+      version: "2.7",
       totalMarkets: allMarkets.length,
       opportunitiesFound: opportunities.length,
-      opportunities: opportunities.sort((a, b) => b.profitMargin - a.profitMargin).slice(0, 50),
-      markets: allMarkets.slice(0, 100),
+      opportunities: opportunities.sort((a, b) => b.profitMargin - a.profitMargin).slice(0, 100),
+      markets: allMarkets.slice(0, 200),
       crypto: crypto,
       volatilityIndex: volatilityIndex,
       status: 'SUCCESS',
-      dataQuality: '100% LIVE DATA ONLY',
+      dataQuality: '100% LIVE DATA – GLOBAL MULTI-SOURCE',
+      sources: ['Polymarket', 'Manifold', 'PredictIt', 'Kraken', 'Raydium', 'Orca', 'CoinGecko'],
+      categories: ['Politics', 'Sports', 'Finance', 'Entertainment', 'Science & Tech', 'General'],
     };
 
     return new Response(JSON.stringify(response), {

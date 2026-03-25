@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMILYLABORATORIES | ALPHA SCAN v2.6</title>
+    <title>FAMILYLABORATORIES | ALPHA SCAN v2.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -49,7 +49,7 @@
     <div class="max-w-md w-full p-10 text-center flex flex-col items-center">
         <div class="mb-12">
             <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] block mb-3 uppercase">FamilyLaboratories</span>
-            <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.6</span></h1>
+            <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.7</span></h1>
             <p class="text-[9px] text-slate-600 mt-3 tracking-widest uppercase">Cross-DEX Arbitrage Engine</p>
         </div>
         <div class="w-full space-y-6">
@@ -65,7 +65,7 @@
             <div class="flex items-center gap-10">
                 <div class="flex flex-col">
                     <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] uppercase mb-1">FamilyLaboratories</span>
-                    <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.6</span></h1>
+                    <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.7</span></h1>
                 </div>
                 <div class="h-12 w-px bg-slate-800 hidden lg:block"></div>
                 <nav class="hidden sm:flex gap-8 text-[11px] font-bold tracking-widest uppercase text-slate-500">
@@ -114,11 +114,12 @@
 
         <div class="bg-[#0a0a0a] border-y border-slate-900 py-3 overflow-hidden relative">
             <div id="ticker-content" class="animate-marquee">
-                <span class="ticker-item">Initializing Live Data Stream...</span>
-                <span class="ticker-item">Alpha Scan v2.6 Online</span>
-                <span class="ticker-item">Cross-DEX Arbitrage Engine Active</span>
-                <span class="ticker-item">Monaco / Hxro Solana – Primary Focus</span>
-                <span class="ticker-item">100% LIVE DATA ONLY</span>
+                <span class="ticker-item">Initializing Global Prediction Market Scan...</span>
+                <span class="ticker-item">Alpha Scan v2.7 Online</span>
+                <span class="ticker-item">Global Multi-Source Arbitrage Engine Active</span>
+                <span class="ticker-item">Polymarket | Manifold | PredictIt | Raydium | Orca</span>
+                <span class="ticker-item">Politics | Sports | Finance | Entertainment | Science</span>
+                <span class="ticker-item">100% LIVE DATA – GLOBAL COVERAGE</span>
             </div>
         </div>
 
@@ -154,9 +155,9 @@
             </button>
             <div class="flex flex-col items-center md:items-end gap-3">
                 <div class="flex gap-6 text-[9px] font-black uppercase tracking-widest text-slate-600">
-                    <span class="hover:text-white transition-colors">Polymarket Gamma</span>
+                    <span class="hover:text-white transition-colors">Polymarket | Manifold | PredictIt</span>
                     <span>|</span>
-                    <span class="hover:text-white transition-colors">Kraken & Jupiter Price Feeds</span>
+                    <span class="hover:text-white transition-colors">Kraken & Global Price Feeds</span>
                 </div>
                 <div class="flex items-center gap-4">
                     <span class="text-[8px] text-slate-800 font-bold tracking-widest uppercase">C•J•V•K | Private Access</span>
@@ -212,17 +213,20 @@ function profitTierHTML(label, net, roi) {
 function arbCardHTML(opp) {
     const L = i18n[currentLang];
     const profitColor = opp.profitMargin >= 1 ? 'text-[#10b981]' : opp.profitMargin >= 0 ? 'text-[#c5a059]' : 'text-[#ef4444]';
+    const categoryBadge = opp.category ? `<span class="text-[7px] font-black text-slate-400 uppercase tracking-widest bg-slate-900 px-2 py-1 rounded">${opp.category}</span>` : '';
     return `<div class="corporate-card p-6 shadow-2xl">
         <div class="flex justify-between items-start mb-4">
             <div class="flex flex-col gap-1"><span class="text-[9px] font-black text-[#10b981] uppercase tracking-widest">${L.profit}</span><span class="text-3xl font-black ${profitColor} mono">${fmt(opp.profitMargin)}%</span></div>
-            <div class="text-right"><span class="text-[8px] text-slate-500 font-black uppercase tracking-widest">${L.spread}</span><div class="text-sm font-black mono text-[#c5a059]">${fmt(opp.percentageDifference)}%</div><span class="chain-badge mt-1 ${opp.chain.toLowerCase()}">${opp.chain}</span></div>
+            <div class="text-right"><span class="text-[8px] text-slate-500 font-black uppercase tracking-widest">${L.spread}</span><div class="text-sm font-black mono text-[#c5a059]">${fmt(opp.percentageDifference)}%</div><div class="flex gap-2 mt-1"><span class="chain-badge mt-1 ${opp.chain.toLowerCase()}">${opp.chain}</span>${categoryBadge}</div></div>
         </div>
         <h3 class="text-sm font-bold text-[#c5a059] leading-snug mb-1 border-b border-slate-800 pb-3">${opp.title}</h3>
+        <div class="text-[8px] text-slate-600 mb-3">Source: <span class="text-slate-400 font-bold">${opp.source}</span></div>
         <div class="grid grid-cols-2 gap-3 mb-4 mt-4">
-            <div class="trade-btn buy p-2 rounded bg-slate-900 border border-slate-800"><span class="text-[7px] font-black text-[#10b981] uppercase mb-1">${L.buy} ${opp.buyDex}</span><div class="text-lg font-black mono text-[#10b981]">$${fmtPrice(opp.buyPrice)}</div></div>
-            <div class="trade-btn sell p-2 rounded bg-slate-900 border border-slate-800"><span class="text-[7px] font-black text-[#ef4444] uppercase mb-1">${L.sell} ${opp.sellDex}</span><div class="text-lg font-black mono text-[#ef4444]">$${fmtPrice(opp.sellPrice)}</div></div>
+            <div class="trade-btn buy p-2 rounded bg-slate-900 border border-slate-800"><span class="text-[7px] font-black text-[#10b981] uppercase mb-1">${L.buy}</span><span class="text-[9px] font-black text-white">${opp.buyDex}</span><div class="text-lg font-black mono text-[#10b981]" style="margin-top:4px">$${fmtPrice(opp.buyPrice)}</div></div>
+            <div class="trade-btn sell p-2 rounded bg-slate-900 border border-slate-800"><span class="text-[7px] font-black text-[#ef4444] uppercase mb-1">${L.sell}</span><span class="text-[9px] font-black text-white">${opp.sellDex}</span><div class="text-lg font-black mono text-[#ef4444]" style="margin-top:4px">$${fmtPrice(opp.sellPrice)}</div></div>
         </div>
         <div class="grid grid-cols-3 gap-2 mb-4">${profitTierHTML('5€', opp.profit5, opp.roi5)}${profitTierHTML('10€', opp.profit10, opp.roi10)}${profitTierHTML('25€', opp.profit25, opp.roi25)}</div>
+        <div class="text-[7px] text-slate-600 border-t border-slate-800 pt-2">Vol: $${fmt(opp.volume, 0)} | Status: ${opp.status}</div>
     </div>`;
 }
 
@@ -258,7 +262,7 @@ async function executeScan() {
         if (data.crypto) {
             const sol = data.crypto.SOL; const btc = data.crypto.BTC; const eth = data.crypto.ETH;
             document.getElementById('price-sol').innerText = '$' + fmt(sol, 2); document.getElementById('price-btc').innerText = '$' + fmt(btc, 0); document.getElementById('price-eth').innerText = '$' + fmt(eth, 2);
-            document.getElementById('ticker-content').innerHTML = `<span class="ticker-item">SOL: $${fmt(sol,2)}</span><span class="ticker-item">BTC: $${fmt(btc,0)}</span><span class="ticker-item">FamLabs Alpha Scan v2.6 Online</span><span class="ticker-item">Monaco / Hxro Solana – Primary Focus</span><span class="ticker-item">100% LIVE DATA ONLY</span><span class="ticker-item">Exec Time: ${data.executionTime}ms</span>`;
+            document.getElementById('ticker-content').innerHTML = `<span class="ticker-item">SOL: $${fmt(sol,2)}</span><span class="ticker-item">BTC: $${fmt(btc,0)}</span><span class="ticker-item">FamLabs Alpha Scan v2.7 Online</span><span class="ticker-item">Global Prediction Markets Scanned</span><span class="ticker-item">Polymarket | Manifold | PredictIt</span><span class="ticker-item">100% LIVE DATA – GLOBAL</span><span class="ticker-item">Exec Time: ${data.executionTime}ms</span>`;
         }
         if (data.volatilityIndex !== undefined) {
             document.getElementById('volatility-value').innerText = data.volatilityIndex.toFixed(1);
