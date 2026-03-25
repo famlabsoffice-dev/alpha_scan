@@ -184,7 +184,10 @@
 
         const CONFIG = { 
             REFRESH_INTERVAL: 30000, 
-            JACCARD_THRESHOLD: 0.42, 
+            JACCARD_THRESHOLD: 0.42,
+            MIN_ROI_PERCENT: 500,
+            MIN_EXTREME_PRICE: 0.005,
+            MIN_ARB_PROFIT: 2.0, 
             CORS_PROXY: "https://alphascan.famlabsoffice.workers.dev/?auth=TGMFAM2026&url=" 
         };
 
@@ -339,19 +342,30 @@
             // 1. Arbitrage Opportunities zuerst
             state.arbs.forEach(a => { if (top10.length < 10 && !seen.has(a.marketA.question)) { top10.push({...a.marketA, arb: a}); seen.add(a.marketA.question); } });
             
-            // 2. High ROI Opportunities (Top 10 auffüllen)
-            const sortedByROI = [...state.markets].sort((a, b) => (1/a.yes_price) - (1/b.yes_price));
-            sortedByROI.forEach(m => { if (top10.length < 10 && !seen.has(m.question)) { top10.push(m); seen.add(m.question); } });
+            // EXTREME ODDS FILTER: Nur hochprofitable Märkte mit ROI > 500%
+            const extremeOdds = state.markets.filter(m => {
+                const yesROI = (1 / m.yes_price - 1) * 100;
+                const noROI = (1 / m.no_price - 1) * 100;
+                const maxROI = Math.max(yesROI, noROI);
+                return maxROI > 500 || m.yes_price < 0.005 || m.no_price < 0.005;
+            }).sort((a, b) => {
+                const aROI = Math.max((1 / a.yes_price - 1) * 100, (1 / a.no_price - 1) * 100);
+                const bROI = Math.max((1 / b.yes_price - 1) * 100, (1 / b.no_price - 1) * 100);
+                return bROI - aROI;
+            });
 
-            // 3. Underdogs (Price < 10¢)
-            state.markets.filter(m => m.yes_price < 0.10).sort((a, b) => a.yes_price - b.yes_price).forEach(m => { if (underdogs.length < 10) underdogs.push(m); });
+            // 2. Extreme ROI Opportunities (Top 10 auffüllen)
+            extremeOdds.forEach(m => { if (top10.length < 10 && !seen.has(m.question)) { top10.push(m); seen.add(m.question); } });
+
+            // 3. Ultra-Underdogs (Price < 0.5¢ = 200x ROI)
+            state.markets.filter(m => m.yes_price < 0.005 || m.no_price < 0.005).sort((a, b) => a.yes_price - b.yes_price).forEach(m => { if (underdogs.length < 10) underdogs.push(m); });
 
             document.getElementById('top10Grid').innerHTML = top10.map(item => createCard(item, true)).join('');
             document.getElementById('underdogGrid').innerHTML = underdogs.map(item => createCard(item, true)).join('');
             
             let filtered = state.markets;
-            if (state.filter === "ARB") filtered = state.arbs.map(a => ({...a.marketA, arb: a}));
-            else if (state.filter === "UNDERDOG") filtered = state.markets.filter(m => m.yes_price < 0.15);
+            if (state.filter === "ARB") filtered = state.arbs.filter(a => a.profit > 2.0).map(a => ({...a.marketA, arb: a}));
+            else if (state.filter === "UNDERDOG") filtered = extremeOdds.filter(m => m.yes_price < 0.01);
             else if (state.filter === "SOLANA") filtered = state.markets.filter(m => m.platform === "Monaco" || m.platform === "Hxro" || m.platform === "JupiterPM");
             
             document.getElementById('marketFeed').innerHTML = filtered.map(m => createCard(m)).join('');
