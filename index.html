@@ -187,7 +187,8 @@
             JACCARD_THRESHOLD: 0.42,
             MIN_ROI_PERCENT: 500,
             MIN_EXTREME_PRICE: 0.005,
-            MIN_ARB_PROFIT: 2.0, 
+            MIN_ARB_PROFIT: 2.0,
+            MIN_CROSS_PLATFORM_SPREAD: 0.05,
             CORS_PROXY: "https://alphascan.famlabsoffice.workers.dev/?auth=TGMFAM2026&url=" 
         };
 
@@ -448,15 +449,98 @@
             document.getElementById('resultsArea').classList.remove('hidden');
         }
 
+        // CROSS-PLATFORM MATCHING: Finde Arbitrage-Chancen zwischen verschiedenen Plattformen
+        function findCrossPlatformArbitrage(allMarkets) {
+            const crossPlatformArbs = [];
+            const MIN_SPREAD = 0.10; // 10% Preisabweichung = Arbitrage
+            
+            // Gruppiere Märkte nach ähnlichen Fragen
+            const marketGroups = {};
+            allMarkets.forEach(m => {
+                const key = m.question.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20);
+                if (!marketGroups[key]) marketGroups[key] = [];
+                marketGroups[key].push(m);
+            });
+            
+            // Suche nach Preisabweichungen innerhalb jeder Gruppe
+            Object.values(marketGroups).forEach(group => {
+                if (group.length < 2) return;
+                
+                for (let i = 0; i < group.length; i++) {
+                    for (let j = i + 1; j < group.length; j++) {
+                        const m1 = group[i];
+                        const m2 = group[j];
+                        
+                        if (m1.platform === m2.platform) continue; // Nur Cross-Platform
+                        
+                        // Berechne Spread
+                        const yesSpread = Math.abs(m1.yes_price - m2.yes_price);
+                        const noSpread = Math.abs(m1.no_price - m2.no_price);
+                        const maxSpread = Math.max(yesSpread, noSpread);
+                        
+                        // Berechne Arbitrage-Profit
+                        let arbProfit = 0;
+                        let direction = '';
+                        
+                        // YES Arbitrage: Kaufe günstig, verkaufe teuer
+                        if (m1.yes_price < m2.yes_price) {
+                            arbProfit = ((m2.yes_price - m1.yes_price) / m1.yes_price) * 100;
+                            direction = `YES: ${m1.platform} → ${m2.platform}`;
+                        } else if (m2.yes_price < m1.yes_price) {
+                            arbProfit = ((m1.yes_price - m2.yes_price) / m2.yes_price) * 100;
+                            direction = `YES: ${m2.platform} → ${m1.platform}`;
+                        }
+                        
+                        // NO Arbitrage
+                        if (m1.no_price < m2.no_price) {
+                            const noArb = ((m2.no_price - m1.no_price) / m1.no_price) * 100;
+                            if (noArb > arbProfit) {
+                                arbProfit = noArb;
+                                direction = `NO: ${m1.platform} → ${m2.platform}`;
+                            }
+                        } else if (m2.no_price < m1.no_price) {
+                            const noArb = ((m1.no_price - m2.no_price) / m2.no_price) * 100;
+                            if (noArb > arbProfit) {
+                                arbProfit = noArb;
+                                direction = `NO: ${m2.platform} → ${m1.platform}`;
+                            }
+                        }
+                        
+                        // Speichere wenn Arbitrage > 5%
+                        if (arbProfit > 5) {
+                            crossPlatformArbs.push({
+                                id: `CROSS_${m1.id}_${m2.id}`,
+                                marketA: m1,
+                                marketB: m2,
+                                profit: arbProfit,
+                                direction: direction,
+                                spread: maxSpread,
+                                reason: `Cross-Platform Arbitrage: ${direction} mit ${arbProfit.toFixed(1)}% Gewinn`
+                            });
+                        }
+                    }
+                }
+            });
+            
+            return crossPlatformArbs.sort((a, b) => b.profit - a.profit);
+        }
+
         function analyzeMarkets(allMarkets) {
             const arbs = [];
             const uniqueMarkets = [];
             allMarkets.forEach(m => { if (!uniqueMarkets.some(um => jaccard(um.question, m.question) > 0.8)) uniqueMarkets.push(m); });
+            
+            // Bestehende Arbitrage-Logik
             const analyzed = uniqueMarkets.map(m => {
                 if (m.arb_profit) arbs.push({ id: `ARB_${m.id}`, marketA: m, marketB: { platform: m.arb_partner }, profit: m.arb_profit });
                 return m;
             });
-            return { analyzed, arbs: arbs.sort((a, b) => b.profit - a.profit) };
+            
+            // ERGÄNZUNG: Cross-Platform Matching hinzufügen
+            const crossPlatformArbs = findCrossPlatformArbitrage(allMarkets);
+            const allArbs = [...arbs, ...crossPlatformArbs];
+            
+            return { analyzed, arbs: allArbs.sort((a, b) => b.profit - a.profit) };
         }
 
         function renderResults() {
@@ -464,8 +548,8 @@
             const underdogs = [];
             const seen = new Set();
 
-            // 1. Arbitrage Opportunities zuerst
-            state.arbs.forEach(a => { if (top10.length < 10 && !seen.has(a.marketA.question)) { top10.push({...a.marketA, arb: a}); seen.add(a.marketA.question); } });
+            // 1. Arbitrage Opportunities zuerst (inkl. Cross-Platform)
+            state.arbs.forEach(a => { if (top10.length < 10 && !seen.has(a.marketA.question)) { top10.push({...a.marketA, arb: a, arbReason: a.reason || a.direction}); seen.add(a.marketA.question); } });
             
             // EXTREME ODDS FILTER: Nur hochprofitable Märkte mit ROI > 500%
             const extremeOdds = state.markets.filter(m => {
@@ -489,9 +573,10 @@
             document.getElementById('underdogGrid').innerHTML = underdogs.map(item => createCard(item, true)).join('');
             
             let filtered = state.markets;
-            if (state.filter === "ARB") filtered = state.arbs.filter(a => a.profit > 2.0).map(a => ({...a.marketA, arb: a}));
+            if (state.filter === "ARB") filtered = state.arbs.filter(a => a.profit > 2.0).map(a => ({...a.marketA, arb: a, arbReason: a.reason || a.direction}));
             else if (state.filter === "UNDERDOG") filtered = extremeOdds.filter(m => m.yes_price < 0.01);
             else if (state.filter === "SOLANA") filtered = state.markets.filter(m => m.platform === "Monaco" || m.platform === "Hxro" || m.platform === "JupiterPM");
+            else if (state.filter === "CROSS") filtered = state.arbs.filter(a => a.direction).map(a => ({...a.marketA, arb: a, arbReason: a.reason || a.direction}));
             
             document.getElementById('marketFeed').innerHTML = filtered.map(m => createCard(m)).join('');
         }
