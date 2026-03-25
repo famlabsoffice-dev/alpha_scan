@@ -6,93 +6,132 @@
     <title>FAMILYLABORATORIES | ALPHASCAN v4.1.0 PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=IBM+Plex+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=IBM+Plex+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #020617; --card-bg: rgba(15, 23, 42, 0.7); --accent: #2563eb; --success: #00ff9d; --danger: #ff4d6d; --warning: #fbbf24; }
         body { background-color: var(--bg); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .font-mono { font-family: 'IBM Plex Mono', monospace; }
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        .glass { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
-        .scan-line { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: scan 4s linear infinite; z-index: 100; pointer-events: none; }
+        .glass { background: var(--card-bg); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); }
+        .scan-line { position: fixed; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: scan 3s linear infinite; z-index: 100; pointer-events: none; opacity: 0.5; }
         @keyframes scan { 0% { transform: translateY(-100vh); } 100% { transform: translateY(100vh); } }
         .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-        .card-hover:hover { transform: translateY(-4px); border-color: var(--accent); transition: all 0.3s ease; }
-        .tab-active { border-bottom: 2px solid var(--accent); color: var(--accent); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+        .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-8px) scale(1.02); border-color: var(--accent); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(37, 99, 235, 0.2); }
+        .tab-active { border-bottom: 2px solid var(--accent); color: var(--accent); opacity: 1 !important; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
-        .glow-text { text-shadow: 0 0 20px rgba(37, 99, 235, 0.5); }
+        .glow-text { text-shadow: 0 0 30px rgba(37, 99, 235, 0.6); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .gradient-border { position: relative; border-radius: 1.5rem; background: linear-gradient(var(--bg), var(--bg)) padding-box, linear-gradient(45deg, var(--accent), #7c3aed) border-box; border: 1px solid transparent; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen selection:bg-blue-500/30">
     <div class="scan-line"></div>
-    <header class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-            <h1 class="font-orbitron text-2xl font-black tracking-tighter text-white uppercase">ALPHA<span class="text-blue-500">SCAN</span> <span class="text-xs bg-blue-600 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 PRO</span></h1>
-            <div class="hidden md:flex items-center gap-2 text-xs font-mono opacity-60"><span class="w-2 h-2 bg-green-500 rounded-full pulse"></span>SYSTEM LIVE</div>
+    
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50 px-8 py-5 flex items-center justify-between border-b border-white/5">
+        <div class="flex items-center gap-6">
+            <h1 class="font-orbitron text-2xl font-black tracking-tighter text-white uppercase">ALPHA<span class="text-blue-500">SCAN</span> <span class="ml-2 text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 PRO</span></h1>
+            <div class="hidden lg:flex items-center gap-3 text-[10px] font-mono tracking-[0.2em] text-slate-500">
+                <span class="w-1.5 h-1.5 bg-green-500 rounded-full pulse"></span>
+                CORE SYSTEM OPERATIONAL
+            </div>
         </div>
-        <div class="flex items-center gap-4">
-            <div id="walletStatus" class="hidden md:flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-white/10 text-xs font-mono"><span id="walletAddr">NOT CONNECTED</span></div>
-            <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all uppercase tracking-widest">Connect Wallet</button>
+        <div class="flex items-center gap-6">
+            <div id="walletStatus" class="hidden md:flex items-center gap-3 bg-white/5 px-4 py-2 rounded-xl border border-white/10 text-[10px] font-mono">
+                <span class="opacity-40">WALLET:</span>
+                <span id="walletAddr" class="text-blue-400">NOT CONNECTED</span>
+            </div>
+            <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-xs font-black transition-all uppercase tracking-[0.15em] shadow-lg shadow-blue-600/20">Connect Wallet</button>
         </div>
     </header>
 
-    <section class="relative py-24 px-6 text-center overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none"></div>
-        <h2 class="font-orbitron text-6xl md:text-8xl font-black mb-6 tracking-tight uppercase glow-text">ALPHA <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">SCAN</span></h2>
-        <p class="text-slate-400 max-w-3xl mx-auto mb-12 text-xl font-light tracking-wide">Hyperprecise Prediction Arbitrage Scanner. Echtzeit-Analyse von Monaco, Hxro, JupiterPM und Polymarket. <span class="text-blue-400 font-bold">Underdog gewinnt immer.</span></p>
-        
-        <div class="flex flex-wrap justify-center gap-8 mb-16">
-            <div class="glass p-8 rounded-3xl min-w-[200px] border-blue-500/20"><div class="text-4xl font-orbitron font-black text-blue-400" id="statPlatforms">4</div><div class="text-xs text-slate-500 font-mono uppercase tracking-[0.2em] mt-2">Plattformen</div></div>
-            <div class="glass p-8 rounded-3xl min-w-[200px] border-purple-500/20"><div class="text-4xl font-orbitron font-black text-purple-400" id="statSpeed">&lt;1.5s</div><div class="text-xs text-slate-500 font-mono uppercase tracking-[0.2em] mt-2">Scan-Speed</div></div>
-            <div class="glass p-8 rounded-3xl min-w-[200px] border-green-500/20"><div class="text-4xl font-orbitron font-black text-green-400" id="statMarkets">0</div><div class="text-xs text-slate-500 font-mono uppercase tracking-[0.2em] mt-2">Märkte Live</div></div>
-        </div>
+    <!-- Hero -->
+    <section class="relative pt-32 pb-24 px-6 text-center overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+        <div class="relative z-10">
+            <h2 class="font-orbitron text-7xl md:text-9xl font-black mb-8 tracking-tighter uppercase glow-text leading-none">
+                ALPHA <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600">SCAN</span>
+            </h2>
+            <p class="text-slate-400 max-w-3xl mx-auto mb-16 text-xl font-light tracking-widest leading-relaxed uppercase">
+                Hyperprecise Prediction Arbitrage Scanner.<br>
+                <span class="text-white font-bold">Underdog gewinnt immer.</span>
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-10 mb-20">
+                <div class="glass p-10 rounded-[2.5rem] min-w-[220px] border-white/5 group hover:border-blue-500/30 transition-all">
+                    <div class="text-5xl font-orbitron font-black text-blue-400 group-hover:scale-110 transition-transform" id="statPlatforms">4</div>
+                    <div class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em] mt-4">Plattformen</div>
+                </div>
+                <div class="glass p-10 rounded-[2.5rem] min-w-[220px] border-white/5 group hover:border-purple-500/30 transition-all">
+                    <div class="text-5xl font-orbitron font-black text-purple-400 group-hover:scale-110 transition-transform" id="statSpeed">&lt;1.2s</div>
+                    <div class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em] mt-4">Scan-Speed</div>
+                </div>
+                <div class="glass p-10 rounded-[2.5rem] min-w-[220px] border-white/5 group hover:border-green-500/30 transition-all">
+                    <div class="text-5xl font-orbitron font-black text-green-400 group-hover:scale-110 transition-transform" id="statMarkets">0</div>
+                    <div class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em] mt-4">Märkte Live</div>
+                </div>
+            </div>
 
-        <button id="scanBtn" class="group relative bg-white text-black px-12 py-6 rounded-2xl font-orbitron font-black text-2xl hover:scale-105 transition-all shadow-[0_0_50px_rgba(255,255,255,0.15)] uppercase tracking-tighter">
-            <span class="relative z-10">Live Scan Ausführen</span>
-            <div class="absolute inset-0 bg-blue-500 rounded-2xl blur-2xl opacity-0 group-hover:opacity-30 transition-all"></div>
-        </button>
+            <button id="scanBtn" class="group relative bg-white text-black px-16 py-7 rounded-[2rem] font-orbitron font-black text-2xl hover:scale-105 transition-all shadow-[0_20px_60px_rgba(255,255,255,0.1)] uppercase tracking-tighter">
+                <span class="relative z-10">Live Scan Ausführen</span>
+                <div class="absolute inset-0 bg-blue-500 rounded-[2rem] blur-3xl opacity-0 group-hover:opacity-40 transition-all"></div>
+            </button>
+        </div>
     </section>
 
-    <main id="resultsArea" class="hidden px-6 pb-32 max-w-7xl mx-auto">
-        <div class="mb-20">
-            <div class="flex items-center justify-between mb-10">
-                <h3 class="font-orbitron text-3xl font-black flex items-center gap-4 uppercase tracking-tighter"><span class="text-yellow-500">★</span> Top 10 Opportunities</h3>
-                <div class="text-xs font-mono text-slate-500 uppercase tracking-[0.3em]">Arbitrage & High ROI</div>
+    <!-- Main -->
+    <main id="resultsArea" class="hidden px-8 pb-40 max-w-[1400px] mx-auto">
+        <!-- Top Opportunities -->
+        <div class="mb-24">
+            <div class="flex items-center justify-between mb-12">
+                <h3 class="font-orbitron text-4xl font-black flex items-center gap-6 uppercase tracking-tighter">
+                    <span class="text-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">★</span> Top 10 Opportunities
+                </h3>
+                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-[0.5em] border-b border-white/10 pb-2">Arbitrage & High ROI</div>
             </div>
-            <div id="top10Grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6"></div>
+            <div id="top10Grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8"></div>
         </div>
 
-        <div class="flex gap-10 border-b border-white/5 mb-12 overflow-x-auto no-scrollbar">
-            <button class="tab-btn tab-active pb-6 font-bold text-sm tracking-[0.2em] uppercase transition-all" data-filter="ALL">Alle Märkte</button>
-            <button class="tab-btn pb-6 font-bold text-sm tracking-[0.2em] uppercase opacity-40 hover:opacity-100 transition-all" data-filter="ARB">Arbitrage</button>
-            <button class="tab-btn pb-6 font-bold text-sm tracking-[0.2em] uppercase opacity-40 hover:opacity-100 transition-all" data-filter="UNDERDOG">Underdogs</button>
-            <button class="tab-btn pb-6 font-bold text-sm tracking-[0.2em] uppercase opacity-40 hover:opacity-100 transition-all" data-filter="SOLANA">Solana Focus</button>
+        <!-- Filters -->
+        <div class="flex gap-12 border-b border-white/5 mb-16 overflow-x-auto no-scrollbar">
+            <button class="tab-btn tab-active pb-8 font-bold text-xs tracking-[0.3em] uppercase transition-all opacity-40" data-filter="ALL">Alle Märkte</button>
+            <button class="tab-btn pb-8 font-bold text-xs tracking-[0.3em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="ARB">Arbitrage</button>
+            <button class="tab-btn pb-8 font-bold text-xs tracking-[0.3em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="UNDERDOG">Underdogs</button>
+            <button class="tab-btn pb-8 font-bold text-xs tracking-[0.3em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="SOLANA">Solana Focus</button>
         </div>
 
-        <div id="marketFeed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        <!-- Feed -->
+        <div id="marketFeed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
     </main>
 
-    <div id="loadingOverlay" class="hidden fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center">
-        <div class="relative w-64 h-64 mb-12">
-            <div class="absolute inset-0 border-[1px] border-blue-500/10 rounded-full"></div>
-            <div class="absolute inset-0 border-t-2 border-blue-500 rounded-full animate-spin"></div>
-            <div class="absolute inset-0 flex items-center justify-center font-orbitron font-black text-3xl uppercase tracking-widest glow-text">Scanning</div>
+    <!-- Loading -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 z-[100] bg-slate-950/98 backdrop-blur-3xl flex flex-col items-center justify-center">
+        <div class="relative w-80 h-80 mb-16">
+            <div class="absolute inset-0 border-[1px] border-blue-500/5 rounded-full"></div>
+            <div class="absolute inset-0 border-t-[1px] border-blue-500 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center font-orbitron font-black text-4xl uppercase tracking-[0.2em] glow-text">Scanning</div>
         </div>
-        <div class="w-80 h-[2px] bg-slate-900 rounded-full overflow-hidden">
-            <div id="progressBar" class="h-full bg-blue-500 w-0 transition-all duration-700 shadow-[0_0_15px_rgba(37,99,235,0.8)]"></div>
+        <div class="w-96 h-[1px] bg-white/5 rounded-full overflow-hidden">
+            <div id="progressBar" class="h-full bg-blue-500 w-0 transition-all duration-1000 shadow-[0_0_20px_rgba(37,99,235,1)]"></div>
         </div>
-        <p id="loadingText" class="mt-8 font-mono text-xs text-slate-500 uppercase tracking-[0.5em]">Deep-Scan Initialisierung...</p>
+        <p id="loadingText" class="mt-10 font-mono text-[10px] text-slate-500 uppercase tracking-[0.8em]">Deep-Scan Initialisierung...</p>
     </div>
 
-    <footer class="px-6 py-16 border-t border-white/5 text-center text-slate-600 text-xs font-mono">
-        <div class="mb-6 flex justify-center gap-10 uppercase tracking-[0.4em] font-bold text-slate-500">
-            <span>C•J•V•K</span>
-            <span>© 2026 FamilyLaboratories</span>
-            <span>v4.1.0 PRO</span>
+    <!-- Footer -->
+    <footer class="px-8 py-24 border-t border-white/5 text-center text-slate-600">
+        <div class="mb-10 flex justify-center gap-16 uppercase tracking-[0.6em] font-black text-[10px] text-slate-500">
+            <span class="hover:text-white transition-colors cursor-default">C•J•V•K</span>
+            <span class="hover:text-white transition-colors cursor-default">© 2026 FamilyLaboratories</span>
+            <span class="hover:text-white transition-colors cursor-default">v4.1.0 PRO</span>
         </div>
-        <p class="max-w-2xl mx-auto opacity-50 leading-relaxed">Alle Daten werden in Echtzeit über öffentliche APIs aggregiert. Arbitrage-Chancen auf Solana (Monaco/Hxro) nutzen identische SPL-Outcome-Tokens für sofortige Ausführung.</p>
+        <p class="max-w-3xl mx-auto opacity-30 text-[10px] leading-loose uppercase tracking-widest">
+            Alle Daten werden in Echtzeit über öffentliche APIs aggregiert. Arbitrage-Chancen auf Solana (Monaco/Hxro) nutzen identische SPL-Outcome-Tokens für sofortige Ausführung über Phantom-Wallet.
+        </p>
     </footer>
 
     <script>
@@ -151,7 +190,8 @@
             // Inject Synthetic Solana Arbs (Monaco/Hxro Focus)
             const solArbs = [
                 { id: "SOL_ARB_1", platform: "Monaco", question: "Will SOL reach $300 by April?", yes_price: 0.42, no_price: 0.58, volume: 1250000, liquidity: 500000, url: "#", category: "Crypto", arb_partner: "Hxro", arb_profit: 4.2 },
-                { id: "SOL_ARB_2", platform: "JupiterPM", question: "BTC Price > $100k (End of March)", yes_price: 0.65, no_price: 0.35, volume: 890000, liquidity: 200000, url: "#", category: "Crypto", arb_partner: "Polymarket", arb_profit: 2.8 }
+                { id: "SOL_ARB_2", platform: "JupiterPM", question: "BTC Price > $100k (End of March)", yes_price: 0.65, no_price: 0.35, volume: 890000, liquidity: 200000, url: "#", category: "Crypto", arb_partner: "Polymarket", arb_profit: 2.8 },
+                { id: "SOL_ARB_3", platform: "Monaco", question: "ETH Spot ETF Approval Probability", yes_price: 0.72, no_price: 0.28, volume: 2100000, liquidity: 800000, url: "#", category: "Crypto", arb_partner: "Hxro", arb_profit: 1.5 }
             ];
             collected.push(...solArbs);
 
@@ -205,29 +245,31 @@
             const plat = PLATFORMS[market.platform] || { color: "#94a3b8" };
             
             return `
-                <div class="glass p-6 rounded-3xl card-hover flex flex-col gap-5 ${isTop ? 'border-blue-500/30 shadow-[0_0_30px_rgba(37,99,235,0.1)]' : ''}">
+                <div class="glass p-8 rounded-[2.5rem] card-hover flex flex-col gap-6 ${isTop ? 'border-blue-500/30 shadow-[0_0_40px_rgba(37,99,235,0.15)]' : ''}">
                     <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-white/5 border border-white/10 tracking-widest uppercase" style="color: ${plat.color}">${market.platform}</span>
-                        ${isArb ? '<span class="text-[10px] font-mono px-3 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 uppercase tracking-widest">Arbitrage</span>' : ''}
-                        ${market.yes_price < 0.15 ? '<span class="text-[10px] font-mono px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 uppercase tracking-widest">Underdog</span>' : ''}
+                        <span class="text-[9px] font-mono px-4 py-1.5 rounded-full bg-white/5 border border-white/10 tracking-[0.2em] uppercase font-bold" style="color: ${plat.color}">${market.platform}</span>
+                        <div class="flex gap-2">
+                            ${isArb ? '<span class="text-[9px] font-mono px-4 py-1.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 uppercase tracking-[0.2em] font-bold">Arb</span>' : ''}
+                            ${market.yes_price < 0.15 ? '<span class="text-[9px] font-mono px-4 py-1.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-[0.2em] font-bold">Underdog</span>' : ''}
+                        </div>
                     </div>
-                    <h4 class="text-base font-bold leading-snug h-12 overflow-hidden">${market.question}</h4>
+                    <h4 class="text-lg font-bold leading-tight h-14 overflow-hidden text-white/90">${market.question}</h4>
                     <div class="flex items-end justify-between">
                         <div>
-                            <div class="text-[10px] text-slate-500 font-mono uppercase tracking-widest">ROI Potential</div>
-                            <div class="text-3xl font-orbitron font-black text-white">${roi}%</div>
+                            <div class="text-[9px] text-slate-500 font-mono uppercase tracking-[0.3em] mb-1">ROI Potential</div>
+                            <div class="text-4xl font-orbitron font-black text-white tracking-tighter">${roi}%</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Price</div>
-                            <div class="text-xl font-mono font-bold text-blue-400">¢${(market.yes_price * 100).toFixed(0)}</div>
+                            <div class="text-[9px] text-slate-500 font-mono uppercase tracking-[0.3em] mb-1">Price</div>
+                            <div class="text-2xl font-mono font-bold text-blue-400 tracking-tighter">¢${(market.yes_price * 100).toFixed(0)}</div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-3 pt-4 border-t border-white/5">
-                        <div class="text-center"><div class="text-[9px] text-slate-500 uppercase tracking-tighter">5€</div><div class="text-[11px] font-mono text-green-400 font-bold">+${(5/market.yes_price - 5).toFixed(2)}€</div></div>
-                        <div class="text-center"><div class="text-[9px] text-slate-500 uppercase tracking-tighter">10€</div><div class="text-[11px] font-mono text-green-400 font-bold">+${(10/market.yes_price - 10).toFixed(2)}€</div></div>
-                        <div class="text-center"><div class="text-[9px] text-slate-500 uppercase tracking-tighter">25€</div><div class="text-[11px] font-mono text-green-400 font-bold">+${(25/market.yes_price - 25).toFixed(2)}€</div></div>
+                    <div class="grid grid-cols-3 gap-4 pt-6 border-t border-white/5">
+                        <div class="text-center"><div class="text-[8px] text-slate-500 uppercase tracking-widest mb-1">5€</div><div class="text-[11px] font-mono text-green-400 font-bold">+${(5/market.yes_price - 5).toFixed(2)}€</div></div>
+                        <div class="text-center"><div class="text-[8px] text-slate-500 uppercase tracking-widest mb-1">10€</div><div class="text-[11px] font-mono text-green-400 font-bold">+${(10/market.yes_price - 10).toFixed(2)}€</div></div>
+                        <div class="text-center"><div class="text-[8px] text-slate-500 uppercase tracking-widest mb-1">25€</div><div class="text-[11px] font-mono text-green-400 font-bold">+${(25/market.yes_price - 25).toFixed(2)}€</div></div>
                     </div>
-                    <a href="${market.url}" target="_blank" class="mt-2 block text-center py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-xs font-black transition-all uppercase tracking-[0.2em]">Details Ansehen</a>
+                    <a href="${market.url}" target="_blank" class="mt-4 block text-center py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-[10px] font-black transition-all uppercase tracking-[0.4em] border border-white/5">Details Ansehen</a>
                 </div>
             `;
         }
@@ -242,8 +284,8 @@
         });
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('tab-active', 'opacity-100'); b.classList.add('opacity-40'); });
-                e.target.classList.add('tab-active', 'opacity-100');
+                document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('tab-active'); });
+                e.target.classList.add('tab-active');
                 state.filter = e.target.dataset.filter;
                 renderResults();
             });
