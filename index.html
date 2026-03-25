@@ -185,7 +185,8 @@
             <div class="ticker" id="ticker-content">
                 <span class="ticker-item">FamLabs Alpha Scan v2.0 Online</span>
                 <span class="ticker-item">Cross-DEX Arbitrage Engine Active</span>
-                <span class="ticker-item">Monaco/Hxro Primary Focus - SPL Outcome Tokens</span>
+                <span class="ticker-item">Polymarket Gamma API Integration Active</span>
+                <span class="ticker-item">Binance & Jupiter Price Feeds Live</span>
                 <span class="ticker-item">Security Protocol TGMFAM2026 Engaged</span>
             </div>
         </div>
@@ -236,8 +237,8 @@
 
                 <div class="lg:col-span-8 flex flex-col gap-6">
                     <div class="flex items-center justify-between px-1">
-                        <h2 id="t-feed" class="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Market Data Feed</h2>
-                        <span id="t-markets-count" class="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Markets: 0</span>
+                        <h2 id="t-feed" class="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Market Data Feed</h2>
+                        <span id="t-markets-count" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Markets: 0</span>
                     </div>
                     <div id="terminal" class="grid grid-cols-1 md:grid-cols-2 gap-6 content-start">
                         <div id="t-waiting-feed" class="col-span-full corporate-card p-32 text-center text-slate-600 text-[10px] uppercase tracking-[0.6em] font-light">
@@ -254,7 +255,7 @@
                     </button>
                 </div>
                 <div class="text-center md:text-right">
-                    <div class="text-primary text-[12px] font-black tracking-[0.5em] uppercase italic mb-2">Monaco/Hxro Primary Focus | SPL Outcome Tokens</div>
+                    <div class="text-primary text-[12px] font-black tracking-[0.5em] uppercase italic mb-2">Polymarket Gamma | Binance & Jupiter Price Feeds</div>
                     <div class="flex items-center justify-center md:justify-end gap-4">
                         <span class="text-[10px] text-slate-600 font-bold tracking-widest uppercase">C•J•V•K | Private Access</span>
                         <span class="text-[10px] text-slate-700 uppercase tracking-widest">&copy; 2026 FamilyLaboratories</span>
@@ -326,6 +327,7 @@
 
         let currentLang = 'de';
         let authToken = localStorage.getItem('famlabs_auth') || '';
+        let refreshInterval = null;
 
         function checkAuth() {
             const pass = document.getElementById('pass-input').value;
@@ -334,6 +336,7 @@
                 localStorage.setItem('famlabs_auth', pass);
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
+                startAutoRefresh();
             } else {
                 alert('ACCESS DENIED');
             }
@@ -344,8 +347,15 @@
                 authToken = 'TGMFAM2026';
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
+                startAutoRefresh();
             }
         };
+
+        function startAutoRefresh() {
+            executeScan();
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(executeScan, 30000); // 30 seconds
+        }
 
         function setLang(lang) {
             currentLang = lang;
@@ -358,6 +368,13 @@
             document.getElementById('t-btn').innerText = i18n[lang].btn;
         }
 
+        function calculateProfit(price, amount) {
+            // Formula: Profit = (1/Preis - 1) * Kaufbetrag wenn Preis < 0.5
+            const p = price / 100;
+            if (p <= 0) return 0;
+            return (1/p - 1) * amount;
+        }
+
         async function executeScan() {
             const term = document.getElementById('terminal');
             const signals = document.getElementById('signals');
@@ -365,8 +382,6 @@
             const count = document.getElementById('t-markets-count');
             const oppCount = document.getElementById('opp-count');
             
-            term.innerHTML = `<div class="col-span-full py-32 text-center text-slate-700 animate-pulse text-[10px] uppercase tracking-[0.5em]">Scanning Cross-DEX Markets...</div>`;
-            signals.innerHTML = `<div class="py-16 text-center text-slate-700 animate-pulse text-[10px] uppercase tracking-[0.3em]">Analyzing Arbitrage Spreads...</div>`;
             btn.disabled = true;
 
             try {
@@ -412,12 +427,12 @@
                                 <div class="trade-btn buy">
                                     <span class="text-[7px] font-black text-success uppercase mb-1">${i18n[currentLang].buy}</span>
                                     <span class="text-[10px] font-black text-white uppercase mb-1">${opp.buyDex}</span>
-                                    <span class="text-lg font-black mono text-success">$${opp.buyPrice.toFixed(4)}</span>
+                                    <span class="text-lg font-black mono text-success">$${opp.buyPrice.toFixed(opp.isCrypto ? 2 : 4)}</span>
                                 </div>
                                 <div class="trade-btn sell">
                                     <span class="text-[7px] font-black text-danger uppercase mb-1">${i18n[currentLang].sell}</span>
                                     <span class="text-[10px] font-black text-white uppercase mb-1">${opp.sellDex}</span>
-                                    <span class="text-lg font-black mono text-danger">$${opp.sellPrice.toFixed(4)}</span>
+                                    <span class="text-lg font-black mono text-danger">$${opp.sellPrice.toFixed(opp.isCrypto ? 2 : 4)}</span>
                                 </div>
                             </div>
                         </div>
@@ -428,7 +443,12 @@
 
                 // Display Market Data
                 if (data.markets && data.markets.length > 0) {
-                    term.innerHTML = data.markets.slice(0, 20).map(market => `
+                    term.innerHTML = data.markets.slice(0, 20).map(market => {
+                        const p5 = calculateProfit(market.v, 5);
+                        const p10 = calculateProfit(market.v, 10);
+                        const p25 = calculateProfit(market.v, 25);
+                        
+                        return `
                         <div class="corporate-card p-6">
                             <div class="flex justify-between items-start gap-4 mb-4">
                                 <div>
@@ -441,26 +461,34 @@
                                         <div class="text-lg font-black mono text-success">$${(market.v/100).toFixed(2)}</div>
                                         <span class="contract-price">$${(market.v/100).toFixed(2)}</span>
                                     </div>
-                                    <div class="flex flex-col items-end ml-4">
-                                        <div class="text-[8px] text-slate-600 font-black uppercase">NO</div>
-                                        <div class="text-lg font-black mono text-danger">$${((100-market.v)/100).toFixed(2)}</div>
-                                        <span class="contract-price">$${((100-market.v)/100).toFixed(2)}</span>
-                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 mb-4 border-t border-slate-800 pt-4">
+                                <div class="text-center">
+                                    <div class="text-[7px] text-slate-500 uppercase">Profit 5€</div>
+                                    <div class="text-[10px] font-bold text-success">+${p5.toFixed(2)}€</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-[7px] text-slate-500 uppercase">Profit 10€</div>
+                                    <div class="text-[10px] font-bold text-success">+${p10.toFixed(2)}€</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-[7px] text-slate-500 uppercase">Profit 25€</div>
+                                    <div class="text-[10px] font-bold text-success">+${p25.toFixed(2)}€</div>
                                 </div>
                             </div>
                             <div class="text-[9px] text-slate-500 mb-4">
                                 Volume: $${market.vol.toFixed(0)} | Fee: ${(market.fee*100).toFixed(2)}%
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-1 gap-2">
                                 <button onclick="window.open('${market.u}', '_blank')" class="matrix-row-btn buy">BUY YES ($${(market.v/100).toFixed(2)})</button>
-                                <button onclick="window.open('${market.u}', '_blank')" class="matrix-row-btn sell">SELL NO ($${((100-market.v)/100).toFixed(2)})</button>
                             </div>
                         </div>
-                    `).join('');
+                    `}).join('');
                 }
             } catch (err) {
                 console.error(err);
-                signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-danger/30">Error connecting to scanner.</div>`;
+                // signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-danger/30">Error connecting to scanner.</div>`;
             } finally {
                 btn.disabled = false;
             }

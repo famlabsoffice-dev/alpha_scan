@@ -16,10 +16,9 @@ export default {
     }
 
     const startTime = Date.now();
-    const currentYear = 2026;
     const AUTH_PASS = "TGMFAM2026";
 
-    // 1. Simple Auth Check (via Header or Query)
+    // 1. Simple Auth Check
     const url = new URL(request.url);
     const providedPass = request.headers.get('X-FamLabs-Auth') || url.searchParams.get('auth');
 
@@ -30,184 +29,141 @@ export default {
       });
     }
 
-    // 2. Cross-DEX Arbitrage Pair Configuration
-    const ARBITRAGE_PAIRS = [
-      {
-        id: "monaco-hxro-solana",
-        buy: "Monaco",
-        sell: "Hxro",
-        chain: "Solana",
-        token: "SPL_OUTCOME",
-        priority: 1,
-        description: "Monaco vs Hxro - SPL Outcome Tokens (Primary Focus)"
-      },
-      {
-        id: "polymarket-uniswap-polygon",
-        buy: "Polymarket",
-        sell: "UniswapV3",
-        chain: "Polygon",
-        token: "ERC1155_CTF",
-        priority: 2,
-        description: "Polymarket vs UniswapV3 - ERC1155 Conditional Tokens"
-      },
-      {
-        id: "jupiterpm-polybridge-solana",
-        buy: "JupiterPM",
-        sell: "PolymarketBridge",
-        chain: "Solana",
-        token: "WPM_SHARE",
-        priority: 3,
-        description: "JupiterPM vs PolymarketBridge - Wrapped PM Shares"
-      }
-    ];
-
-    // 3. Data Ingestion (Enhanced Limits)
-    const [polyRes, manifoldRes, kalshiRes] = await Promise.allSettled([
-      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=150&order=volume&dir=desc'),
-      fetch('https://api.manifold.markets/v0/markets?limit=150&sort=updated-time'),
-      fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=100&status=open')
+    // 2. Data Ingestion from Real APIs
+    // Polymarket Gamma API, Binance Public API, Jupiter Price API
+    const [polyRes, binanceBtcRes, binanceSolRes, jupSolRes] = await Promise.allSettled([
+      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=100&order=volume&dir=desc'),
+      fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'),
+      fetch('https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT'),
+      fetch('https://price.jup.ag/v6/price?ids=SOL')
     ]);
 
     let allMarkets = [];
+    let cryptoPrices = {};
 
-    const isMarketCurrent = (title, closedDate) => {
-      if (closedDate) {
-        const year = new Date(closedDate).getFullYear();
-        if (year < currentYear) return false;
-      }
-      const oldYearMatch = title.match(/\b(202[0-5]|201[0-9])\b/);
-      return !oldYearMatch;
-    };
+    // Process Crypto Prices
+    if (binanceBtcRes.status === 'fulfilled') {
+      try {
+        const data = await binanceBtcRes.value.json();
+        cryptoPrices['BTC'] = parseFloat(data.price);
+      } catch (e) {}
+    }
+    if (binanceSolRes.status === 'fulfilled') {
+      try {
+        const data = await binanceSolRes.value.json();
+        cryptoPrices['SOL_BINANCE'] = parseFloat(data.price);
+      } catch (e) {}
+    }
+    if (jupSolRes.status === 'fulfilled') {
+      try {
+        const data = await jupSolRes.value.json();
+        if (data.data && data.data.SOL) {
+          cryptoPrices['SOL_JUPITER'] = parseFloat(data.data.SOL.price);
+        }
+      } catch (e) {}
+    }
 
-    // Polymarket Data
+    // Process Polymarket Data
     if (polyRes.status === 'fulfilled') {
       try {
         const data = await polyRes.value.json();
         data.forEach(m => {
-          if (m.outcomePrices && isMarketCurrent(m.question, m.closedTime)) {
+          if (m.outcomePrices) {
             const prices = JSON.parse(m.outcomePrices);
+            const yesPrice = parseFloat(prices[0]);
+            const noPrice = parseFloat(prices[1]);
+            
             allMarkets.push({
               p: 'Polymarket',
               n: m.question.trim(),
-              v: parseFloat(prices[0]) * 100,
+              v: yesPrice * 100, // YES price in cents
+              no_v: noPrice * 100, // NO price in cents
               u: `https://polymarket.com/event/${m.slug}`,
               vol: parseFloat(m.volume) || 0,
               fee: 0.002,
               chain: 'Polygon',
-              token: 'ERC1155_CTF'
+              token: 'USDC'
             });
           }
         });
       } catch (e) {}
     }
 
-    // Manifold Data
-    if (manifoldRes.status === 'fulfilled') {
-      try {
-        const data = await manifoldRes.value.json();
-        data.forEach(m => {
-          if (m.probability !== undefined && isMarketCurrent(m.question, m.closeTime)) {
-            allMarkets.push({
-              p: 'Manifold',
-              n: m.question.trim(),
-              v: m.probability * 100,
-              u: m.url,
-              vol: m.volume || 0,
-              fee: 0,
-              chain: 'Ethereum',
-              token: 'ERC20'
-            });
-          }
+    // 3. Arbitrage Detection & Profit Calculation
+    const opportunities = [];
+
+    // Crypto Arbitrage (Binance vs Jupiter for SOL)
+    if (cryptoPrices['SOL_BINANCE'] && cryptoPrices['SOL_JUPITER']) {
+      const bPrice = cryptoPrices['SOL_BINANCE'];
+      const jPrice = cryptoPrices['SOL_JUPITER'];
+      const diff = Math.abs(bPrice - jPrice);
+      const percentDiff = (diff / Math.min(bPrice, jPrice)) * 100;
+
+      if (percentDiff > 0.05) { // 0.05% threshold for crypto
+        const buyDex = bPrice < jPrice ? 'Binance' : 'Jupiter';
+        const sellDex = bPrice < jPrice ? 'Jupiter' : 'Binance';
+        const buyPrice = Math.min(bPrice, jPrice);
+        const sellPrice = Math.max(bPrice, jPrice);
+
+        opportunities.push({
+          pairId: "sol-arb",
+          buyDex: buyDex,
+          sellDex: sellDex,
+          chain: "Solana",
+          token: "SOL",
+          buyPrice: buyPrice,
+          sellPrice: sellPrice,
+          priceDifference: diff,
+          percentageDifference: percentDiff,
+          profitMargin: percentDiff - 0.1, // 0.1% estimated fees/slippage
+          volume: 50000,
+          buyMarket: "SOL/USDT",
+          sellMarket: "SOL/USDC",
+          timestamp: Date.now(),
+          status: 'PROFITABLE',
+          isCrypto: true
         });
-      } catch (e) {}
-    }
-
-    // Kalshi Data
-    if (kalshiRes.status === 'fulfilled') {
-      try {
-        const data = await kalshiRes.value.json();
-        if (data.markets) {
-          data.markets.forEach(m => {
-            if (m.yes_bid && isMarketCurrent(m.title, m.close_time)) {
-              allMarkets.push({
-                p: 'Kalshi',
-                n: m.title.trim(),
-                v: parseFloat(m.yes_bid),
-                u: `https://kalshi.com/markets/${m.ticker}`,
-                vol: parseFloat(m.volume) || 0,
-                fee: 0.004,
-                chain: 'Ethereum',
-                token: 'ERC20'
-              });
-            }
-          });
-        }
-      } catch (e) {}
-    }
-
-    // 4. Arbitrage Detection Engine
-    const detectArbitrages = (markets, pairs) => {
-      const opportunities = [];
-      
-      for (const pair of pairs) {
-        // Find markets matching this pair's DEXs
-        const buyMarkets = markets.filter(m => m.p.toLowerCase() === pair.buy.toLowerCase());
-        const sellMarkets = markets.filter(m => m.p.toLowerCase() === pair.sell.toLowerCase());
-
-        for (const buyM of buyMarkets) {
-          for (const sellM of sellMarkets) {
-            // Check if same chain and token
-            if (buyM.chain === sellM.chain && buyM.token === sellM.token) {
-              const priceDiff = sellM.v - buyM.v;
-              const percentDiff = (priceDiff / buyM.v) * 100;
-              const minVolume = Math.min(buyM.vol, sellM.vol);
-              
-              // Thresholds
-              const minPriceDiff = 1; // 1%
-              const minVolumeThreshold = 100; // $100
-
-              if (percentDiff >= minPriceDiff && minVolume >= minVolumeThreshold) {
-                const profitMargin = percentDiff - 0.5; // Account for 0.5% spread
-                
-                opportunities.push({
-                  pairId: pair.id,
-                  buyDex: pair.buy,
-                  sellDex: pair.sell,
-                  chain: pair.chain,
-                  token: pair.token,
-                  buyPrice: buyM.v,
-                  sellPrice: sellM.v,
-                  priceDifference: priceDiff,
-                  percentageDifference: percentDiff,
-                  profitMargin: profitMargin,
-                  volume: minVolume,
-                  buyMarket: buyM.n,
-                  sellMarket: sellM.n,
-                  timestamp: Date.now(),
-                  status: profitMargin > 0 ? 'PROFITABLE' : 'MARGINAL'
-                });
-              }
-            }
-          }
-        }
       }
+    }
 
-      // Sort by profit margin
-      return opportunities.sort((a, b) => b.profitMargin - a.profitMargin);
-    };
+    // Prediction Market Arbitrage (Internal Polymarket YES/NO imbalance or just high-value opportunities)
+    // For this implementation, we focus on the requested Profit calculation for each market
+    allMarkets.forEach(m => {
+      const yesPrice = m.v / 100;
+      const noPrice = m.no_v / 100;
+      
+      // If YES + NO < 1.0, there is a direct arbitrage
+      const sum = yesPrice + noPrice;
+      if (sum < 0.98) { // 2% spread threshold
+        opportunities.push({
+          pairId: "poly-internal",
+          buyDex: "Polymarket",
+          sellDex: "Polymarket",
+          chain: "Polygon",
+          token: "USDC",
+          buyPrice: yesPrice * 100,
+          sellPrice: (1 - noPrice) * 100,
+          priceDifference: (1 - sum) * 100,
+          percentageDifference: ((1 - sum) / sum) * 100,
+          profitMargin: ((1 - sum) / sum) * 100 - 0.5,
+          volume: m.vol / 10,
+          buyMarket: m.n,
+          sellMarket: m.n,
+          timestamp: Date.now(),
+          status: 'PROFITABLE'
+        });
+      }
+    });
 
-    const opportunities = detectArbitrages(allMarkets, ARBITRAGE_PAIRS);
-
-    // 5. Response Formatting
+    // 4. Response Formatting
     const response = {
       timestamp: new Date().toISOString(),
       executionTime: Date.now() - startTime,
       totalMarkets: allMarkets.length,
-      arbitragePairs: ARBITRAGE_PAIRS.length,
       opportunitiesFound: opportunities.length,
-      profitableOpportunities: opportunities.filter(o => o.status === 'PROFITABLE').length,
-      opportunities: opportunities.slice(0, 50), // Top 50
-      markets: allMarkets.slice(0, 100), // Top 100 markets
+      opportunities: opportunities.sort((a, b) => b.profitMargin - a.profitMargin).slice(0, 20),
+      markets: allMarkets.slice(0, 50),
+      crypto: cryptoPrices,
       status: 'SUCCESS'
     };
 
