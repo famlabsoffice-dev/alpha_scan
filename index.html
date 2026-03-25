@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UnderdogBot Pro | Live Prediction Market Scanner</title>
+    <title>FAMILYLABORATORIES | ALPHASCAN v4.1.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=IBM+Plex+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
@@ -28,28 +28,28 @@
     <div class="scan-line"></div>
     <header class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-4">
-            <h1 class="font-orbitron text-2xl font-black tracking-tighter text-white">UNDERDOG<span class="text-blue-500">BOT</span> <span class="text-xs bg-blue-600 px-2 py-0.5 rounded-full font-sans tracking-normal">PRO</span></h1>
+            <h1 class="font-orbitron text-2xl font-black tracking-tighter text-white uppercase">ALPHA<span class="text-blue-500">SCAN</span> <span class="text-xs bg-blue-600 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0</span></h1>
             <div class="hidden md:flex items-center gap-2 text-xs font-mono opacity-60"><span class="w-2 h-2 bg-green-500 rounded-full pulse"></span>LIVE SCANNER ACTIVE</div>
         </div>
         <div class="flex items-center gap-4">
             <div id="walletStatus" class="hidden md:flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-white/10 text-xs font-mono"><span id="walletAddr">NOT CONNECTED</span></div>
-            <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">CONNECT WALLET</button>
+            <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all uppercase">Connect Wallet</button>
         </div>
     </header>
     <section class="relative py-20 px-6 text-center overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none"></div>
-        <h2 class="font-orbitron text-5xl md:text-7xl font-black mb-4 tracking-tight">UNDERDOG <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">GEWINNT IMMER</span></h2>
-        <p class="text-slate-400 max-w-2xl mx-auto mb-10 text-lg">Der weltweit präziseste Prediction-Market-Scanner. Finden Sie Arbitrage-Chancen und Underdog-Wetten in Echtzeit über alle großen Plattformen hinweg.</p>
+        <h2 class="font-orbitron text-5xl md:text-7xl font-black mb-4 tracking-tight uppercase">ALPHA <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">SCAN v4.1.0</span></h2>
+        <p class="text-slate-400 max-w-2xl mx-auto mb-10 text-lg">Hyperprecise Prediction Arbitrage Scanner. Finden Sie Arbitrage-Chancen und Underdog-Wetten in Echtzeit über alle großen Plattformen hinweg.</p>
         <div class="flex flex-wrap justify-center gap-6 mb-12">
             <div class="glass p-6 rounded-2xl min-w-[160px]"><div class="text-3xl font-orbitron font-bold text-blue-400" id="statPlatforms">4</div><div class="text-xs text-slate-500 font-mono uppercase tracking-widest">Plattformen</div></div>
             <div class="glass p-6 rounded-2xl min-w-[160px]"><div class="text-3xl font-orbitron font-bold text-purple-400" id="statSpeed">&lt;2s</div><div class="text-xs text-slate-500 font-mono uppercase tracking-widest">Scan-Speed</div></div>
             <div class="glass p-6 rounded-2xl min-w-[160px]"><div class="text-3xl font-orbitron font-bold text-green-400" id="statMarkets">0</div><div class="text-xs text-slate-500 font-mono uppercase tracking-widest">Märkte Live</div></div>
         </div>
-        <button id="scanBtn" class="group relative bg-white text-black px-10 py-5 rounded-2xl font-orbitron font-black text-xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)]"><span class="relative z-10">LIVE SCAN STARTEN</span><div class="absolute inset-0 bg-blue-500 rounded-2xl blur-xl opacity-0 group-hover:opacity-40 transition-all"></div></button>
+        <button id="scanBtn" class="group relative bg-white text-black px-10 py-5 rounded-2xl font-orbitron font-black text-xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)] uppercase"><span class="relative z-10">Live Scan Ausführen</span><div class="absolute inset-0 bg-blue-500 rounded-2xl blur-xl opacity-0 group-hover:opacity-40 transition-all"></div></button>
     </section>
     <main id="resultsArea" class="hidden px-6 pb-20 max-w-7xl mx-auto">
         <div class="mb-16">
-            <div class="flex items-center justify-between mb-8"><h3 class="font-orbitron text-2xl font-bold flex items-center gap-3"><span class="text-yellow-500">★</span> TOP 10 OPPORTUNITIES</h3><div class="text-xs font-mono text-slate-500 uppercase tracking-widest">Höchster ROI & Arbitrage</div></div>
+            <div class="flex items-center justify-between mb-8"><h3 class="font-orbitron text-2xl font-bold flex items-center gap-3 uppercase"><span class="text-yellow-500">★</span> Top 10 Opportunities</h3><div class="text-xs font-mono text-slate-500 uppercase tracking-widest">Höchster ROI & Arbitrage</div></div>
             <div id="top10Grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"></div>
         </div>
         <div class="flex gap-8 border-b border-white/10 mb-10 overflow-x-auto">
@@ -62,12 +62,12 @@
         <div id="marketFeed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </main>
     <div id="loadingOverlay" class="hidden fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center">
-        <div class="relative w-48 h-48 mb-8"><div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div><div class="absolute inset-0 border-4 border-t-blue-500 rounded-full animate-spin"></div><div class="absolute inset-0 flex items-center justify-center font-orbitron font-black text-2xl">SCANNING</div></div>
+        <div class="relative w-48 h-48 mb-8"><div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div><div class="absolute inset-0 border-4 border-t-blue-500 rounded-full animate-spin"></div><div class="absolute inset-0 flex items-center justify-center font-orbitron font-black text-2xl uppercase">Scanning</div></div>
         <div class="w-64 h-2 bg-slate-800 rounded-full overflow-hidden"><div id="progressBar" class="h-full bg-blue-500 w-0 transition-all duration-500"></div></div>
         <p id="loadingText" class="mt-4 font-mono text-xs text-slate-500 uppercase tracking-widest">Initialisiere Deep-Scan...</p>
     </div>
     <footer class="px-6 py-10 border-t border-white/5 text-center text-slate-600 text-xs font-mono">
-        <div class="mb-4 flex justify-center gap-6"><span>C•J•V•K</span><span>© 2026 FAMILYLABORATORIES</span><span>V4.1.0 PRO</span></div>
+        <div class="mb-4 flex justify-center gap-6 uppercase"><span>C•J•V•K</span><span>© 2026 FamilyLaboratories</span><span>v4.1.0</span></div>
         <p>Alle Daten werden in Echtzeit über öffentliche APIs aggregiert. Arbitrage-Chancen sind zeitkritisch.</p>
     </footer>
 
@@ -181,8 +181,8 @@
                 <div class="glass p-5 rounded-2xl card-hover flex flex-col gap-4 ${isTop ? 'border-yellow-500/30' : ''}">
                     <div class="flex justify-between items-start">
                         <span class="text-[10px] font-mono px-2 py-1 rounded bg-white/5 border border-white/10" style="color: ${plat.color}">${market.platform.toUpperCase()}</span>
-                        ${isArb ? '<span class="text-[10px] font-mono px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30">ARBITRAGE</span>' : ''}
-                        ${market.yes_price < 0.15 ? '<span class="text-[10px] font-mono px-2 py-1 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30">UNDERDOG</span>' : ''}
+                        ${isArb ? '<span class="text-[10px] font-mono px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30 uppercase">Arbitrage</span>' : ''}
+                        ${market.yes_price < 0.15 ? '<span class="text-[10px] font-mono px-2 py-1 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30 uppercase">Underdog</span>' : ''}
                     </div>
                     <h4 class="text-sm font-bold leading-tight h-10 overflow-hidden">${market.question}</h4>
                     <div class="flex items-end justify-between">
@@ -200,7 +200,7 @@
                         <div class="text-center"><div class="text-[8px] text-slate-500 uppercase">10€</div><div class="text-[10px] font-mono text-green-400">+${(10/market.yes_price - 10).toFixed(2)}€</div></div>
                         <div class="text-center"><div class="text-[8px] text-slate-500 uppercase">25€</div><div class="text-[10px] font-mono text-green-400">+${(25/market.yes_price - 25).toFixed(2)}€</div></div>
                     </div>
-                    <a href="${market.url}" target="_blank" class="mt-2 block text-center py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold transition-all">DETAILS ANSEHEN</a>
+                    <a href="${market.url}" target="_blank" class="mt-2 block text-center py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold transition-all uppercase">Details Ansehen</a>
                 </div>
             `;
         }
