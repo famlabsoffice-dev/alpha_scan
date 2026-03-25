@@ -24,10 +24,40 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            word-wrap: break-word;
         }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* UI Elements */
+        .corporate-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            height: fit-content;
+        }
+        .corporate-card:hover { border-color: var(--primary); }
+        
+        .alpha-signal-card {
+            background: linear-gradient(180deg, rgba(197, 160, 89, 0.05) 0%, var(--bg-surface) 100%);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-left: 4px solid var(--primary);
+        }
+
+        .btn-gold {
+            background: var(--primary);
+            color: #000;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            transition: all 0.3s;
+        }
+        .btn-gold:hover { background: #d4b475; transform: translateY(-1px); box-shadow: 0 10px 30px rgba(197, 160, 89, 0.2); }
+
+        /* Login Overlay */
         #login-overlay {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            inset: 0;
             background: #05070a;
             z-index: 10000;
             display: flex;
@@ -35,34 +65,19 @@
             justify-content: center;
             flex-direction: column;
         }
-        #main-content {
-            display: none;
-            opacity: 1;
-        }
-        .btn-gold {
-            background: var(--primary);
-            color: #000;
-            font-weight: 700;
-            transition: all 0.3s;
-        }
-        .btn-gold:hover { background: #d4b475; }
-        .corporate-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: 12px;
-        }
+
+        /* Ticker */
         .ticker-wrap {
             width: 100%;
             overflow: hidden;
             background: rgba(197, 160, 89, 0.05);
             border-bottom: 1px solid rgba(197, 160, 89, 0.1);
-            padding: 6px 0;
+            padding: 8px 0;
         }
         .ticker {
             display: inline-block;
             white-space: nowrap;
-            animation: ticker 30s linear infinite;
+            animation: ticker 40s linear infinite;
         }
         @keyframes ticker {
             0% { transform: translateX(100%); }
@@ -70,76 +85,129 @@
         }
         .ticker-item {
             display: inline-block;
-            padding: 0 30px;
+            padding: 0 40px;
             font-size: 10px;
+            font-weight: 700;
             color: var(--primary);
             text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Lang Buttons */
+        .lang-btn {
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: 800;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .lang-btn.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(197, 160, 89, 0.1);
         }
     </style>
 </head>
 <body>
 
-    <!-- Login Overlay (Immer zuerst sichtbar) -->
+    <!-- Access Gate -->
     <div id="login-overlay">
-        <div class="max-w-md w-full p-8 text-center">
-            <div class="mb-10">
-                <span class="text-[10px] font-bold tracking-[0.5em] text-[#c5a059] block mb-2 uppercase">FamilyLaboratories</span>
+        <div class="max-w-md w-full p-10 text-center flex flex-col items-center">
+            <div class="mb-12">
+                <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] block mb-3 uppercase">FamilyLaboratories</span>
                 <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span></h1>
             </div>
-            <div class="space-y-6">
-                <input type="password" id="pass-input" placeholder="ACCESS KEY" class="w-full bg-[#111] border border-[#333] rounded-lg p-4 text-center text-white tracking-[0.5em] focus:border-[#c5a059] outline-none">
-                <button onclick="checkAuth()" class="w-full py-4 btn-gold rounded-lg uppercase text-[10px] tracking-[0.4em]">Initialize Terminal</button>
+            <div class="w-full space-y-6">
+                <input type="password" id="pass-input" placeholder="ACCESS KEY" class="w-full bg-[#0a0a0a] border border-[#222] rounded-lg p-5 text-center text-white text-lg tracking-[0.6em] focus:border-[#c5a059] outline-none transition-all">
+                <button onclick="checkAuth()" class="w-full py-5 btn-gold rounded-lg text-[11px]">Initialize Terminal</button>
             </div>
-            <p class="mt-8 text-[8px] text-slate-600 font-bold tracking-widest uppercase italic">C•J•V•K | Private Node</p>
+            <p class="mt-12 text-[9px] text-slate-600 font-bold tracking-[0.3em] uppercase italic">C•J•V•K | Restricted Node Access</p>
         </div>
     </div>
 
-    <!-- Main Content (Standardmäßig versteckt) -->
-    <div id="main-content">
+    <!-- Terminal Content -->
+    <div id="main-content" style="display: none;">
         <div class="ticker-wrap">
-            <div class="ticker">
+            <div class="ticker" id="ticker-content">
                 <span class="ticker-item">FamLabs Alpha Scan Online</span>
                 <span class="ticker-item">Oracle Matching Engine Active</span>
                 <span class="ticker-item">Security Protocol TGMFAM2026 Engaged</span>
             </div>
         </div>
 
-        <div class="max-w-[1600px] mx-auto p-4 md:p-8 space-y-8">
-            <header class="flex flex-col md:flex-row justify-between items-center border-b border-slate-800 pb-8 gap-6">
-                <div class="flex flex-col">
-                    <span class="text-[9px] font-bold tracking-[0.5em] text-primary uppercase">FamilyLaboratories</span>
-                    <h1 class="text-3xl font-light text-white">ALPHA <span class="font-black">SCAN</span></h1>
+        <div class="max-w-[1600px] mx-auto p-4 md:p-10 space-y-10">
+            <header class="flex flex-col lg:flex-row justify-between items-center border-b border-slate-800 pb-10 gap-8">
+                <div class="flex items-center gap-10">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-bold tracking-[0.6em] text-primary uppercase mb-1">FamilyLaboratories</span>
+                        <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span></h1>
+                    </div>
+                    <div class="h-12 w-px bg-slate-800 hidden lg:block"></div>
+                    <nav class="hidden sm:flex gap-8 text-[11px] font-bold tracking-widest uppercase text-slate-500">
+                        <span class="text-white border-b-2 border-primary pb-1 cursor-pointer">Terminal</span>
+                        <span class="hover:text-white cursor-pointer transition-all">Intelligence</span>
+                        <span class="hover:text-white cursor-pointer transition-all">Network</span>
+                    </nav>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="setLang('de')" class="px-3 py-1 text-[10px] border border-slate-700 rounded text-white">DE</button>
-                    <button onclick="setLang('en')" class="px-3 py-1 text-[10px] border border-slate-700 rounded text-white">EN</button>
-                    <button onclick="setLang('pt')" class="px-3 py-1 text-[10px] border border-slate-700 rounded text-white">PT</button>
-                    <button onclick="setLang('zh')" class="px-3 py-1 text-[10px] border border-slate-700 rounded text-white">ZH</button>
+                <div class="flex items-center gap-6">
+                    <div class="flex flex-col items-end">
+                        <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Engine Status</span>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
+                            <span class="text-[10px] font-bold text-success uppercase tracking-widest">Active</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-1 bg-slate-900/50 p-1 rounded border border-slate-800">
+                        <button onclick="setLang('de')" class="lang-btn active" id="btn-de">DE</button>
+                        <button onclick="setLang('en')" class="lang-btn" id="btn-en">EN</button>
+                        <button onclick="setLang('pt')" class="lang-btn" id="btn-pt">PT</button>
+                        <button onclick="setLang('zh')" class="lang-btn" id="btn-zh">ZH</button>
+                    </div>
                 </div>
             </header>
 
-            <main class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div class="lg:col-span-4 space-y-4">
-                    <h2 id="t-signals" class="text-[10px] font-black text-primary uppercase tracking-widest">Alpha Arbitrage Signals</h2>
-                    <div id="signals" class="space-y-4">
-                        <div class="corporate-card text-center text-slate-500 text-[10px] py-12">Awaiting high-priority scan...</div>
+            <main class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <!-- Alpha Signals (Matched Pairs) -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <div class="flex items-center justify-between px-1">
+                        <h2 id="t-signals" class="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Alpha Arbitrage Signals</h2>
+                        <span class="text-[9px] font-bold text-danger border border-danger/30 px-2 py-0.5 rounded uppercase">Live Matches</span>
+                    </div>
+                    <div id="signals" class="space-y-6">
+                        <div id="t-waiting-signals" class="corporate-card p-16 text-center text-slate-600 text-[10px] uppercase tracking-widest border-dashed border-2">
+                            Awaiting High-Priority Scan...
+                        </div>
                     </div>
                 </div>
-                <div class="lg:col-span-8 space-y-4">
-                    <h2 id="t-feed" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Global Market Matrix</h2>
-                    <div id="terminal" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="col-span-full corporate-card text-center text-slate-500 text-[10px] py-24">Connecting to Global Liquidity Network...</div>
+
+                <!-- Global Market Matrix -->
+                <div class="lg:col-span-8 flex flex-col gap-6">
+                    <div class="flex items-center justify-between px-1">
+                        <h2 id="t-feed" class="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Global Market Matrix</h2>
+                        <span id="t-markets-count" class="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Nodes: 0</span>
+                    </div>
+                    <div id="terminal" class="grid grid-cols-1 md:grid-cols-2 gap-6 content-start">
+                        <div id="t-waiting-feed" class="col-span-full corporate-card p-32 text-center text-slate-600 text-[10px] uppercase tracking-[0.6em] font-light">
+                            Connecting to Global Liquidity Network...
+                        </div>
                     </div>
                 </div>
             </main>
 
-            <footer class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-8">
-                <button onclick="executeScan()" id="scanBtn" class="w-full md:w-1/3 py-5 btn-gold rounded-xl uppercase text-xs tracking-widest shadow-xl">
-                    <span id="t-btn">Execute Scan</span>
-                </button>
-                <div class="text-right">
-                    <div class="text-primary text-[11px] font-black tracking-widest uppercase italic">Born in four, build for billions!</div>
-                    <div class="text-[9px] text-slate-600 font-bold tracking-widest uppercase mt-1">C•J•V•K | Private Access</div>
+            <footer class="border-t border-slate-800 pt-10 flex flex-col md:flex-row justify-between items-center gap-10">
+                <div class="w-full md:w-1/3 flex flex-col gap-4">
+                    <button onclick="executeScan()" id="scanBtn" class="w-full py-6 btn-gold rounded-xl text-sm shadow-2xl">
+                        <span id="t-btn">Execute Scan</span>
+                    </button>
+                </div>
+                <div class="text-center md:text-right">
+                    <div class="text-primary text-[12px] font-black tracking-[0.5em] uppercase italic mb-2">Born in four, build for billions!</div>
+                    <div class="flex items-center justify-center md:justify-end gap-4">
+                        <span class="text-[10px] text-slate-600 font-bold tracking-widest uppercase">C•J•V•K | Private Access</span>
+                        <span class="text-[10px] text-slate-700 uppercase tracking-widest">&copy; 2026 FamilyLaboratories</span>
+                    </div>
                 </div>
             </footer>
         </div>
@@ -147,10 +215,10 @@
 
     <script>
         const i18n = {
-            de: { signals: "Alpha Arbitrage Signale", feed: "Globale Markt-Matrix", btn: "Scan Ausführen" },
-            en: { signals: "Alpha Arbitrage Signals", feed: "Global Market Matrix", btn: "Execute Scan" },
-            pt: { signals: "Sinais de Arbitragem Alpha", feed: "Matriz de Mercado Global", btn: "Executar Scan" },
-            zh: { signals: "Alpha 套利信号", feed: "全球市场矩阵", btn: "执行扫描" }
+            de: { signals: "Alpha Arbitrage Signale", feed: "Globale Markt-Matrix", btn: "Scan Ausführen", waiting_signals: "Initialisiere Scan...", waiting_feed: "Verbindung zum Netzwerk...", buy: "KAUFEN @", sell: "VERKAUFEN @", diff: "PROFIT", score: "SCORE", nodes: "Knoten" },
+            en: { signals: "Alpha Arbitrage Signals", feed: "Global Market Matrix", btn: "Execute Scan", waiting_signals: "Initializing Scan...", waiting_feed: "Connecting to Network...", buy: "BUY @", sell: "SELL @", diff: "PROFIT", score: "SCORE", nodes: "Nodes" },
+            pt: { signals: "Sinais de Arbitragem Alpha", feed: "Matriz de Mercado Global", btn: "Executar Scan", waiting_signals: "Inicializando Scan...", waiting_feed: "Conectando à Rede...", buy: "COMPRAR @", sell: "VENDER @", diff: "LUCRO", score: "PONTOS", nodes: "Nós" },
+            zh: { signals: "Alpha 套利信号", feed: "全球市场矩阵", btn: "执行扫描", waiting_signals: "正在初始化扫描...", waiting_feed: "正在连接网络...", buy: "买入 @", sell: "卖出 @", diff: "利润", score: "得分", nodes: "节点" }
         };
 
         let currentLang = 'de';
@@ -178,8 +246,13 @@
 
         function setLang(lang) {
             currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + lang).classList.add('active');
+            
             document.getElementById('t-signals').innerText = i18n[lang].signals;
             document.getElementById('t-feed').innerText = i18n[lang].feed;
+            document.getElementById('t-waiting-signals').innerText = i18n[lang].waiting_signals;
+            document.getElementById('t-waiting-feed').innerText = i18n[lang].waiting_feed;
             document.getElementById('t-btn').innerText = i18n[lang].btn;
         }
 
@@ -187,9 +260,10 @@
             const term = document.getElementById('terminal');
             const signals = document.getElementById('signals');
             const btn = document.getElementById('scanBtn');
+            const count = document.getElementById('t-markets-count');
             
-            term.innerHTML = `<div class="col-span-full py-24 text-center text-slate-600 animate-pulse text-[10px] uppercase">Syncing Global Matrix...</div>`;
-            signals.innerHTML = `<div class="py-12 text-center text-slate-600 animate-pulse text-[10px] uppercase">Analyzing Spreads...</div>`;
+            term.innerHTML = `<div class="col-span-full py-32 text-center text-slate-700 animate-pulse text-[10px] uppercase tracking-[0.5em]">Synchronizing Market Data...</div>`;
+            signals.innerHTML = `<div class="py-16 text-center text-slate-700 animate-pulse text-[10px] uppercase tracking-[0.3em]">Analyzing Spreads...</div>`;
             btn.disabled = true;
 
             try {
@@ -203,40 +277,81 @@
                     return;
                 }
 
-                // Render Signals
+                count.innerText = i18n[currentLang].nodes + ': ' + data.f.length;
+
+                // Render Alpha Signals
                 if (data.s && data.s.length > 0) {
                     signals.innerHTML = data.s.map(s => `
-                        <div class="corporate-card border-primary/40">
-                            <div class="flex justify-between mb-4">
-                                <span class="text-xl font-black text-danger mono">${s.d}% PROFIT</span>
-                                <span class="text-[9px] text-primary font-bold">SCORE: ${s.sc}%</span>
+                        <div class="corporate-card alpha-signal-card p-6 shadow-2xl">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] font-black text-danger uppercase tracking-widest mb-1">${i18n[currentLang].diff}</span>
+                                    <span class="text-3xl font-black text-danger mono">${s.d}%</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[8px] text-slate-500 font-black uppercase tracking-widest mb-1">${i18n[currentLang].score}</span>
+                                    <div class="text-sm font-black mono text-primary">${s.sc}%</div>
+                                </div>
                             </div>
-                            <h3 class="text-sm font-bold text-white mb-4">${s.n}</h3>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="window.open('${s.m1.u}', '_blank')" class="bg-slate-900 p-3 rounded text-[9px] text-success border border-success/20">BUY @ ${s.m1.p}</button>
-                                <button onclick="window.open('${s.m2.u}', '_blank')" class="bg-slate-900 p-3 rounded text-[9px] text-danger border border-danger/20">SELL @ ${s.m2.p}</button>
+                            <h3 class="text-sm md:text-base font-bold text-white leading-snug mb-6 border-b border-slate-800 pb-4">${s.n}</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div onclick="window.open('${s.m1.u}', '_blank')" class="bg-black/40 p-4 rounded-xl border border-slate-800 hover:border-success cursor-pointer transition-all">
+                                    <div class="text-[8px] text-slate-600 uppercase font-black mb-1">${i18n[currentLang].buy} ${s.m1.p}</div>
+                                    <div class="text-lg font-black mono text-success">${s.m1.v.toFixed(1)}%</div>
+                                </div>
+                                <div onclick="window.open('${s.m2.u}', '_blank')" class="bg-black/40 p-4 rounded-xl border border-slate-800 hover:border-danger cursor-pointer transition-all text-right">
+                                    <div class="text-[8px] text-slate-600 uppercase font-black mb-1">${i18n[currentLang].sell} ${s.m2.p}</div>
+                                    <div class="text-lg font-black mono text-danger">${s.m2.v.toFixed(1)}%</div>
+                                </div>
                             </div>
                         </div>
                     `).join('');
                 } else {
-                    signals.innerHTML = `<div class="corporate-card text-center text-slate-700 text-[9px] py-12 italic">No arbitrage signals detected in current buffer.</div>`;
+                    signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-slate-900">No arbitrage signals detected.</div>`;
                 }
 
-                // Render Feed
+                // Render Global Matrix (Improved)
                 if (data.f && data.f.length > 0) {
-                    term.innerHTML = data.f.map(group => `
-                        <div class="corporate-card space-y-4">
-                            <h3 class="text-xs font-bold text-white">${group.name}</h3>
-                            <div class="space-y-2">
-                                ${group.markets.map(m => `
-                                    <div onclick="window.open('${m.u}', '_blank')" class="flex justify-between items-center p-2 bg-black/40 rounded cursor-pointer hover:bg-white/5 transition-all">
-                                        <span class="text-[8px] font-black text-slate-500 uppercase">${m.p}</span>
-                                        <span class="text-xs font-black text-white mono">${m.v.toFixed(1)}%</span>
+                    term.innerHTML = data.f.map(group => {
+                        const hasArb = group.arb !== null;
+                        return `
+                            <div class="corporate-card p-6 flex flex-col gap-6 ${hasArb ? 'border-primary/30 bg-primary/5' : ''}">
+                                <div class="flex justify-between items-start gap-4">
+                                    <h3 class="text-xs font-bold text-white leading-relaxed flex-grow">${group.name}</h3>
+                                    <div class="flex flex-col items-end shrink-0">
+                                        <span class="text-[8px] text-slate-600 font-black uppercase tracking-widest mb-1">Volume</span>
+                                        <span class="text-[10px] font-bold mono text-slate-400">$${Math.round(group.totalVol).toLocaleString()}</span>
                                     </div>
-                                `).join('')}
+                                </div>
+                                <div class="space-y-2">
+                                    ${group.markets.map(m => `
+                                        <div onclick="window.open('${m.u}', '_blank')" class="flex justify-between items-center p-3 bg-black/30 rounded-lg border border-transparent hover:border-slate-800 cursor-pointer transition-all">
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-[8px] font-black px-2 py-0.5 rounded border border-slate-700 text-slate-500 uppercase">${m.p}</span>
+                                                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Market Pool</span>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <div class="text-right text-xs font-black mono text-white">${m.v.toFixed(1)}%</div>
+                                                <div class="text-right text-[9px] text-slate-600 mono hidden sm:block">$${Math.round(m.vol).toLocaleString()}</div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                ${hasArb ? `
+                                    <div class="p-4 bg-primary/10 rounded-xl border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                        <div class="flex flex-col">
+                                            <span class="text-[8px] text-primary font-black uppercase mb-1">Net Arbitrage</span>
+                                            <span class="text-xl font-black text-primary mono">${group.arb.net}%</span>
+                                        </div>
+                                        <div class="flex gap-2 w-full sm:w-auto">
+                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="flex-grow sm:flex-grow-0 text-[8px] font-black bg-slate-900 text-success border border-success/30 px-4 py-2 rounded hover:bg-success hover:text-black transition-all uppercase">Buy @ ${group.arb.buy.p}</button>
+                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="flex-grow sm:flex-grow-0 text-[8px] font-black bg-slate-900 text-danger border border-danger/30 px-4 py-2 rounded hover:bg-danger hover:text-black transition-all uppercase">Sell @ ${group.arb.sell.p}</button>
+                                        </div>
+                                    </div>
+                                ` : ''}
                             </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
             } catch (err) {
                 console.error(err);
