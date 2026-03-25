@@ -28,7 +28,6 @@
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* UI Elements */
         .corporate-card {
             background: var(--bg-surface);
             border: 1px solid var(--border);
@@ -42,6 +41,7 @@
             background: linear-gradient(180deg, rgba(197, 160, 89, 0.05) 0%, var(--bg-surface) 100%);
             border: 1px solid rgba(197, 160, 89, 0.3);
             border-left: 4px solid var(--primary);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
 
         .btn-gold {
@@ -54,7 +54,6 @@
         }
         .btn-gold:hover { background: #d4b475; transform: translateY(-1px); box-shadow: 0 10px 30px rgba(197, 160, 89, 0.2); }
 
-        /* Login Overlay */
         #login-overlay {
             position: fixed;
             inset: 0;
@@ -66,7 +65,6 @@
             flex-direction: column;
         }
 
-        /* Ticker */
         .ticker-wrap {
             width: 100%;
             overflow: hidden;
@@ -93,7 +91,6 @@
             letter-spacing: 0.1em;
         }
 
-        /* Lang Buttons */
         .lang-btn {
             padding: 4px 10px;
             font-size: 10px;
@@ -108,6 +105,22 @@
             color: var(--primary);
             background: rgba(197, 160, 89, 0.1);
         }
+
+        .trade-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .trade-btn.buy { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
+        .trade-btn.buy:hover { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
+        .trade-btn.sell { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
+        .trade-btn.sell:hover { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
     </style>
 </head>
 <body>
@@ -169,7 +182,6 @@
             </header>
 
             <main class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                <!-- Alpha Signals (Matched Pairs) -->
                 <div class="lg:col-span-4 flex flex-col gap-6">
                     <div class="flex items-center justify-between px-1">
                         <h2 id="t-signals" class="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Alpha Arbitrage Signals</h2>
@@ -182,7 +194,6 @@
                     </div>
                 </div>
 
-                <!-- Global Market Matrix -->
                 <div class="lg:col-span-8 flex flex-col gap-6">
                     <div class="flex items-center justify-between px-1">
                         <h2 id="t-feed" class="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Global Market Matrix</h2>
@@ -215,10 +226,10 @@
 
     <script>
         const i18n = {
-            de: { signals: "Alpha Arbitrage Signale", feed: "Globale Markt-Matrix", btn: "Scan Ausführen", waiting_signals: "Initialisiere Scan...", waiting_feed: "Verbindung zum Netzwerk...", buy: "KAUFEN @", sell: "VERKAUFEN @", diff: "PROFIT", score: "SCORE", nodes: "Knoten" },
-            en: { signals: "Alpha Arbitrage Signals", feed: "Global Market Matrix", btn: "Execute Scan", waiting_signals: "Initializing Scan...", waiting_feed: "Connecting to Network...", buy: "BUY @", sell: "SELL @", diff: "PROFIT", score: "SCORE", nodes: "Nodes" },
-            pt: { signals: "Sinais de Arbitragem Alpha", feed: "Matriz de Mercado Global", btn: "Executar Scan", waiting_signals: "Inicializando Scan...", waiting_feed: "Conectando à Rede...", buy: "COMPRAR @", sell: "VENDER @", diff: "LUCRO", score: "PONTOS", nodes: "Nós" },
-            zh: { signals: "Alpha 套利信号", feed: "全球市场矩阵", btn: "执行扫描", waiting_signals: "正在初始化扫描...", waiting_feed: "正在连接网络...", buy: "买入 @", sell: "卖出 @", diff: "利润", score: "得分", nodes: "节点" }
+            de: { signals: "Alpha Arbitrage Signale", feed: "Globale Markt-Matrix", btn: "Scan Ausführen", waiting_signals: "Initialisiere Scan...", waiting_feed: "Verbindung zum Netzwerk...", buy: "KAUFEN (YES)", sell: "VERKAUFEN (NO)", diff: "PROFIT", score: "SCORE", nodes: "Knoten" },
+            en: { signals: "Alpha Arbitrage Signals", feed: "Global Market Matrix", btn: "Execute Scan", waiting_signals: "Initializing Scan...", waiting_feed: "Connecting to Network...", buy: "BUY (YES)", sell: "SELL (NO)", diff: "PROFIT", score: "SCORE", nodes: "Nodes" },
+            pt: { signals: "Sinais de Arbitragem Alpha", feed: "Matriz de Mercado Global", btn: "Executar Scan", waiting_signals: "Inicializando Scan...", waiting_feed: "Conectando à Rede...", buy: "COMPRAR (YES)", sell: "VENDER (NO)", diff: "LUCRO", score: "PONTOS", nodes: "Nós" },
+            zh: { signals: "Alpha 套利信号", feed: "全球市场矩阵", btn: "执行扫描", waiting_signals: "正在初始化扫描...", waiting_feed: "正在连接网络...", buy: "买入 (YES)", sell: "卖出 (NO)", diff: "利润", score: "得分", nodes: "节点" }
         };
 
         let currentLang = 'de';
@@ -248,7 +259,6 @@
             currentLang = lang;
             document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-' + lang).classList.add('active');
-            
             document.getElementById('t-signals').innerText = i18n[lang].signals;
             document.getElementById('t-feed').innerText = i18n[lang].feed;
             document.getElementById('t-waiting-signals').innerText = i18n[lang].waiting_signals;
@@ -279,7 +289,6 @@
 
                 count.innerText = i18n[currentLang].nodes + ': ' + data.f.length;
 
-                // Render Alpha Signals
                 if (data.s && data.s.length > 0) {
                     signals.innerHTML = data.s.map(s => `
                         <div class="corporate-card alpha-signal-card p-6 shadow-2xl">
@@ -293,15 +302,17 @@
                                     <div class="text-sm font-black mono text-primary">${s.sc}%</div>
                                 </div>
                             </div>
-                            <h3 class="text-sm md:text-base font-bold text-white leading-snug mb-6 border-b border-slate-800 pb-4">${s.n}</h3>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div onclick="window.open('${s.m1.u}', '_blank')" class="bg-black/40 p-4 rounded-xl border border-slate-800 hover:border-success cursor-pointer transition-all">
-                                    <div class="text-[8px] text-slate-600 uppercase font-black mb-1">${i18n[currentLang].buy} ${s.m1.p}</div>
-                                    <div class="text-lg font-black mono text-success">${s.m1.v.toFixed(1)}%</div>
+                            <h3 class="text-sm font-bold text-white leading-snug mb-6 border-b border-slate-800 pb-4">${s.n}</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div onclick="window.open('${s.m1.u}', '_blank')" class="trade-btn buy">
+                                    <span class="text-[7px] font-black text-success uppercase mb-1">${s.m1.p}</span>
+                                    <span class="text-[10px] font-black text-white uppercase mb-1">${i18n[currentLang].buy}</span>
+                                    <span class="text-lg font-black mono text-success">${s.m1.v.toFixed(1)}%</span>
                                 </div>
-                                <div onclick="window.open('${s.m2.u}', '_blank')" class="bg-black/40 p-4 rounded-xl border border-slate-800 hover:border-danger cursor-pointer transition-all text-right">
-                                    <div class="text-[8px] text-slate-600 uppercase font-black mb-1">${i18n[currentLang].sell} ${s.m2.p}</div>
-                                    <div class="text-lg font-black mono text-danger">${s.m2.v.toFixed(1)}%</div>
+                                <div onclick="window.open('${s.m2.u}', '_blank')" class="trade-btn sell">
+                                    <span class="text-[7px] font-black text-danger uppercase mb-1">${s.m2.p}</span>
+                                    <span class="text-[10px] font-black text-white uppercase mb-1">${i18n[currentLang].sell}</span>
+                                    <span class="text-lg font-black mono text-danger">${s.m2.v.toFixed(1)}%</span>
                                 </div>
                             </div>
                         </div>
@@ -310,7 +321,6 @@
                     signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-slate-900">No arbitrage signals detected.</div>`;
                 }
 
-                // Render Global Matrix (Improved)
                 if (data.f && data.f.length > 0) {
                     term.innerHTML = data.f.map(group => {
                         const hasArb = group.arb !== null;
@@ -344,8 +354,8 @@
                                             <span class="text-xl font-black text-primary mono">${group.arb.net}%</span>
                                         </div>
                                         <div class="flex gap-2 w-full sm:w-auto">
-                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="flex-grow sm:flex-grow-0 text-[8px] font-black bg-slate-900 text-success border border-success/30 px-4 py-2 rounded hover:bg-success hover:text-black transition-all uppercase">Buy @ ${group.arb.buy.p}</button>
-                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="flex-grow sm:flex-grow-0 text-[8px] font-black bg-slate-900 text-danger border border-danger/30 px-4 py-2 rounded hover:bg-danger hover:text-black transition-all uppercase">Sell @ ${group.arb.sell.p}</button>
+                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="flex-grow sm:flex-grow-0 text-[8px] font-black bg-slate-900 text-success border border-success/30 px-4 py-3 rounded hover:bg-success hover:text-black transition-all uppercase">BUY YES @ ${group.arb.buy.p}</button>
+                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="flex-grow sm:flex-grow-0 text-[8px] font-black bg-slate-900 text-danger border border-danger/30 px-4 py-3 rounded hover:bg-danger hover:text-black transition-all uppercase">SELL NO @ ${group.arb.sell.p}</button>
                                         </div>
                                     </div>
                                 ` : ''}
