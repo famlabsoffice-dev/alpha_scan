@@ -1,0 +1,15 @@
+# AlphaScan v4.0 PRO - Backend Secrets (Cloudflare Workers)
+# Copy to .dev.vars for local development
+
+# JWT Secret (min. 32 chars, random)
+JWT_SECRET=your-super-secret-jwt-key-min-32-chars-here
+
+# Alchemy API Key (for EVM TX verification)
+ALCHEMY_API_KEY=your-alchemy-api-key
+
+# Receiver addresses for payments
+RECEIVER_ADDRESS_ETH=0xYOUR_ETH_RECEIVER_ADDRESS
+RECEIVER_ADDRESS_SOL=YourSolanaReceiverPublicKey
+
+# Auth password (legacy)
+AUTH_PASSWORD=TGMFAM2026
