@@ -3,212 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FamLabs Oracle v4.1 - FamilyLaboratories Elite</title>
+    <title>FAMLABS | ALPHA SCAN</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0b0e11;
-            --bg-card: #181a20;
-            --primary: #f0b90b; /* FamLabs Gold */
-            --success: #0ecb81;
-            --danger: #f6465d;
-            --text-main: #eaecef;
-            --text-muted: #848e9c;
-            --border: #2b2f36;
+            --bg-deep: #05070a;
+            --bg-surface: #0d1117;
+            --primary: #c5a059; /* Luxury Champagne Gold */
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #1e293b;
         }
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
+            letter-spacing: -0.01em;
         }
         .mono { font-family: 'JetBrains+Mono', monospace; }
-        .terminal-scroll::-webkit-scrollbar { width: 4px; }
-        .terminal-scroll::-webkit-scrollbar-track { background: var(--bg-dark); }
-        .terminal-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-        .glass-card {
-            background: var(--bg-card);
+        .terminal-scroll::-webkit-scrollbar { width: 3px; }
+        .terminal-scroll::-webkit-scrollbar-track { background: var(--bg-deep); }
+        .terminal-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 20px; }
+        .corporate-card {
+            background: var(--bg-surface);
             border: 1px solid var(--border);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .glass-card:hover {
+        .corporate-card:hover {
             border-color: var(--primary);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
-        .oracle-alert {
-            background: linear-gradient(135deg, rgba(246, 70, 93, 0.08), rgba(240, 185, 11, 0.05));
-            border: 1px solid rgba(246, 70, 93, 0.3);
-            border-left: 6px solid var(--danger);
+        .alert-card {
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.03) 0%, transparent 100%);
+            border-left: 2px solid var(--danger);
         }
-        .confidence-bar {
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        .confidence-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--danger), var(--success));
-            transition: width 1s ease-in-out;
-        }
-        .btn-primary {
-            background-color: var(--primary);
+        .btn-gold {
+            background: var(--primary);
             color: #000;
-            font-weight: 800;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(240, 185, 11, 0.2);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            transition: all 0.4s;
         }
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(240, 185, 11, 0.3);
+        .btn-gold:hover {
+            background: #d4b475;
+            box-shadow: 0 0 30px rgba(197, 160, 89, 0.2);
+            transform: translateY(-1px);
         }
-        .btn-buy {
-            background: rgba(14, 203, 129, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(14, 203, 129, 0.2);
-        }
-        .btn-buy:hover { background: var(--success); color: #000; }
-        .btn-sell {
-            background: rgba(246, 70, 93, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(246, 70, 93, 0.2);
-        }
-        .btn-sell:hover { background: var(--danger); color: #000; }
-        .platform-tag {
+        .platform-badge {
             font-size: 8px;
-            padding: 2px 6px;
-            border-radius: 4px;
             font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .poly { background: #6d28d9; color: #fff; }
-        .mani { background: #0369a1; color: #fff; }
-        .kalshi { background: #b91c1c; color: #fff; }
-        @keyframes scan-line {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-        .scan-line {
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            opacity: 0.3;
-            animation: scan-line 3s linear infinite;
-            pointer-events: none;
-        }
-        .famlabs-badge {
-            background: linear-gradient(90deg, #f0b90b, #e2b007);
-            color: #000;
-            font-weight: 900;
             padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            letter-spacing: 1px;
+            border-radius: 2px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.1);
         }
+        .poly { color: #8b5cf6; border-color: rgba(139, 92, 246, 0.3); }
+        .mani { color: #0ea5e9; border-color: rgba(14, 165, 233, 0.3); }
+        .kalshi { color: #f43f5e; border-color: rgba(244, 63, 94, 0.3); }
+        .nav-link {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            transition: color 0.2s;
+        }
+        .nav-link:hover { color: var(--primary); }
+        .nav-link.active { color: var(--primary); border-bottom: 1px solid var(--primary); }
+        @keyframes subtle-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .glow { animation: subtle-glow 3s infinite; }
     </style>
 </head>
-<body class="p-2 md:p-6 min-h-screen flex flex-col">
-    <div class="max-w-[1800px] mx-auto w-full flex-grow flex flex-col gap-6 relative">
-        <div class="scan-line" id="scan-indicator" style="display: none;"></div>
+<body class="p-4 md:p-8 min-h-screen flex flex-col">
+    <div class="max-w-[1600px] mx-auto w-full flex-grow flex flex-col gap-8">
         
-        <!-- Header: FamLabs Oracle -->
-        <header class="flex justify-between items-center p-5 glass-card rounded-2xl border-b-2 border-primary/20">
-            <div class="flex items-center gap-5">
-                <div class="bg-[#f0b90b] text-black w-12 h-12 flex items-center justify-center rounded-xl font-black italic text-2xl shadow-lg shadow-primary/20">FL</div>
-                <div>
-                    <h1 class="text-2xl font-black tracking-tight leading-none">FAMLABS <span class="text-[#f0b90b]">ORACLE</span> <span class="text-[10px] text-muted font-bold ml-2">v4.1 BY ACK</span></h1>
-                    <div class="flex items-center gap-2 mt-2">
-                        <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
-                        <span id="t-status" class="text-[10px] text-muted font-black uppercase tracking-[0.2em]">FamilyLaboratories Core Synchronized</span>
-                    </div>
+        <!-- Corporate Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center gap-6 pb-8 border-b border-border/50">
+            <div class="flex items-center gap-8">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold tracking-[0.5em] text-primary mb-1 uppercase">FamilyLaboratories</span>
+                    <h1 class="text-3xl font-light tracking-[-0.05em] text-white">ALPHA <span class="font-black">SCAN</span></h1>
                 </div>
+                <div class="h-10 w-px bg-border hidden md:block"></div>
+                <nav class="flex gap-6">
+                    <button class="nav-link active">Terminal</button>
+                    <button class="nav-link">Intelligence</button>
+                    <button class="nav-link">Network</button>
+                </nav>
             </div>
             
-            <div class="flex items-center gap-8">
-                <div class="hidden xl:flex gap-8 text-[11px] font-bold text-muted border-r border-border pr-8">
+            <div class="flex items-center gap-10">
+                <div class="hidden xl:flex gap-10">
                     <div class="flex flex-col">
-                        <span id="t-latency">ENGINE LATENCY</span>
-                        <span id="latency" class="text-success mono text-sm">-- ms</span>
+                        <span class="text-[8px] font-black text-slate-500 tracking-widest uppercase mb-1">Latency</span>
+                        <span id="latency" class="text-xs font-bold mono text-success">-- ms</span>
                     </div>
                     <div class="flex flex-col">
-                        <span id="t-markets">LIVE EVENTS</span>
-                        <span id="count" class="text-main mono text-sm">0</span>
+                        <span class="text-[8px] font-black text-slate-500 tracking-widest uppercase mb-1">Nodes</span>
+                        <span id="count" class="text-xs font-bold mono">0</span>
                     </div>
                     <div class="flex flex-col">
-                        <span>ORACLE SYNC</span>
-                        <span id="timestamp" class="text-main mono text-sm">--:--:--</span>
+                        <span class="text-[8px] font-black text-slate-500 tracking-widest uppercase mb-1">Status</span>
+                        <span class="text-xs font-bold flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-success rounded-full glow"></span>
+                            <span class="uppercase text-[9px] tracking-widest">Active</span>
+                        </span>
                     </div>
                 </div>
-                <div class="flex bg-dark p-1 rounded-xl border border-border shadow-inner">
-                    <button onclick="setLang('de')" class="px-4 py-1.5 text-[10px] font-black rounded-lg hover:text-white transition-all" id="btn-de">DE</button>
-                    <button onclick="setLang('en')" class="px-4 py-1.5 text-[10px] font-black rounded-lg hover:text-white transition-all" id="btn-en">EN</button>
-                    <button onclick="setLang('pt')" class="px-4 py-1.5 text-[10px] font-black rounded-lg hover:text-white transition-all" id="btn-pt">PT</button>
-                    <button onclick="setLang('zh')" class="px-4 py-1.5 text-[10px] font-black rounded-lg hover:text-white transition-all" id="btn-zh">ZH</button>
+                <div class="flex gap-2 bg-slate-900/50 p-1 rounded border border-border">
+                    <button onclick="setLang('de')" class="px-3 py-1 text-[9px] font-bold rounded hover:text-white transition-all" id="btn-de">DE</button>
+                    <button onclick="setLang('en')" class="px-3 py-1 text-[9px] font-bold rounded hover:text-white transition-all" id="btn-en">EN</button>
+                    <button onclick="setLang('pt')" class="px-3 py-1 text-[9px] font-bold rounded hover:text-white transition-all" id="btn-pt">PT</button>
+                    <button onclick="setLang('zh')" class="px-3 py-1 text-[9px] font-bold rounded hover:text-white transition-all" id="btn-zh">ZH</button>
                 </div>
             </div>
         </header>
 
-        <!-- Main Terminal -->
-        <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow overflow-hidden">
+        <!-- Main Workspace -->
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-10 flex-grow overflow-hidden">
             
-            <!-- Oracle Signals Panel -->
+            <!-- Arbitrage Alerts Panel -->
             <section class="lg:col-span-4 flex flex-col gap-4 min-h-0">
-                <div class="flex items-center justify-between px-2">
-                    <h2 id="t-signals" class="text-[11px] font-black text-muted uppercase tracking-[0.3em]">FamLabs Arbitrage Alerts</h2>
-                    <span class="famlabs-badge">ACK EDITION</span>
+                <div class="flex items-center justify-between px-1">
+                    <h2 id="t-signals" class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Priority Spreads</h2>
+                    <span class="text-[8px] font-black text-danger border border-danger/30 px-2 py-0.5 rounded uppercase">Real-Time Analysis</span>
                 </div>
-                <div id="signals" class="flex-grow overflow-y-auto terminal-scroll space-y-4 pr-2 max-h-[75vh]">
-                    <div id="t-waiting-signals" class="glass-card rounded-2xl p-12 text-center text-muted text-sm font-medium border-dashed">
-                        Awaiting market divergence signals...
+                <div id="signals" class="flex-grow overflow-y-auto terminal-scroll space-y-4 pr-3 max-h-[70vh]">
+                    <div id="t-waiting-signals" class="corporate-card rounded p-12 text-center text-slate-600 text-[10px] uppercase tracking-widest border-dashed">
+                        Initializing scan sequence...
                     </div>
                 </div>
             </section>
 
             <!-- Market Matrix Panel -->
             <section class="lg:col-span-8 flex flex-col gap-4 min-h-0">
-                <div class="flex items-center justify-between px-2">
-                    <h2 id="t-feed" class="text-[11px] font-black text-muted uppercase tracking-[0.3em]">Semantic Market Matrix</h2>
-                    <div class="flex gap-3">
-                        <span class="platform-tag poly">Poly</span>
-                        <span class="platform-tag mani">Mani</span>
-                        <span class="platform-tag kalshi">Kalshi</span>
+                <div class="flex items-center justify-between px-1">
+                    <h2 id="t-feed" class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Global Market Matrix</h2>
+                    <div class="flex gap-4">
+                        <span class="text-[8px] font-bold text-slate-600 uppercase">Synced Sources: 3</span>
                     </div>
                 </div>
-                <div id="terminal" class="flex-grow overflow-y-auto terminal-scroll grid grid-cols-1 md:grid-cols-2 gap-4 pr-2 max-h-[75vh] content-start">
-                    <div id="t-waiting-feed" class="col-span-full glass-card rounded-2xl p-24 text-center text-muted text-sm uppercase tracking-[0.4em] font-black opacity-50">
-                        Analyzing Global Liquidity Pools...
+                <div id="terminal" class="flex-grow overflow-y-auto terminal-scroll grid grid-cols-1 md:grid-cols-2 gap-4 pr-3 max-h-[70vh] content-start">
+                    <div id="t-waiting-feed" class="col-span-full corporate-card rounded p-24 text-center text-slate-600 text-[10px] uppercase tracking-[0.5em] font-light">
+                        Connecting to Global Liquidity Network...
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- Fixed Footer Action Bar -->
-        <footer class="glass-card rounded-2xl p-5 flex flex-col md:flex-row gap-6 items-center shadow-2xl border-t-2 border-primary/10">
-            <button onclick="executeScan()" id="scanBtn" class="w-full md:w-1/3 py-5 btn-primary rounded-2xl uppercase tracking-[0.3em] text-sm">
-                <span id="t-btn">Execute Oracle Scan</span>
-            </button>
-            <div class="flex-grow grid grid-cols-3 gap-6 w-full md:w-auto px-8 border-l border-border hidden md:grid">
-                <div class="text-center">
-                    <div class="text-[9px] text-muted font-black uppercase tracking-widest mb-2">Aggregated Liquidity</div>
-                    <div class="text-lg font-black mono text-main">$184.2M <span class="text-success text-xs font-bold">+4.1%</span></div>
-                </div>
-                <div class="text-center border-l border-border">
-                    <div class="text-[9px] text-muted font-black uppercase tracking-widest mb-2">Confidence Match</div>
-                    <div id="arb-count" class="text-lg font-black mono text-danger">0 Signal(s)</div>
-                </div>
-                <div class="text-center border-l border-border">
-                    <div class="text-[9px] text-muted font-black uppercase tracking-widest mb-2">Engine Status</div>
-                    <div class="text-lg font-black text-success mono italic tracking-widest">C•J•V•K</div>
+        <!-- Corporate Footer -->
+        <footer class="mt-auto pt-10 border-t border-border/50 flex flex-col md:flex-row justify-between items-end gap-8">
+            <div class="flex flex-col gap-6 w-full md:w-1/3">
+                <button onclick="executeScan()" id="scanBtn" class="w-full py-5 btn-gold rounded uppercase text-xs tracking-[0.4em] shadow-2xl">
+                    <span id="t-btn">Execute Scan</span>
+                </button>
+                <div class="flex gap-10 px-2">
+                    <div class="flex flex-col">
+                        <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Liquidity Pool</span>
+                        <span class="text-sm font-bold mono">$184.2M</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Matched Pairs</span>
+                        <span id="arb-count" class="text-sm font-bold mono text-danger">0</span>
+                    </div>
                 </div>
             </div>
-            <div class="flex flex-col items-end md:w-1/4 text-right">
-                <div class="text-[10px] text-primary font-black tracking-widest uppercase mb-1">Born in four, build for billions!</div>
-                <div class="text-[9px] text-muted font-black italic uppercase tracking-widest">
-                    C•J•V•K | FamLabs Oracle v4.1
+            
+            <div class="flex flex-col items-end gap-2 text-right">
+                <div class="text-primary text-[11px] font-black tracking-[0.4em] uppercase mb-1 italic">Born in four, build for billions!</div>
+                <div class="flex items-center gap-4">
+                    <div class="text-[9px] text-slate-500 font-bold tracking-[0.2em] uppercase">C•J•V•K | Private Access Only</div>
+                    <div class="h-4 w-px bg-border"></div>
+                    <div class="text-[9px] text-slate-600 font-medium uppercase tracking-widest">&copy; 2026 FamilyLaboratories</div>
                 </div>
             </div>
         </footer>
@@ -217,68 +187,64 @@
     <script>
         const i18n = {
             de: {
-                status: "FamilyLaboratories Kern Synchronisiert",
-                signals: "FamLabs Arbitrage-Alarme",
-                feed: "Semantische Markt-Matrix",
-                waiting_signals: "Warte auf Markt-Divergenz-Signale...",
-                waiting_feed: "Analysiere globale Liquiditätspools...",
-                btn: "Oracle-Scan ausführen",
-                latency: "ENGINE LATENZ",
-                markets: "LIVE EVENTS",
-                diff: "NETTO-GEWINN",
+                status: "Aktiv",
+                signals: "Priorisierte Spreads",
+                feed: "Globale Markt-Matrix",
+                waiting_signals: "Initialisiere Scan-Sequenz...",
+                waiting_feed: "Verbindung zum globalen Liquiditätsnetzwerk wird hergestellt...",
+                btn: "Scan Ausführen",
+                latency: "Latenz",
+                markets: "Events",
+                diff: "NETTO-PROFIT",
                 buy: "KAUFEN @",
                 sell: "VERKAUFEN @",
-                profit_est: "PROFIT PRO EINSATZ",
-                arb_detected: "ARB GEFUNDEN",
-                confidence: "ORACLE CONFIDENCE SCORE"
+                profit_est: "PROFIT",
+                arb_detected: "ARB ERKANNT"
             },
             en: {
-                status: "FamilyLaboratories Core Synchronized",
-                signals: "FamLabs Arbitrage Alerts",
-                feed: "Semantic Market Matrix",
-                waiting_signals: "Awaiting market divergence signals...",
-                waiting_feed: "Analyzing Global Liquidity Pools...",
-                btn: "Execute Oracle Scan",
-                latency: "ENGINE LATENCY",
-                markets: "LIVE EVENTS",
+                status: "Active",
+                signals: "Priority Spreads",
+                feed: "Global Market Matrix",
+                waiting_signals: "Initializing scan sequence...",
+                waiting_feed: "Connecting to global liquidity network...",
+                btn: "Execute Scan",
+                latency: "Latency",
+                markets: "Events",
                 diff: "NET PROFIT",
                 buy: "BUY @",
                 sell: "SELL @",
-                profit_est: "PROFIT PER STAKE",
-                arb_detected: "ARB DETECTED",
-                confidence: "ORACLE CONFIDENCE SCORE"
+                profit_est: "PROFIT",
+                arb_detected: "ARB DETECTED"
             },
             pt: {
-                status: "Núcleo FamilyLaboratories Sincronizado",
-                signals: "Alertas de Arbitragem FamLabs",
-                feed: "Matriz Semântica de Mercado",
-                waiting_signals: "Aguardando sinais de divergência...",
-                waiting_feed: "Analisando Pools de Liquidez Globais...",
-                btn: "Executar Scan Oracle",
-                latency: "LATÊNCIA DO MOTOR",
-                markets: "EVENTOS AO VIVO",
+                status: "Ativo",
+                signals: "Spreads Prioritários",
+                feed: "Matriz de Mercado Global",
+                waiting_signals: "Inicializando sequência de scan...",
+                waiting_feed: "Conectando à rede global de liquidez...",
+                btn: "Executar Scan",
+                latency: "Latência",
+                markets: "Eventos",
                 diff: "LUCRO LÍQUIDO",
                 buy: "COMPRAR @",
                 sell: "VENDER @",
-                profit_est: "LUCRO POR APOSTA",
-                arb_detected: "ARB DETECTADO",
-                confidence: "SCORE DE CONFIANÇA ORACLE"
+                profit_est: "LUCRO",
+                arb_detected: "ARB DETECTADO"
             },
             zh: {
-                status: "FamilyLaboratories 核心同步",
-                signals: "FamLabs 套利警报",
-                feed: "语义市场矩阵",
-                waiting_signals: "等待市场背离信号...",
-                waiting_feed: "分析全球流动性池...",
-                btn: "执行 Oracle 扫描",
-                latency: "引擎延迟",
-                markets: "实时事件",
+                status: "活跃",
+                signals: "优先价差",
+                feed: "全球市场矩阵",
+                waiting_signals: "初始化扫描序列...",
+                waiting_feed: "正在连接全球流动性网络...",
+                btn: "执行扫描",
+                latency: "延迟",
+                markets: "事件",
                 diff: "净利润",
                 buy: "买入 @",
                 sell: "卖出 @",
-                profit_est: "每注利润",
-                arb_detected: "检测到套利",
-                confidence: "Oracle 置信度得分"
+                profit_est: "利润",
+                arb_detected: "检测到套利"
             }
         };
 
@@ -286,126 +252,115 @@
 
         function setLang(lang) {
             currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('bg-border', 'text-white'));
-            document.getElementById('btn-' + lang).classList.add('bg-border', 'text-white');
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('bg-slate-800', 'text-white'));
+            document.getElementById('btn-' + lang).classList.add('bg-slate-800', 'text-white');
             
-            document.getElementById('t-status').innerText = i18n[lang].status;
             document.getElementById('t-signals').innerText = i18n[lang].signals;
             document.getElementById('t-feed').innerText = i18n[lang].feed;
             document.getElementById('t-waiting-signals').innerText = i18n[lang].waiting_signals;
             document.getElementById('t-waiting-feed').innerText = i18n[lang].waiting_feed;
             document.getElementById('t-btn').innerText = i18n[lang].btn;
-            document.getElementById('t-latency').innerText = i18n[lang].latency;
-            document.getElementById('t-markets').innerText = i18n[lang].markets;
         }
 
         async function executeScan() {
             const term = document.getElementById('terminal');
             const signals = document.getElementById('signals');
             const btn = document.getElementById('scanBtn');
-            const ts = document.getElementById('timestamp');
-            const indicator = document.getElementById('scan-indicator');
+            const lat = document.getElementById('latency');
+            const count = document.getElementById('count');
             
-            indicator.style.display = 'block';
-            term.innerHTML = `<div class="col-span-full py-24 text-center text-muted animate-pulse text-xs font-black uppercase tracking-[0.5em]">Defragmenting FamLabs Matrix...</div>`;
-            signals.innerHTML = `<div class="py-12 text-center text-muted animate-pulse text-xs font-black uppercase tracking-[0.3em]">Calculating Oracle Spreads...</div>`;
+            term.innerHTML = `<div class="col-span-full py-24 text-center text-slate-600 animate-pulse text-[10px] uppercase tracking-[0.5em]">Defragmenting Matrix...</div>`;
+            signals.innerHTML = `<div class="py-12 text-center text-slate-600 animate-pulse text-[10px] uppercase tracking-[0.3em]">Analyzing Spreads...</div>`;
             btn.disabled = true;
 
             try {
                 const response = await fetch('https://alphascan.famlabsoffice.workers.dev/');
                 const data = await response.json();
                 
-                document.getElementById('latency').innerText = data.t + ' ms';
-                document.getElementById('count').innerText = data.f.length;
-                document.getElementById('arb-count').innerText = data.s.length + ' Signal(s)';
-                ts.innerText = new Date(data.ts).toLocaleTimeString();
+                lat.innerText = data.t + ' ms';
+                count.innerText = data.f.length;
+                document.getElementById('arb-count').innerText = data.s.length;
 
-                // Render Oracle Signals
+                // Render Signals
                 if (data.s && data.s.length > 0) {
                     signals.innerHTML = data.s.map(s => {
                         const netDiff = parseFloat(s.d);
                         const calcProfit = (stake) => (stake * (netDiff / 100)).toFixed(2);
                         return `
-                            <div class="glass-card oracle-alert rounded-2xl p-5">
+                            <div class="corporate-card alert-card rounded p-5">
                                 <div class="flex justify-between items-center mb-4">
-                                    <span class="text-[10px] font-black text-danger bg-danger/10 px-3 py-1 rounded-full uppercase tracking-widest">${i18n[currentLang].diff} ${s.d}%</span>
-                                    <div class="text-right">
-                                        <div class="text-[7px] text-muted font-black uppercase mb-1">${i18n[currentLang].confidence}</div>
-                                        <div class="flex items-center gap-2">
-                                            <div class="confidence-bar w-16"><div class="confidence-fill" style="width: ${s.sc}%"></div></div>
-                                            <span class="text-[9px] text-main font-black mono">${s.sc}%</span>
-                                        </div>
-                                    </div>
+                                    <span class="text-[9px] font-black text-danger uppercase tracking-widest">${i18n[currentLang].diff}: ${s.d}%</span>
+                                    <span class="text-[8px] text-slate-500 font-bold mono uppercase">Score: ${s.sc}</span>
                                 </div>
-                                <h3 class="text-sm font-black text-main leading-tight mb-5 border-b border-border pb-3">${s.n}</h3>
+                                <h3 class="text-xs font-bold text-white leading-tight mb-5 border-b border-border/50 pb-3">${s.n}</h3>
                                 
                                 <div class="grid grid-cols-2 gap-4 mb-5">
-                                    <button onclick="window.open('${s.m1.u}', '_blank')" class="btn-buy p-3 rounded-xl text-left transition-all">
-                                        <div class="text-[8px] font-black opacity-70 uppercase mb-1">${i18n[currentLang].buy} ${s.m1.p}</div>
-                                        <div class="text-base font-black mono">${s.m1.v.toFixed(1)}%</div>
-                                    </button>
-                                    <button onclick="window.open('${s.m2.u}', '_blank')" class="btn-sell p-3 rounded-xl text-right transition-all">
-                                        <div class="text-[8px] font-black opacity-70 uppercase mb-1">${i18n[currentLang].sell} ${s.m2.p}</div>
-                                        <div class="text-base font-black mono">${s.m2.v.toFixed(1)}%</div>
-                                    </button>
+                                    <div onclick="window.open('${s.m1.u}', '_blank')" class="bg-black/40 p-3 rounded border border-border hover:border-success cursor-pointer transition-all">
+                                        <div class="text-[7px] text-slate-500 uppercase font-bold mb-1">${i18n[currentLang].buy} ${s.m1.p}</div>
+                                        <div class="text-sm font-black mono text-success">${s.m1.v.toFixed(1)}%</div>
+                                    </div>
+                                    <div onclick="window.open('${s.m2.u}', '_blank')" class="bg-black/40 p-3 rounded border border-border hover:border-danger cursor-pointer transition-all text-right">
+                                        <div class="text-[7px] text-slate-500 uppercase font-bold mb-1">${i18n[currentLang].sell} ${s.m2.p}</div>
+                                        <div class="text-sm font-black mono text-danger">${s.m2.v.toFixed(1)}%</div>
+                                    </div>
                                 </div>
 
-                                <div class="grid grid-cols-3 gap-3">
-                                    <div class="bg-dark/80 rounded-xl p-2 text-center border border-border">
-                                        <div class="text-[7px] text-muted font-black uppercase mb-1">5$</div>
-                                        <div class="text-xs font-black text-success mono">+$${calcProfit(5)}</div>
+                                <div class="grid grid-cols-3 gap-2 pt-2">
+                                    <div class="bg-slate-900/50 rounded p-2 text-center">
+                                        <div class="text-[6px] text-slate-600 uppercase mb-1">5$ ${i18n[currentLang].profit_est}</div>
+                                        <div class="text-[10px] font-bold text-success mono">+$${calcProfit(5)}</div>
                                     </div>
-                                    <div class="bg-dark/80 rounded-xl p-2 text-center border border-success/20 shadow-[0_0_10px_rgba(14,203,129,0.05)]">
-                                        <div class="text-[7px] text-muted font-black uppercase mb-1">10$</div>
-                                        <div class="text-xs font-black text-success mono">+$${calcProfit(10)}</div>
+                                    <div class="bg-slate-900/50 rounded p-2 text-center">
+                                        <div class="text-[6px] text-slate-600 uppercase mb-1">10$ ${i18n[currentLang].profit_est}</div>
+                                        <div class="text-[10px] font-bold text-success mono">+$${calcProfit(10)}</div>
                                     </div>
-                                    <div class="bg-dark/80 rounded-xl p-2 text-center border border-success/40 shadow-[0_0_15px_rgba(14,203,129,0.1)]">
-                                        <div class="text-[7px] text-muted font-black uppercase mb-1">25$</div>
-                                        <div class="text-xs font-black text-success mono">+$${calcProfit(25)}</div>
+                                    <div class="bg-slate-900/50 rounded p-2 text-center">
+                                        <div class="text-[6px] text-slate-600 uppercase mb-1">25$ ${i18n[currentLang].profit_est}</div>
+                                        <div class="text-[10px] font-bold text-success mono">+$${calcProfit(25)}</div>
                                     </div>
                                 </div>
                             </div>
                         `;
                     }).join('');
                 } else {
-                    signals.innerHTML = `<div class="glass-card rounded-2xl p-12 text-center text-muted text-xs font-bold italic border-dashed border-2">${i18n[currentLang].waiting_signals}</div>`;
+                    signals.innerHTML = `<div class="corporate-card rounded p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-slate-900">${i18n[currentLang].waiting_signals}</div>`;
                 }
 
-                // Render Semantic Matrix
+                // Render Matrix
                 if (data.f && data.f.length > 0) {
                     term.innerHTML = data.f.map(group => {
                         const hasArb = group.arb !== null;
                         return `
-                            <div class="glass-card rounded-2xl p-5 flex flex-col gap-4">
+                            <div class="corporate-card rounded p-5 flex flex-col gap-4">
                                 <div class="flex justify-between items-start">
                                     <div class="flex gap-2 flex-wrap">
-                                        ${group.markets.map(m => `<span class="platform-tag ${m.p.toLowerCase().substring(0,4)} shadow-sm">${m.p}</span>`).join('')}
+                                        ${group.markets.map(m => `<span class="platform-badge ${m.p.toLowerCase().substring(0,4)}">${m.p}</span>`).join('')}
                                     </div>
-                                    ${hasArb ? `<span class="text-[8px] font-black bg-danger text-white px-3 py-1 rounded-full animate-pulse shadow-lg shadow-danger/20">${i18n[currentLang].arb_detected}</span>` : ''}
+                                    ${hasArb ? `<span class="text-[8px] font-black bg-danger text-white px-2 py-0.5 rounded uppercase tracking-tighter glow">${i18n[currentLang].arb_detected}</span>` : ''}
                                 </div>
-                                <h3 class="text-[11px] font-black text-main leading-snug h-10 overflow-hidden line-clamp-2">${group.name}</h3>
+                                <h3 class="text-[10px] font-bold text-slate-200 leading-snug h-8 overflow-hidden line-clamp-2">${group.name}</h3>
                                 
                                 <div class="space-y-2">
                                     ${group.markets.map(m => `
-                                        <div onclick="window.open('${m.u}', '_blank')" class="flex justify-between items-center bg-dark/40 p-2.5 rounded-xl border border-border hover:border-primary transition-all cursor-pointer group">
-                                            <span class="text-[9px] text-muted font-black group-hover:text-primary transition-colors">${m.p}</span>
+                                        <div onclick="window.open('${m.u}', '_blank')" class="flex justify-between items-center bg-black/20 p-2 rounded border border-border hover:border-slate-600 transition-all cursor-pointer group">
+                                            <span class="text-[8px] text-slate-500 font-bold group-hover:text-slate-300">${m.p}</span>
                                             <div class="flex items-center gap-4">
-                                                <span class="text-xs font-black mono text-main">${m.v.toFixed(1)}%</span>
-                                                <span class="text-[8px] text-muted font-bold mono">VOL ${Math.round(m.vol).toLocaleString()}</span>
+                                                <span class="text-[11px] font-bold mono text-white">${m.v.toFixed(1)}%</span>
+                                                <span class="text-[7px] text-slate-600 font-bold mono uppercase">Vol ${Math.round(m.vol).toLocaleString()}</span>
                                             </div>
                                         </div>
                                     `).join('')}
                                 </div>
 
                                 ${hasArb ? `
-                                    <div class="mt-2 p-3 bg-danger/5 rounded-xl border border-danger/10 flex items-center justify-between">
+                                    <div class="mt-2 p-3 bg-danger/5 rounded border border-danger/10 flex items-center justify-between">
                                         <div class="flex flex-col">
-                                            <span class="text-[7px] text-muted font-black uppercase mb-1">Oracle Spread</span>
-                                            <span class="text-xs font-black text-danger mono">${group.arb.net}% Net</span>
+                                            <span class="text-[7px] text-slate-500 font-black uppercase mb-1">Net Spread</span>
+                                            <span class="text-[11px] font-bold text-danger mono">${group.arb.net}%</span>
                                         </div>
                                         <div class="flex gap-2">
-                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="text-[8px] font-black bg-success/10 text-success px-3 py-1.5 rounded-lg hover:bg-success hover:text-black transition-all uppercase">Buy ${group.arb.buy.p}</button>
-                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="text-[8px] font-black bg-danger/10 text-danger px-3 py-1.5 rounded-lg hover:bg-danger hover:text-black transition-all uppercase">Sell ${group.arb.sell.p}</button>
+                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="text-[8px] font-black bg-slate-800 text-success px-3 py-1.5 rounded hover:bg-success hover:text-black transition-all uppercase">Buy ${group.arb.buy.p}</button>
+                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="text-[8px] font-black bg-slate-800 text-danger px-3 py-1.5 rounded hover:bg-danger hover:text-black transition-all uppercase">Sell ${group.arb.sell.p}</button>
                                         </div>
                                     </div>
                                 ` : ''}
@@ -414,10 +369,9 @@
                     }).join('');
                 }
             } catch (err) {
-                ts.innerText = 'ORACLE ERROR';
+                console.error(err);
             } finally {
                 btn.disabled = false;
-                indicator.style.display = 'none';
             }
         }
         
