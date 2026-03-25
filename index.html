@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMILYLABORATORIES | ALPHASCAN v4.1.0 GOLD PRO WEB3 ENHANCED</title>
+    <title>FAMILYLABORATORIES | ALPHASCAN v4.1.0 GOLD PRO WEB3 FINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -78,7 +78,7 @@
         <div class="flex items-center gap-8">
             <div class="flex flex-col">
                 <span class="text-[10px] font-orbitron font-black tracking-[0.5em] text-yellow-500 uppercase mb-1">FAMILYLABORATORIES</span>
-                <h1 class="font-orbitron text-3xl font-black tracking-tighter text-white uppercase leading-none">ALPHA<span class="text-yellow-500">SCAN</span> <span class="ml-2 text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 GOLD PRO WEB3 ENHANCED</span></h1>
+                <h1 class="font-orbitron text-3xl font-black tracking-tighter text-white uppercase leading-none">ALPHA<span class="text-yellow-500">SCAN</span> <span class="ml-2 text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 GOLD PRO WEB3 FINAL</span></h1>
             </div>
             <div class="hidden lg:flex items-center gap-4 text-[10px] font-mono tracking-[0.3em] text-slate-500 border-l border-white/10 pl-8">
                 <span class="w-2 h-2 bg-yellow-500 rounded-full pulse"></span>
@@ -126,6 +126,17 @@
                 <div class="text-[11px] font-mono text-slate-500 uppercase tracking-[0.6em] border-b border-yellow-500/30 pb-3">Arbitrage & High ROI</div>
             </div>
             <div id="top10Grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10"></div>
+        </div>
+
+        <!-- Unbeachtete Opportunities (Underdogs) -->
+        <div class="mb-32">
+            <div class="flex items-center justify-between mb-16">
+                <h3 class="font-orbitron text-5xl font-black flex items-center gap-8 uppercase tracking-tighter">
+                    <span class="text-yellow-500 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">⚠️</span> Unbeachtete Underdogs
+                </h3>
+                <div class="text-[11px] font-mono text-slate-500 uppercase tracking-[0.6em] border-b border-yellow-500/30 pb-3">ROI > 1000% | Price < 10¢</div>
+            </div>
+            <div id="underdogGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10"></div>
         </div>
 
         <!-- Filters -->
@@ -322,11 +333,21 @@
 
         function renderResults() {
             const top10 = [];
+            const underdogs = [];
             const seen = new Set();
+
+            // 1. Arbitrage Opportunities zuerst
             state.arbs.forEach(a => { if (top10.length < 10 && !seen.has(a.marketA.question)) { top10.push({...a.marketA, arb: a}); seen.add(a.marketA.question); } });
-            state.markets.sort((a, b) => (1/a.yes_price) - (1/b.yes_price)).forEach(m => { if (top10.length < 10 && !seen.has(m.question)) { top10.push(m); seen.add(m.question); } });
+            
+            // 2. High ROI Opportunities (Top 10 auffüllen)
+            const sortedByROI = [...state.markets].sort((a, b) => (1/a.yes_price) - (1/b.yes_price));
+            sortedByROI.forEach(m => { if (top10.length < 10 && !seen.has(m.question)) { top10.push(m); seen.add(m.question); } });
+
+            // 3. Underdogs (Price < 10¢)
+            state.markets.filter(m => m.yes_price < 0.10).sort((a, b) => a.yes_price - b.yes_price).forEach(m => { if (underdogs.length < 10) underdogs.push(m); });
 
             document.getElementById('top10Grid').innerHTML = top10.map(item => createCard(item, true)).join('');
+            document.getElementById('underdogGrid').innerHTML = underdogs.map(item => createCard(item, true)).join('');
             
             let filtered = state.markets;
             if (state.filter === "ARB") filtered = state.arbs.map(a => ({...a.marketA, arb: a}));
