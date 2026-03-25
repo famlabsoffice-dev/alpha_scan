@@ -16,6 +16,7 @@ export default {
     }
 
     const startTime = Date.now();
+    const currentYear = 2026;
     
     // Multi-Source Data Ingestion (Increased Limits)
     const [polyRes, manifoldRes, kalshiRes] = await Promise.allSettled([
@@ -26,12 +27,23 @@ export default {
 
     let allMarkets = [];
 
-    // Polymarket (Fee approx 0.2%)
+    // Filter Logic: Nur Märkte, die nicht vor 2026 geschlossen wurden
+    const isMarketCurrent = (title, closedDate) => {
+      if (closedDate) {
+        const year = new Date(closedDate).getFullYear();
+        if (year < currentYear) return false;
+      }
+      // Zusätzlicher Check: Titel darf keine Jahre vor 2026 enthalten
+      const oldYearMatch = title.match(/\b(202[0-5]|201[0-9])\b/);
+      return !oldYearMatch;
+    };
+
+    // Polymarket
     if (polyRes.status === 'fulfilled') {
       try {
         const data = await polyRes.value.json();
         data.forEach(m => {
-          if (m.outcomePrices) {
+          if (m.outcomePrices && isMarketCurrent(m.question, m.closedTime)) {
             const prices = JSON.parse(m.outcomePrices);
             allMarkets.push({
               p: 'Polymarket',
@@ -46,12 +58,12 @@ export default {
       } catch (e) {}
     }
 
-    // Manifold (Fee 0% - Virtual)
+    // Manifold
     if (manifoldRes.status === 'fulfilled') {
       try {
         const data = await manifoldRes.value.json();
         data.forEach(m => {
-          if (m.probability !== undefined) {
+          if (m.probability !== undefined && isMarketCurrent(m.question, m.closeTime)) {
             allMarkets.push({
               p: 'Manifold',
               n: m.question.trim(),
@@ -65,13 +77,13 @@ export default {
       } catch (e) {}
     }
 
-    // Kalshi (Fee approx 0.5%)
+    // Kalshi
     if (kalshiRes.status === 'fulfilled') {
       try {
         const data = await kalshiRes.value.json();
         if (data.markets) {
           data.markets.forEach(m => {
-            if (m.yes_bid) {
+            if (m.yes_bid && isMarketCurrent(m.title, m.close_time)) {
               allMarkets.push({
                 p: 'Kalshi',
                 n: m.title.trim(),
@@ -86,7 +98,7 @@ export default {
       } catch (e) {}
     }
 
-    // --- ORACLE MATCHING ENGINE v4.0 ---
+    // --- ORACLE MATCHING ENGINE v4.4 ---
     const semanticNormalize = (s) => {
       return s.toLowerCase()
         .replace(/will|is|the|be|over|under|above|below|at|in|on|by/g, '')
@@ -114,18 +126,16 @@ export default {
         });
         
         const rawDiff = max.v - min.v;
-        // Fee Deduction Logic (Net Profit)
         const totalFees = (min.fee + max.fee) * 100;
         const netDiff = rawDiff - totalFees;
 
-        if (netDiff > 0.2) {
+        if (netDiff > 0.1) {
           arb = {
             raw: rawDiff.toFixed(1),
             net: netDiff.toFixed(1),
             buy: min,
             sell: max,
-            // Confidence Score (Volume + Net Spread)
-            score: Math.min(100, (netDiff * 10 + Math.log10(group.totalVol + 1) * 5)).toFixed(1)
+            score: Math.min(100, (netDiff * 12 + Math.log10(group.totalVol + 1) * 4)).toFixed(1)
           };
         }
       }
@@ -141,7 +151,7 @@ export default {
         m2: f.arb.sell,
         sc: f.arb.score
       })).sort((a, b) => b.d - a.d),
-      f: matrix.sort((a, b) => b.totalVol - a.totalVol).slice(0, 40),
+      f: matrix.sort((a, b) => b.totalVol - a.totalVol).slice(0, 50),
       t: Date.now() - startTime,
       ts: new Date().toISOString()
     };
