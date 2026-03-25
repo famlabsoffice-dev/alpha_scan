@@ -135,6 +135,13 @@
         .matrix-row-btn.buy:hover { background: var(--success); color: #000; }
         .matrix-row-btn.sell { color: var(--danger); border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); }
         .matrix-row-btn.sell:hover { background: var(--danger); color: #000; }
+
+        .contract-price {
+            font-size: 9px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body>
@@ -322,11 +329,13 @@
                                     <span class="text-[7px] font-black text-success uppercase mb-1">${s.m1.p}</span>
                                     <span class="text-[10px] font-black text-white uppercase mb-1">${i18n[currentLang].buy}</span>
                                     <span class="text-lg font-black mono text-success">${s.m1.v.toFixed(1)}%</span>
+                                    <span class="contract-price">$${(s.m1.v/100).toFixed(2)}</span>
                                 </div>
                                 <div onclick="window.open('${s.m2.u}', '_blank')" class="trade-btn sell">
                                     <span class="text-[7px] font-black text-danger uppercase mb-1">${s.m2.p}</span>
                                     <span class="text-[10px] font-black text-white uppercase mb-1">${i18n[currentLang].sell}</span>
-                                    <span class="text-lg font-black mono text-danger">${s.m2.v.toFixed(1)}%</span>
+                                    <span class="text-lg font-black mono text-danger">${(100 - s.m2.v).toFixed(1)}%</span>
+                                    <span class="contract-price">$${((100-s.m2.v)/100).toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>
@@ -359,16 +368,18 @@
                                                         <div class="flex flex-col items-end">
                                                             <span class="text-[7px] text-slate-600 font-black uppercase">YES</span>
                                                             <span class="text-xs font-black mono ${isBuy ? 'text-success' : 'text-white'}">${m.v.toFixed(1)}%</span>
+                                                            <span class="contract-price">$${(m.v/100).toFixed(2)}</span>
                                                         </div>
                                                         <div class="flex flex-col items-end">
                                                             <span class="text-[7px] text-slate-600 font-black uppercase">NO</span>
                                                             <span class="text-xs font-black mono ${isSell ? 'text-danger' : 'text-white'}">${(100 - m.v).toFixed(1)}%</span>
+                                                            <span class="contract-price">$${((100-m.v)/100).toFixed(2)}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="grid grid-cols-2 gap-2">
-                                                    <button onclick="window.open('${m.u}', '_blank')" class="matrix-row-btn buy">BUY YES</button>
-                                                    <button onclick="window.open('${m.u}', '_blank')" class="matrix-row-btn sell">SELL NO</button>
+                                                    <button onclick="window.open('${m.u}', '_blank')" class="matrix-row-btn buy">BUY YES ($${(m.v/100).toFixed(2)})</button>
+                                                    <button onclick="window.open('${m.u}', '_blank')" class="matrix-row-btn sell">SELL NO ($${((100-m.v)/100).toFixed(2)})</button>
                                                 </div>
                                             </div>
                                         `;
