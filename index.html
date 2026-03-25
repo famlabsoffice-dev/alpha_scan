@@ -111,7 +111,7 @@
         #login-overlay {
             position: fixed;
             inset: 0;
-            background: var(--bg-deep);
+            background: #05070a;
             z-index: 9999;
             display: flex;
             align-items: center;
@@ -147,17 +147,17 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col opacity-0 transition-opacity duration-1000" id="main-body">
+<body class="min-h-screen flex flex-col" id="main-body" style="opacity: 0;">
 
     <!-- Login Overlay -->
     <div id="login-overlay">
         <div class="max-w-md w-full p-10 flex flex-col items-center gap-8">
             <div class="flex flex-col items-center">
-                <span class="text-[10px] font-bold tracking-[0.5em] text-primary mb-2 uppercase">FamilyLaboratories</span>
+                <span class="text-[10px] font-bold tracking-[0.5em] text-[#c5a059] mb-2 uppercase">FamilyLaboratories</span>
                 <h1 class="text-3xl font-light tracking-[-0.05em] text-white">ALPHA <span class="font-black">SCAN</span></h1>
             </div>
             <div class="w-full space-y-4">
-                <input type="password" id="pass-input" placeholder="ACCESS KEY REQUIRED" class="w-full bg-slate-900 border border-border rounded p-4 text-center text-xs tracking-[0.5em] focus:border-primary outline-none transition-all">
+                <input type="password" id="pass-input" placeholder="ACCESS KEY REQUIRED" class="w-full bg-[#0d1117] border border-[#1e293b] rounded p-4 text-center text-xs tracking-[0.5em] text-white focus:border-[#c5a059] outline-none transition-all">
                 <button onclick="checkAuth()" class="w-full py-4 btn-gold rounded uppercase text-[10px] tracking-[0.4em]">Initialize Terminal</button>
             </div>
             <div class="text-[8px] text-slate-600 font-bold tracking-widest uppercase italic">C•J•V•K | Restricted Node</div>
@@ -364,10 +364,14 @@
             }
         }
 
-        if (authToken === 'TGMFAM2026') {
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('main-body').style.opacity = '1';
-        }
+        window.onload = function() {
+            if (authToken === 'TGMFAM2026') {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-body').style.opacity = '1';
+            } else {
+                document.getElementById('main-body').style.opacity = '0';
+            }
+        };
 
         function setLang(lang) {
             currentLang = lang;
