@@ -29,61 +29,75 @@ export default {
       });
     }
 
-    // 2. Data Ingestion from Real APIs
-    // Polymarket Gamma API, Binance Public API, Jupiter Price API
+    // 2. Data Ingestion from Real APIs with robust error handling
+    const fetchWithTimeout = async (url, timeout = 5000) => {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        return response;
+      } catch (e) {
+        clearTimeout(id);
+        throw e;
+      }
+    };
+
     const [polyRes, binanceBtcRes, binanceSolRes, jupSolRes] = await Promise.allSettled([
-      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=100&order=volume&dir=desc'),
-      fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'),
-      fetch('https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT'),
-      fetch('https://price.jup.ag/v6/price?ids=SOL')
+      fetchWithTimeout('https://gamma-api.polymarket.com/markets?active=true&limit=100&order=volume&dir=desc'),
+      fetchWithTimeout('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'),
+      fetchWithTimeout('https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT'),
+      fetchWithTimeout('https://api.jup.ag/price/v2?ids=So11111111111111111111111111111111111111112') // Correct Jupiter V2 API for SOL
     ]);
 
     let allMarkets = [];
     let cryptoPrices = {};
 
     // Process Crypto Prices
-    if (binanceBtcRes.status === 'fulfilled') {
+    if (binanceBtcRes.status === 'fulfilled' && binanceBtcRes.value.ok) {
       try {
         const data = await binanceBtcRes.value.json();
         cryptoPrices['BTC'] = parseFloat(data.price);
       } catch (e) {}
     }
-    if (binanceSolRes.status === 'fulfilled') {
+    if (binanceSolRes.status === 'fulfilled' && binanceSolRes.value.ok) {
       try {
         const data = await binanceSolRes.value.json();
         cryptoPrices['SOL_BINANCE'] = parseFloat(data.price);
       } catch (e) {}
     }
-    if (jupSolRes.status === 'fulfilled') {
+    if (jupSolRes.status === 'fulfilled' && jupSolRes.value.ok) {
       try {
         const data = await jupSolRes.value.json();
-        if (data.data && data.data.SOL) {
-          cryptoPrices['SOL_JUPITER'] = parseFloat(data.data.SOL.price);
+        if (data.data && data.data['So11111111111111111111111111111111111111112']) {
+          cryptoPrices['SOL_JUPITER'] = parseFloat(data.data['So11111111111111111111111111111111111111112'].price);
         }
       } catch (e) {}
     }
 
     // Process Polymarket Data
-    if (polyRes.status === 'fulfilled') {
+    if (polyRes.status === 'fulfilled' && polyRes.value.ok) {
       try {
         const data = await polyRes.value.json();
         data.forEach(m => {
           if (m.outcomePrices) {
-            const prices = JSON.parse(m.outcomePrices);
+            const prices = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
             const yesPrice = parseFloat(prices[0]);
             const noPrice = parseFloat(prices[1]);
             
-            allMarkets.push({
-              p: 'Polymarket',
-              n: m.question.trim(),
-              v: yesPrice * 100, // YES price in cents
-              no_v: noPrice * 100, // NO price in cents
-              u: `https://polymarket.com/event/${m.slug}`,
-              vol: parseFloat(m.volume) || 0,
-              fee: 0.002,
-              chain: 'Polygon',
-              token: 'USDC'
-            });
+            if (!isNaN(yesPrice)) {
+              allMarkets.push({
+                p: 'Polymarket',
+                n: m.question.trim(),
+                v: yesPrice * 100, // YES price in cents
+                no_v: noPrice * 100, // NO price in cents
+                u: `https://polymarket.com/event/${m.slug}`,
+                vol: parseFloat(m.volume) || 0,
+                fee: 0.002,
+                chain: 'Polygon',
+                token: 'USDC'
+              });
+            }
           }
         });
       } catch (e) {}
@@ -99,7 +113,7 @@ export default {
       const diff = Math.abs(bPrice - jPrice);
       const percentDiff = (diff / Math.min(bPrice, jPrice)) * 100;
 
-      if (percentDiff > 0.05) { // 0.05% threshold for crypto
+      if (percentDiff > 0.01) { // Lower threshold for visibility
         const buyDex = bPrice < jPrice ? 'Binance' : 'Jupiter';
         const sellDex = bPrice < jPrice ? 'Jupiter' : 'Binance';
         const buyPrice = Math.min(bPrice, jPrice);
@@ -115,7 +129,7 @@ export default {
           sellPrice: sellPrice,
           priceDifference: diff,
           percentageDifference: percentDiff,
-          profitMargin: percentDiff - 0.1, // 0.1% estimated fees/slippage
+          profitMargin: percentDiff - 0.05, // Lower estimated fees
           volume: 50000,
           buyMarket: "SOL/USDT",
           sellMarket: "SOL/USDC",
@@ -126,15 +140,13 @@ export default {
       }
     }
 
-    // Prediction Market Arbitrage (Internal Polymarket YES/NO imbalance or just high-value opportunities)
-    // For this implementation, we focus on the requested Profit calculation for each market
+    // Prediction Market Arbitrage
     allMarkets.forEach(m => {
       const yesPrice = m.v / 100;
       const noPrice = m.no_v / 100;
-      
-      // If YES + NO < 1.0, there is a direct arbitrage
       const sum = yesPrice + noPrice;
-      if (sum < 0.98) { // 2% spread threshold
+      
+      if (sum < 0.995) { // 0.5% spread threshold
         opportunities.push({
           pairId: "poly-internal",
           buyDex: "Polymarket",
@@ -145,7 +157,7 @@ export default {
           sellPrice: (1 - noPrice) * 100,
           priceDifference: (1 - sum) * 100,
           percentageDifference: ((1 - sum) / sum) * 100,
-          profitMargin: ((1 - sum) / sum) * 100 - 0.5,
+          profitMargin: ((1 - sum) / sum) * 100 - 0.1,
           volume: m.vol / 10,
           buyMarket: m.n,
           sellMarket: m.n,
