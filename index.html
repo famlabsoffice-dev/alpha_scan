@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMILYLABORATORIES | ALPHASCAN v4.1.0 GOLD PRO</title>
+    <title>FAMILYLABORATORIES | ALPHASCAN v4.1.0 GOLD PRO WEB3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=IBM+Plex+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -59,42 +59,18 @@
         </div>
     </div>
 
-    <!-- Wallet Selection Modal -->
-    <div id="walletModal" class="hidden fixed inset-0 z-[150] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-6">
-        <div class="glass p-10 rounded-[3rem] max-w-md w-full border-yellow-500/30">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="font-orbitron text-xl font-black text-white uppercase tracking-tighter">Select Wallet</h3>
-                <button id="closeWalletModal" class="text-slate-500 hover:text-white transition-colors">✕</button>
-            </div>
-            <div class="grid gap-4">
-                <button class="wallet-option flex items-center gap-4 p-5 rounded-2xl border border-white/5 transition-all text-left" onclick="connectWallet('Phantom')">
-                    <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400 font-bold">P</div>
-                    <span class="font-bold uppercase tracking-widest text-sm">Phantom Wallet</span>
-                </button>
-                <button class="wallet-option flex items-center gap-4 p-5 rounded-2xl border border-white/5 transition-all text-left" onclick="connectWallet('Jupiter')">
-                    <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-green-400 font-bold">J</div>
-                    <span class="font-bold uppercase tracking-widest text-sm">Jupiter Terminal</span>
-                </button>
-                <button class="wallet-option flex items-center gap-4 p-5 rounded-2xl border border-white/5 transition-all text-left" onclick="connectWallet('MetaMask')">
-                    <div class="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400 font-bold">M</div>
-                    <span class="font-bold uppercase tracking-widest text-sm">MetaMask</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Stripe Paywall Modal -->
-    <div id="stripeModal" class="hidden fixed inset-0 z-[160] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-6">
+    <!-- Web3 Payment Modal -->
+    <div id="paymentModal" class="hidden fixed inset-0 z-[160] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-6">
         <div class="glass p-12 rounded-[3rem] max-w-lg w-full border-yellow-500/30 text-center">
-            <h3 class="font-orbitron text-3xl font-black text-white uppercase mb-4 tracking-tighter">Upgrade to PRO</h3>
-            <p class="text-slate-400 mb-8 uppercase tracking-widest text-xs">Unlock Live Data, Full Scanner & Trade Deep-Links</p>
+            <h3 class="font-orbitron text-3xl font-black text-white uppercase mb-4 tracking-tighter">Web3 Upgrade</h3>
+            <p class="text-slate-400 mb-8 uppercase tracking-widest text-xs">Unlock Enterprise Arbitrage via On-Chain Payment</p>
             <div class="bg-white/5 p-8 rounded-3xl border border-white/10 mb-8">
-                <div class="text-5xl font-orbitron font-black text-yellow-500 mb-2">25$</div>
-                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-[0.4em]">per week / cancel anytime</div>
+                <div class="text-5xl font-orbitron font-black text-yellow-500 mb-2">0.01 ETH</div>
+                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-[0.4em]">per week / secure on-chain tx</div>
             </div>
-            <div id="card-element" class="bg-white/5 p-6 rounded-2xl border border-white/10 mb-8"></div>
-            <button id="payBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-5 rounded-2xl font-orbitron font-black uppercase tracking-widest transition-all mb-4">Subscribe Now</button>
-            <button id="closeStripeModal" class="text-slate-500 hover:text-white text-[10px] uppercase tracking-widest">Maybe Later</button>
+            <div id="txStatus" class="text-[10px] font-mono text-yellow-500 uppercase tracking-widest mb-6 hidden">Transaction Pending...</div>
+            <button id="payWeb3Btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-5 rounded-2xl font-orbitron font-black uppercase tracking-widest transition-all mb-4">Sign & Pay with Wallet</button>
+            <button id="closePaymentModal" class="text-slate-500 hover:text-white text-[10px] uppercase tracking-widest">Cancel</button>
         </div>
     </div>
 
@@ -103,11 +79,11 @@
         <div class="flex items-center gap-8">
             <div class="flex flex-col">
                 <span class="text-[10px] font-orbitron font-black tracking-[0.5em] text-yellow-500 uppercase mb-1">FAMILYLABORATORIES</span>
-                <h1 class="font-orbitron text-3xl font-black tracking-tighter text-white uppercase leading-none">ALPHA<span class="text-yellow-500">SCAN</span> <span class="ml-2 text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 GOLD PRO</span></h1>
+                <h1 class="font-orbitron text-3xl font-black tracking-tighter text-white uppercase leading-none">ALPHA<span class="text-yellow-500">SCAN</span> <span class="ml-2 text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 GOLD PRO WEB3</span></h1>
             </div>
             <div class="hidden lg:flex items-center gap-4 text-[10px] font-mono tracking-[0.3em] text-slate-500 border-l border-white/10 pl-8">
                 <span class="w-2 h-2 bg-yellow-500 rounded-full pulse"></span>
-                PREMIUM TRADING TERMINAL
+                ENTERPRISE WEB3 TERMINAL
             </div>
         </div>
         <div class="flex items-center gap-8">
@@ -124,13 +100,13 @@
     <section class="relative pt-40 pb-32 px-6 text-center overflow-hidden">
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-yellow-600/5 blur-[150px] rounded-full pointer-events-none"></div>
         <div class="relative z-10">
-            <div class="inline-block px-6 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black tracking-[0.5em] uppercase mb-10">FamilyLaboratories Presents</div>
+            <div class="inline-block px-6 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black tracking-[0.5em] uppercase mb-10">FamilyLaboratories Web3 Enterprise</div>
             <h2 class="font-orbitron text-8xl md:text-[10rem] font-black mb-10 tracking-tighter uppercase gold-glow leading-none">
                 ALPHA <span class="gold-gradient">SCAN</span>
             </h2>
             <p class="text-slate-400 max-w-4xl mx-auto mb-20 text-2xl font-light tracking-[0.2em] leading-relaxed uppercase">
                 Hyperprecise Prediction Arbitrage Scanner.<br>
-                <span class="text-yellow-500 font-bold">Underdog gewinnt immer.</span>
+                <span class="text-yellow-500 font-bold">Web3 Secured. Build for Billions.</span>
             </p>
             
             <button id="scanBtn" class="group relative bg-yellow-500 text-black px-20 py-8 rounded-[2.5rem] font-orbitron font-black text-3xl hover:scale-105 transition-all shadow-[0_30px_80px_rgba(251,191,36,0.3)] uppercase tracking-tighter">
@@ -191,24 +167,41 @@
     </footer>
 
     <script>
+        // Web3 Configuration
+        const WEB3_CONFIG = {
+            PROJECT_ID: 'YOUR_WALLETCONNECT_PROJECT_ID', // Placeholder
+            RECEIVER_ADDR: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Placeholder
+            PAYMENT_AMOUNT: '0.01' // ETH
+        };
+
         const CONFIG = { 
             REFRESH_INTERVAL: 30000, 
             JACCARD_THRESHOLD: 0.42, 
             CORS_PROXY: "https://alpha-scan-proxy.famlabs.workers.dev/?url=" 
         };
+
         const PLATFORMS = {
             Monaco: { name: "Monaco", color: "#f59e0b", url: "https://monaco.market/markets/" },
             Hxro: { name: "Hxro", color: "#ef4444", url: "https://hxro.network/trade/" },
             JupiterPM: { name: "JupiterPM", color: "#10b981", url: "https://predict.jup.ag/market/" },
             Polymarket: { name: "Polymarket", color: "#2563eb", url: "https://polymarket.com/event/" }
         };
+
         const SOURCES = [
             { id: "polymarket", name: "Polymarket", url: "https://gamma-api.polymarket.com/markets?limit=100&active=true&closed=false" },
             { id: "manifold", name: "Manifold", url: "https://api.manifold.markets/v0/markets?limit=100&sort=liquidity&order=desc" },
             { id: "metaculus", name: "Metaculus", url: "https://www.metaculus.com/api2/questions/?limit=50&status=active" }
         ];
 
-        let state = { markets: [], arbs: [], filter: "ALL", wallet: null, isPro: localStorage.getItem('pro_status') === 'true' };
+        let state = { 
+            markets: [], 
+            arbs: [], 
+            filter: "ALL", 
+            wallet: null, 
+            provider: null, 
+            signer: null,
+            isPro: localStorage.getItem('pro_status_web3') === 'true' 
+        };
 
         // Access Password Logic
         document.getElementById('accessBtn').addEventListener('click', () => {
@@ -220,42 +213,69 @@
             }
         });
 
-        // Wallet Logic
-        document.getElementById('connectBtn').addEventListener('click', () => {
-            document.getElementById('walletModal').classList.remove('hidden');
-        });
-        document.getElementById('closeWalletModal').addEventListener('click', () => {
-            document.getElementById('walletModal').classList.add('hidden');
-        });
+        // Web3 Wallet Connection (Ethers.js v5/v6 Pattern)
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    state.provider = new ethers.providers.Web3Provider(window.ethereum);
+                    state.signer = state.provider.getSigner();
+                    state.wallet = accounts[0];
+                    
+                    // SIWE Pattern: Sign Message for Auth
+                    const message = `FAMILYLABORATORIES | ALPHASCAN v4.1.0\n\nAuthorize Web3 Access for: ${state.wallet}\nNonce: ${Math.random().toString(36).substring(7)}`;
+                    await state.signer.signMessage(message);
 
-        async function connectWallet(type) {
-            try {
-                if (type === 'Phantom' && window.solana) {
-                    const resp = await window.solana.connect();
-                    state.wallet = resp.publicKey.toString().slice(0, 8) + "...";
-                } else {
-                    state.wallet = type + "_" + Math.random().toString(16).slice(2, 10).toUpperCase();
+                    updateUI();
+                } catch (err) {
+                    console.error("Wallet connection failed", err);
                 }
-                document.getElementById('walletAddr').innerText = state.wallet;
-                document.getElementById('walletStatus').classList.remove('hidden');
-                document.getElementById('connectBtn').innerText = state.isPro ? "PRO ACTIVE" : "UPGRADE TO PRO";
-                document.getElementById('connectBtn').onclick = state.isPro ? null : () => document.getElementById('stripeModal').classList.remove('hidden');
-                document.getElementById('walletModal').classList.add('hidden');
-            } catch (err) { console.error(err); }
+            } else {
+                alert("Please install a Web3 Wallet (MetaMask/Phantom)!");
+            }
         }
 
-        // Stripe Logic
-        document.getElementById('closeStripeModal').addEventListener('click', () => document.getElementById('stripeModal').classList.add('hidden'));
-        document.getElementById('payBtn').addEventListener('click', () => {
-            localStorage.setItem('pro_status', 'true');
-            state.isPro = true;
-            document.getElementById('proBadge').classList.remove('hidden');
-            document.getElementById('stripeModal').classList.add('hidden');
-            document.getElementById('connectBtn').innerText = "PRO ACTIVE";
-            document.getElementById('connectBtn').onclick = null;
-            alert("PRO Status Activated! 25$/Week Subscription started.");
-        });
+        function updateUI() {
+            if (state.wallet) {
+                document.getElementById('walletAddr').innerText = state.wallet.slice(0, 6) + "..." + state.wallet.slice(-4);
+                document.getElementById('walletStatus').classList.remove('hidden');
+                document.getElementById('connectBtn').innerText = state.isPro ? "PRO ACTIVE" : "UPGRADE TO PRO";
+                document.getElementById('connectBtn').onclick = state.isPro ? null : () => document.getElementById('paymentModal').classList.remove('hidden');
+            }
+            if (state.isPro) document.getElementById('proBadge').classList.remove('hidden');
+        }
 
+        // Web3 Payment Logic
+        async function processPayment() {
+            if (!state.signer) return;
+            document.getElementById('txStatus').classList.remove('hidden');
+            document.getElementById('txStatus').innerText = "Transaction Pending...";
+            
+            try {
+                const tx = await state.signer.sendTransaction({
+                    to: WEB3_CONFIG.RECEIVER_ADDR,
+                    value: ethers.utils.parseEther(WEB3_CONFIG.PAYMENT_AMOUNT)
+                });
+                
+                document.getElementById('txStatus').innerText = "Waiting for Confirmation...";
+                await tx.wait();
+                
+                localStorage.setItem('pro_status_web3', 'true');
+                state.isPro = true;
+                updateUI();
+                document.getElementById('paymentModal').classList.add('hidden');
+                alert("Web3 PRO Status Activated! Transaction Successful.");
+            } catch (err) {
+                console.error("Payment failed", err);
+                document.getElementById('txStatus').innerText = "Transaction Failed";
+            }
+        }
+
+        document.getElementById('connectBtn').addEventListener('click', connectWallet);
+        document.getElementById('payWeb3Btn').addEventListener('click', processPayment);
+        document.getElementById('closePaymentModal').addEventListener('click', () => document.getElementById('paymentModal').classList.add('hidden'));
+
+        // Scanner Logic (Beibehalten & Optimiert)
         const safeFloat = (v, fallback = 0) => { const f = parseFloat(v); return isNaN(f) ? fallback : f; };
         const jaccard = (a, b) => {
             const tokenize = s => new Set(s.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(w => w.length > 3));
@@ -379,7 +399,7 @@
                 renderResults();
             });
         });
-        if (state.isPro) document.getElementById('proBadge').classList.remove('hidden');
+        updateUI();
     </script>
 </body>
 </html>
