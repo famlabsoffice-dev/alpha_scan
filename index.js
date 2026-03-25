@@ -30,7 +30,38 @@ export default {
       });
     }
 
-    // 2. Data Ingestion (Enhanced Limits)
+    // 2. Cross-DEX Arbitrage Pair Configuration
+    const ARBITRAGE_PAIRS = [
+      {
+        id: "monaco-hxro-solana",
+        buy: "Monaco",
+        sell: "Hxro",
+        chain: "Solana",
+        token: "SPL_OUTCOME",
+        priority: 1,
+        description: "Monaco vs Hxro - SPL Outcome Tokens (Primary Focus)"
+      },
+      {
+        id: "polymarket-uniswap-polygon",
+        buy: "Polymarket",
+        sell: "UniswapV3",
+        chain: "Polygon",
+        token: "ERC1155_CTF",
+        priority: 2,
+        description: "Polymarket vs UniswapV3 - ERC1155 Conditional Tokens"
+      },
+      {
+        id: "jupiterpm-polybridge-solana",
+        buy: "JupiterPM",
+        sell: "PolymarketBridge",
+        chain: "Solana",
+        token: "WPM_SHARE",
+        priority: 3,
+        description: "JupiterPM vs PolymarketBridge - Wrapped PM Shares"
+      }
+    ];
+
+    // 3. Data Ingestion (Enhanced Limits)
     const [polyRes, manifoldRes, kalshiRes] = await Promise.allSettled([
       fetch('https://gamma-api.polymarket.com/markets?active=true&limit=150&order=volume&dir=desc'),
       fetch('https://api.manifold.markets/v0/markets?limit=150&sort=updated-time'),
@@ -61,7 +92,9 @@ export default {
               v: parseFloat(prices[0]) * 100,
               u: `https://polymarket.com/event/${m.slug}`,
               vol: parseFloat(m.volume) || 0,
-              fee: 0.002
+              fee: 0.002,
+              chain: 'Polygon',
+              token: 'ERC1155_CTF'
             });
           }
         });
@@ -80,7 +113,9 @@ export default {
               v: m.probability * 100,
               u: m.url,
               vol: m.volume || 0,
-              fee: 0
+              fee: 0,
+              chain: 'Ethereum',
+              token: 'ERC20'
             });
           }
         });
@@ -99,8 +134,10 @@ export default {
                 n: m.title.trim(),
                 v: parseFloat(m.yes_bid),
                 u: `https://kalshi.com/markets/${m.ticker}`,
-                vol: m.volume || 0,
-                fee: 0.005
+                vol: parseFloat(m.volume) || 0,
+                fee: 0.004,
+                chain: 'Ethereum',
+                token: 'ERC20'
               });
             }
           });
@@ -108,66 +145,74 @@ export default {
       } catch (e) {}
     }
 
-    // --- HYPER-SENSITIVE MATCHING ENGINE v4.5 ---
-    const semanticNormalize = (s) => {
-      return s.toLowerCase()
-        .replace(/will|is|the|be|over|under|above|below|at|in|on|by|who|which|how|many|a|an|of|for|to/g, '')
-        .replace(/[^a-z0-9]/g, '')
-        .substring(0, 30); // Focus on first 30 core characters for better matching
-    };
+    // 4. Arbitrage Detection Engine
+    const detectArbitrages = (markets, pairs) => {
+      const opportunities = [];
+      
+      for (const pair of pairs) {
+        // Find markets matching this pair's DEXs
+        const buyMarkets = markets.filter(m => m.p.toLowerCase() === pair.buy.toLowerCase());
+        const sellMarkets = markets.filter(m => m.p.toLowerCase() === pair.sell.toLowerCase());
 
-    const grouped = {};
-    allMarkets.forEach(m => {
-      const key = semanticNormalize(m.n);
-      if (!grouped[key]) {
-        grouped[key] = { name: m.n, markets: [], totalVol: 0 };
-      }
-      grouped[key].markets.push(m);
-      grouped[key].totalVol += m.vol;
-    });
+        for (const buyM of buyMarkets) {
+          for (const sellM of sellMarkets) {
+            // Check if same chain and token
+            if (buyM.chain === sellM.chain && buyM.token === sellM.token) {
+              const priceDiff = sellM.v - buyM.v;
+              const percentDiff = (priceDiff / buyM.v) * 100;
+              const minVolume = Math.min(buyM.vol, sellM.vol);
+              
+              // Thresholds
+              const minPriceDiff = 1; // 1%
+              const minVolumeThreshold = 100; // $100
 
-    const matrix = Object.values(grouped).map(group => {
-      let arb = null;
-      if (group.markets.length > 1) {
-        let min = group.markets[0], max = group.markets[0];
-        group.markets.forEach(m => {
-          if (m.v < min.v) min = m;
-          if (m.v > max.v) max = m;
-        });
-        
-        const rawDiff = max.v - min.v;
-        const totalFees = (min.fee + max.fee) * 100;
-        const netDiff = rawDiff - totalFees;
-
-        if (netDiff > 0.1) {
-          arb = {
-            raw: rawDiff.toFixed(1),
-            net: netDiff.toFixed(1),
-            buy: min,
-            sell: max,
-            score: Math.min(100, (netDiff * 15 + Math.log10(group.totalVol + 1) * 5)).toFixed(1)
-          };
+              if (percentDiff >= minPriceDiff && minVolume >= minVolumeThreshold) {
+                const profitMargin = percentDiff - 0.5; // Account for 0.5% spread
+                
+                opportunities.push({
+                  pairId: pair.id,
+                  buyDex: pair.buy,
+                  sellDex: pair.sell,
+                  chain: pair.chain,
+                  token: pair.token,
+                  buyPrice: buyM.v,
+                  sellPrice: sellM.v,
+                  priceDifference: priceDiff,
+                  percentageDifference: percentDiff,
+                  profitMargin: profitMargin,
+                  volume: minVolume,
+                  buyMarket: buyM.n,
+                  sellMarket: sellM.n,
+                  timestamp: Date.now(),
+                  status: profitMargin > 0 ? 'PROFITABLE' : 'MARGINAL'
+                });
+              }
+            }
+          }
         }
       }
-      return { ...group, arb };
-    });
 
-    const responseData = {
-      s: matrix.filter(f => f.arb).map(f => ({
-        n: f.name,
-        d: f.arb.net,
-        rd: f.arb.raw,
-        m1: f.arb.buy,
-        m2: f.arb.sell,
-        sc: f.arb.score
-      })).sort((a, b) => b.d - a.d),
-      f: matrix.sort((a, b) => b.totalVol - a.totalVol).slice(0, 60),
-      t: Date.now() - startTime,
-      ts: new Date().toISOString()
+      // Sort by profit margin
+      return opportunities.sort((a, b) => b.profitMargin - a.profitMargin);
     };
 
-    return new Response(JSON.stringify(responseData), {
+    const opportunities = detectArbitrages(allMarkets, ARBITRAGE_PAIRS);
+
+    // 5. Response Formatting
+    const response = {
+      timestamp: new Date().toISOString(),
+      executionTime: Date.now() - startTime,
+      totalMarkets: allMarkets.length,
+      arbitragePairs: ARBITRAGE_PAIRS.length,
+      opportunitiesFound: opportunities.length,
+      profitableOpportunities: opportunities.filter(o => o.status === 'PROFITABLE').length,
+      opportunities: opportunities.slice(0, 50), // Top 50
+      markets: allMarkets.slice(0, 100), // Top 100 markets
+      status: 'SUCCESS'
+    };
+
+    return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
-  },
+  }
 };

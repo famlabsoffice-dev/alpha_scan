@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMILYLABORATORIES | ALPHA SCAN</title>
+    <title>FAMILYLABORATORIES | ALPHA SCAN v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -142,6 +142,24 @@
             font-weight: 600;
             margin-top: 2px;
         }
+
+        .arb-opportunity {
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, var(--bg-surface) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-left: 4px solid var(--success);
+        }
+
+        .chain-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 7px;
+            font-weight: 900;
+            border-radius: 3px;
+            text-transform: uppercase;
+            background: rgba(197, 160, 89, 0.1);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -151,13 +169,13 @@
         <div class="max-w-md w-full p-10 text-center flex flex-col items-center">
             <div class="mb-12">
                 <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] block mb-3 uppercase">FamilyLaboratories</span>
-                <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span></h1>
+                <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-primary">v2.0</span></h1>
             </div>
             <div class="w-full space-y-6">
                 <input type="password" id="pass-input" placeholder="ACCESS KEY" class="w-full bg-[#0a0a0a] border border-[#222] rounded-lg p-5 text-center text-white text-lg tracking-[0.6em] focus:border-[#c5a059] outline-none transition-all">
                 <button onclick="checkAuth()" class="w-full py-5 btn-gold rounded-lg text-[11px]">Initialize Terminal</button>
             </div>
-            <p class="mt-12 text-[9px] text-slate-600 font-bold tracking-[0.3em] uppercase italic">C•J•V•K | Restricted Node Access</p>
+            <p class="mt-12 text-[9px] text-slate-600 font-bold tracking-[0.3em] uppercase italic">C•J•V•K | Cross-DEX Arbitrage Engine</p>
         </div>
     </div>
 
@@ -165,8 +183,9 @@
     <div id="main-content" style="display: none;">
         <div class="ticker-wrap">
             <div class="ticker" id="ticker-content">
-                <span class="ticker-item">FamLabs Alpha Scan Online</span>
-                <span class="ticker-item">Oracle Matching Engine Active</span>
+                <span class="ticker-item">FamLabs Alpha Scan v2.0 Online</span>
+                <span class="ticker-item">Cross-DEX Arbitrage Engine Active</span>
+                <span class="ticker-item">Monaco/Hxro Primary Focus - SPL Outcome Tokens</span>
                 <span class="ticker-item">Security Protocol TGMFAM2026 Engaged</span>
             </div>
         </div>
@@ -176,13 +195,13 @@
                 <div class="flex items-center gap-10">
                     <div class="flex flex-col">
                         <span class="text-[10px] font-bold tracking-[0.6em] text-primary uppercase mb-1">FamilyLaboratories</span>
-                        <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span></h1>
+                        <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-primary">v2.0</span></h1>
                     </div>
                     <div class="h-12 w-px bg-slate-800 hidden lg:block"></div>
                     <nav class="hidden sm:flex gap-8 text-[11px] font-bold tracking-widest uppercase text-slate-500">
                         <span class="text-white border-b-2 border-primary pb-1 cursor-pointer">Terminal</span>
-                        <span class="hover:text-white cursor-pointer transition-all">Intelligence</span>
-                        <span class="hover:text-white cursor-pointer transition-all">Network</span>
+                        <span class="hover:text-white cursor-pointer transition-all">Cross-DEX</span>
+                        <span class="hover:text-white cursor-pointer transition-all">Arbitrage</span>
                     </nav>
                 </div>
                 <div class="flex items-center gap-6">
@@ -205,24 +224,24 @@
             <main class="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 <div class="lg:col-span-4 flex flex-col gap-6">
                     <div class="flex items-center justify-between px-1">
-                        <h2 id="t-signals" class="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Alpha Arbitrage Signals</h2>
-                        <span class="text-[9px] font-bold text-danger border border-danger/30 px-2 py-0.5 rounded uppercase">Live Matches</span>
+                        <h2 id="t-signals" class="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Cross-DEX Opportunities</h2>
+                        <span id="opp-count" class="text-[9px] font-bold text-success border border-success/30 px-2 py-0.5 rounded uppercase">0 Found</span>
                     </div>
                     <div id="signals" class="space-y-6">
                         <div id="t-waiting-signals" class="corporate-card p-16 text-center text-slate-600 text-[10px] uppercase tracking-widest border-dashed border-2">
-                            Awaiting High-Priority Scan...
+                            Awaiting Arbitrage Scan...
                         </div>
                     </div>
                 </div>
 
                 <div class="lg:col-span-8 flex flex-col gap-6">
                     <div class="flex items-center justify-between px-1">
-                        <h2 id="t-feed" class="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Global Market Matrix</h2>
-                        <span id="t-markets-count" class="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Nodes: 0</span>
+                        <h2 id="t-feed" class="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Market Data Feed</h2>
+                        <span id="t-markets-count" class="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Markets: 0</span>
                     </div>
                     <div id="terminal" class="grid grid-cols-1 md:grid-cols-2 gap-6 content-start">
                         <div id="t-waiting-feed" class="col-span-full corporate-card p-32 text-center text-slate-600 text-[10px] uppercase tracking-[0.6em] font-light">
-                            Connecting to Global Liquidity Network...
+                            Connecting to DEX Network...
                         </div>
                     </div>
                 </div>
@@ -231,11 +250,11 @@
             <footer class="border-t border-slate-800 pt-10 flex flex-col md:flex-row justify-between items-center gap-10">
                 <div class="w-full md:w-1/3 flex flex-col gap-4">
                     <button onclick="executeScan()" id="scanBtn" class="w-full py-6 btn-gold rounded-xl text-sm shadow-2xl">
-                        <span id="t-btn">Execute Scan</span>
+                        <span id="t-btn">Execute Cross-DEX Scan</span>
                     </button>
                 </div>
                 <div class="text-center md:text-right">
-                    <div class="text-primary text-[12px] font-black tracking-[0.5em] uppercase italic mb-2">Born in four, build for billions!</div>
+                    <div class="text-primary text-[12px] font-black tracking-[0.5em] uppercase italic mb-2">Monaco/Hxro Primary Focus | SPL Outcome Tokens</div>
                     <div class="flex items-center justify-center md:justify-end gap-4">
                         <span class="text-[10px] text-slate-600 font-bold tracking-widest uppercase">C•J•V•K | Private Access</span>
                         <span class="text-[10px] text-slate-700 uppercase tracking-widest">&copy; 2026 FamilyLaboratories</span>
@@ -247,10 +266,62 @@
 
     <script>
         const i18n = {
-            de: { signals: "Alpha Arbitrage Signale", feed: "Globale Markt-Matrix", btn: "Scan Ausführen", waiting_signals: "Initialisiere Scan...", waiting_feed: "Verbindung zum Netzwerk...", buy: "KAUFEN (YES)", sell: "VERKAUFEN (NO)", diff: "PROFIT", score: "SCORE", nodes: "Knoten", arb_detected: "ARB ERKANNT" },
-            en: { signals: "Alpha Arbitrage Signals", feed: "Global Market Matrix", btn: "Execute Scan", waiting_signals: "Initializing Scan...", waiting_feed: "Connecting to Network...", buy: "BUY (YES)", sell: "SELL (NO)", diff: "PROFIT", score: "SCORE", nodes: "Nodes", arb_detected: "ARB DETECTED" },
-            pt: { signals: "Sinais de Arbitragem Alpha", feed: "Matriz de Mercado Global", btn: "Executar Scan", waiting_signals: "Inicializando Scan...", waiting_feed: "Conectando à Rede...", buy: "COMPRAR (YES)", sell: "VENDER (NO)", diff: "LUCRO", score: "PONTOS", nodes: "Nós", arb_detected: "ARB DETECTADO" },
-            zh: { signals: "Alpha 套利信号", feed: "全球市场矩阵", btn: "执行扫描", waiting_signals: "正在初始化扫描...", waiting_feed: "正在连接网络...", buy: "买入 (YES)", sell: "卖出 (NO)", diff: "利润", score: "得分", nodes: "节点", arb_detected: "发现套利" }
+            de: { 
+                signals: "Cross-DEX Arbitrage Chancen", 
+                feed: "Markt-Daten Feed", 
+                btn: "Cross-DEX Scan Ausführen", 
+                waiting_signals: "Initialisiere Arbitrage-Scan...", 
+                waiting_feed: "Verbindung zum DEX-Netzwerk...", 
+                buy: "KAUFEN", 
+                sell: "VERKAUFEN", 
+                profit: "GEWINN", 
+                spread: "SPREAD",
+                chain: "CHAIN",
+                volume: "VOLUMEN",
+                nodes: "Märkte"
+            },
+            en: { 
+                signals: "Cross-DEX Arbitrage Opportunities", 
+                feed: "Market Data Feed", 
+                btn: "Execute Cross-DEX Scan", 
+                waiting_signals: "Initializing Arbitrage Scan...", 
+                waiting_feed: "Connecting to DEX Network...", 
+                buy: "BUY", 
+                sell: "SELL", 
+                profit: "PROFIT", 
+                spread: "SPREAD",
+                chain: "CHAIN",
+                volume: "VOLUME",
+                nodes: "Markets"
+            },
+            pt: { 
+                signals: "Oportunidades de Arbitragem Cross-DEX", 
+                feed: "Feed de Dados de Mercado", 
+                btn: "Executar Scan Cross-DEX", 
+                waiting_signals: "Inicializando Scan de Arbitragem...", 
+                waiting_feed: "Conectando à Rede DEX...", 
+                buy: "COMPRAR", 
+                sell: "VENDER", 
+                profit: "LUCRO", 
+                spread: "SPREAD",
+                chain: "CADEIA",
+                volume: "VOLUME",
+                nodes: "Mercados"
+            },
+            zh: { 
+                signals: "跨DEX套利机会", 
+                feed: "市场数据源", 
+                btn: "执行跨DEX扫描", 
+                waiting_signals: "正在初始化套利扫描...", 
+                waiting_feed: "正在连接DEX网络...", 
+                buy: "买入", 
+                sell: "卖出", 
+                profit: "利润", 
+                spread: "点差",
+                chain: "链",
+                volume: "交易量",
+                nodes: "市场"
+            }
         };
 
         let currentLang = 'de';
@@ -292,9 +363,10 @@
             const signals = document.getElementById('signals');
             const btn = document.getElementById('scanBtn');
             const count = document.getElementById('t-markets-count');
+            const oppCount = document.getElementById('opp-count');
             
-            term.innerHTML = `<div class="col-span-full py-32 text-center text-slate-700 animate-pulse text-[10px] uppercase tracking-[0.5em]">Synchronizing Market Data...</div>`;
-            signals.innerHTML = `<div class="py-16 text-center text-slate-700 animate-pulse text-[10px] uppercase tracking-[0.3em]">Analyzing Spreads...</div>`;
+            term.innerHTML = `<div class="col-span-full py-32 text-center text-slate-700 animate-pulse text-[10px] uppercase tracking-[0.5em]">Scanning Cross-DEX Markets...</div>`;
+            signals.innerHTML = `<div class="py-16 text-center text-slate-700 animate-pulse text-[10px] uppercase tracking-[0.3em]">Analyzing Arbitrage Spreads...</div>`;
             btn.disabled = true;
 
             try {
@@ -308,103 +380,75 @@
                     return;
                 }
 
-                count.innerText = i18n[currentLang].nodes + ': ' + data.f.length;
+                count.innerText = i18n[currentLang].nodes + ': ' + data.totalMarkets;
+                oppCount.innerText = data.opportunitiesFound + ' Found';
 
-                if (data.s && data.s.length > 0) {
-                    signals.innerHTML = data.s.map(s => `
-                        <div class="corporate-card alpha-signal-card p-6 shadow-2xl">
+                // Display Arbitrage Opportunities
+                if (data.opportunities && data.opportunities.length > 0) {
+                    signals.innerHTML = data.opportunities.map((opp, idx) => `
+                        <div class="corporate-card arb-opportunity p-6 shadow-2xl">
                             <div class="flex justify-between items-start mb-6">
                                 <div class="flex flex-col">
-                                    <span class="text-[9px] font-black text-danger uppercase tracking-widest mb-1">${i18n[currentLang].diff}</span>
-                                    <span class="text-3xl font-black text-danger mono">${s.d}%</span>
+                                    <span class="text-[9px] font-black text-success uppercase tracking-widest mb-1">${i18n[currentLang].profit}</span>
+                                    <span class="text-3xl font-black text-success mono">${opp.profitMargin.toFixed(2)}%</span>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-[8px] text-slate-500 font-black uppercase tracking-widest mb-1">${i18n[currentLang].score}</span>
-                                    <div class="text-sm font-black mono text-primary">${s.sc}%</div>
+                                    <span class="text-[8px] text-slate-500 font-black uppercase tracking-widest mb-1">${i18n[currentLang].spread}</span>
+                                    <div class="text-sm font-black mono text-primary">${opp.percentageDifference.toFixed(2)}%</div>
                                 </div>
                             </div>
-                            <h3 class="text-sm font-bold text-white leading-snug mb-6 border-b border-slate-800 pb-4">${s.n}</h3>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div onclick="window.open('${s.m1.u}', '_blank')" class="trade-btn buy">
-                                    <span class="text-[7px] font-black text-success uppercase mb-1">${s.m1.p}</span>
-                                    <span class="text-[10px] font-black text-white uppercase mb-1">${i18n[currentLang].buy}</span>
-                                    <span class="text-lg font-black mono text-success">${s.m1.v.toFixed(1)}%</span>
-                                    <span class="contract-price">$${(s.m1.v/100).toFixed(2)}</span>
+                            <h3 class="text-sm font-bold text-white leading-snug mb-4 border-b border-slate-800 pb-4">${opp.buyDex} ↔ ${opp.sellDex}</h3>
+                            <div class="grid grid-cols-2 gap-2 mb-4">
+                                <div class="text-xs">
+                                    <span class="chain-badge">${opp.chain}</span>
+                                    <div class="text-[9px] text-slate-400 mt-2">Token: ${opp.token}</div>
                                 </div>
-                                <div onclick="window.open('${s.m2.u}', '_blank')" class="trade-btn sell">
-                                    <span class="text-[7px] font-black text-danger uppercase mb-1">${s.m2.p}</span>
-                                    <span class="text-[10px] font-black text-white uppercase mb-1">${i18n[currentLang].sell}</span>
-                                    <span class="text-lg font-black mono text-danger">${(100 - s.m2.v).toFixed(1)}%</span>
-                                    <span class="contract-price">$${((100-s.m2.v)/100).toFixed(2)}</span>
+                                <div class="text-right">
+                                    <div class="text-[9px] text-slate-400">${i18n[currentLang].volume}</div>
+                                    <div class="text-sm font-bold text-primary">$${opp.volume.toFixed(0)}</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="trade-btn buy">
+                                    <span class="text-[7px] font-black text-success uppercase mb-1">${i18n[currentLang].buy}</span>
+                                    <span class="text-[10px] font-black text-white uppercase mb-1">${opp.buyDex}</span>
+                                    <span class="text-lg font-black mono text-success">$${opp.buyPrice.toFixed(4)}</span>
+                                </div>
+                                <div class="trade-btn sell">
+                                    <span class="text-[7px] font-black text-danger uppercase mb-1">${i18n[currentLang].sell}</span>
+                                    <span class="text-[10px] font-black text-white uppercase mb-1">${opp.sellDex}</span>
+                                    <span class="text-lg font-black mono text-danger">$${opp.sellPrice.toFixed(4)}</span>
                                 </div>
                             </div>
                         </div>
                     `).join('');
                 } else {
-                    signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-slate-900">No arbitrage signals detected.</div>`;
+                    signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-slate-900">No arbitrage opportunities detected.</div>`;
                 }
 
-                if (data.f && data.f.length > 0) {
-                    term.innerHTML = data.f.map(group => {
-                        const hasArb = group.arb !== null;
-                        return `
-                            <div class="corporate-card p-6 flex flex-col gap-6 ${hasArb ? 'border-primary/30 bg-primary/5' : ''}">
-                                <div class="flex justify-between items-start gap-4">
-                                    <h3 class="text-xs font-bold text-white leading-relaxed flex-grow">${group.name}</h3>
-                                    ${hasArb ? `<span class="text-[8px] font-black bg-primary text-black px-2 py-1 rounded uppercase animate-pulse">${i18n[currentLang].arb_detected}</span>` : ''}
+                // Display Market Data
+                if (data.markets && data.markets.length > 0) {
+                    term.innerHTML = data.markets.slice(0, 20).map(market => `
+                        <div class="corporate-card p-6">
+                            <div class="flex justify-between items-start gap-4 mb-4">
+                                <div>
+                                    <h3 class="text-xs font-bold text-white leading-relaxed">${market.n}</h3>
+                                    <span class="chain-badge mt-2">${market.p}</span>
                                 </div>
-                                <div class="space-y-2">
-                                    ${group.markets.map(m => {
-                                        const isBuy = hasArb && group.arb.buy.u === m.u;
-                                        const isSell = hasArb && group.arb.sell.u === m.u;
-                                        return `
-                                            <div class="p-3 bg-black/30 rounded-lg border ${isBuy ? 'border-success/30' : isSell ? 'border-danger/30' : 'border-transparent'} transition-all">
-                                                <div class="flex justify-between items-center mb-3">
-                                                    <div class="flex items-center gap-3">
-                                                        <span class="text-[8px] font-black px-2 py-0.5 rounded border border-slate-700 text-slate-500 uppercase">${m.p}</span>
-                                                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Pool</span>
-                                                    </div>
-                                                    <div class="flex items-center gap-4">
-                                                        <div class="flex flex-col items-end">
-                                                            <span class="text-[7px] text-slate-600 font-black uppercase">YES</span>
-                                                            <span class="text-xs font-black mono ${isBuy ? 'text-success' : 'text-white'}">${m.v.toFixed(1)}%</span>
-                                                            <span class="contract-price">$${(m.v/100).toFixed(2)}</span>
-                                                        </div>
-                                                        <div class="flex flex-col items-end">
-                                                            <span class="text-[7px] text-slate-600 font-black uppercase">NO</span>
-                                                            <span class="text-xs font-black mono ${isSell ? 'text-danger' : 'text-white'}">${(100 - m.v).toFixed(1)}%</span>
-                                                            <span class="contract-price">$${((100-m.v)/100).toFixed(2)}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="grid grid-cols-2 gap-2">
-                                                    <button onclick="window.open('${m.u}', '_blank')" class="matrix-row-btn buy">BUY YES ($${(m.v/100).toFixed(2)})</button>
-                                                    <button onclick="window.open('${m.u}', '_blank')" class="matrix-row-btn sell">SELL NO ($${((100-m.v)/100).toFixed(2)})</button>
-                                                </div>
-                                            </div>
-                                        `;
-                                    }).join('')}
+                                <div class="text-right">
+                                    <div class="text-[8px] text-slate-600 font-black uppercase">YES Price</div>
+                                    <div class="text-lg font-black mono text-primary">$${(market.v/100).toFixed(2)}</div>
                                 </div>
-                                ${hasArb ? `
-                                    <div class="p-4 bg-primary/10 rounded-xl border border-primary/20 flex items-center justify-between">
-                                        <div class="flex flex-col">
-                                            <span class="text-[8px] text-primary font-black uppercase mb-1">Spread Advantage</span>
-                                            <span class="text-xl font-black text-primary mono">${group.arb.net}%</span>
-                                        </div>
-                                        <div class="flex flex-col items-end">
-                                            <span class="text-[8px] text-slate-500 font-black uppercase mb-1">Execution</span>
-                                            <div class="text-[9px] font-bold text-white uppercase tracking-tighter">
-                                                ${group.arb.buy.p} <span class="text-primary">→</span> ${group.arb.sell.p}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ` : ''}
                             </div>
-                        `;
-                    }).join('');
+                            <div class="text-[9px] text-slate-500">
+                                Volume: $${market.vol.toFixed(0)} | Fee: ${(market.fee*100).toFixed(2)}%
+                            </div>
+                        </div>
+                    `).join('');
                 }
             } catch (err) {
                 console.error(err);
+                signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-danger/30">Error connecting to scanner.</div>`;
             } finally {
                 btn.disabled = false;
             }
