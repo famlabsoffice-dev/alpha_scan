@@ -1,5 +1,5 @@
 /**
- * FamilyLaboratories Alpha Scan v2.9
+ * FamilyLaboratories Alpha Scan v3.0
  * Cloudflare Worker – Global Cross-DEX Arbitrage Engine
  * 
  * 100% LIVE DATA ONLY – PRECISE ROI CALCULATIONS
@@ -35,7 +35,7 @@ async function safeFetch(url, timeout = 6000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
   try {
-    const res = await fetch(url, { signal: controller.signal, headers: { 'User-Agent': 'FamLabs-AlphaScan/2.9' } });
+    const res = await fetch(url, { signal: controller.signal, headers: { 'User-Agent': 'FamLabs-AlphaScan/3.0' } });
     clearTimeout(id);
     if (!res.ok) return null;
     return await res.json();
@@ -126,6 +126,7 @@ export default {
           title: m.question || '',
           yes_price: yP,
           no_price: nP,
+          // 5/10/25 tiers kept for Opportunity Cards
           yes_roi_5: calcProfit(yP, 1.0, 5, 0.002).roi,
           yes_roi_10: calcProfit(yP, 1.0, 10, 0.002).roi,
           yes_roi_25: calcProfit(yP, 1.0, 25, 0.002).roi,
@@ -225,11 +226,48 @@ export default {
       });
     }
 
+    // ── Arbitrage Detection (Legacy support for Signals) ───────────────────────
+    const opportunities = [];
+    allMarkets.forEach(m => {
+      const sum = m.yes_price + m.no_price;
+      if (sum < 0.990 && sum > 0.01) {
+        const spread = 1 - sum;
+        const pctSpread = (spread / sum) * 100;
+        const totalFees = (m.fee * 2) * 100;
+        if (pctSpread > totalFees + 0.1) {
+          const p5  = calcProfit(m.yes_price, 1.0, 5, m.fee);
+          const p10 = calcProfit(m.yes_price, 1.0, 10, m.fee);
+          const p25 = calcProfit(m.yes_price, 1.0, 25, m.fee);
+          opportunities.push({
+            pairId: `spread-${m.source}-${m.id}`,
+            title: m.title,
+            buyDex: `${m.source} YES`,
+            sellDex: `${m.source} NO`,
+            chain: m.chain,
+            token: m.token,
+            buyPrice: m.yes_price * 100,
+            sellPrice: (1 - m.no_price) * 100,
+            priceDifference: spread * 100,
+            percentageDifference: pctSpread,
+            profitMargin: pctSpread - totalFees,
+            profit5: p5.net, profit10: p10.net, profit25: p25.net,
+            roi5: p5.roi, roi10: p10.roi, roi25: p25.roi,
+            volume: m.volume,
+            category: m.category,
+            source: m.source,
+            status: 'PROFITABLE',
+          });
+        }
+      }
+    });
+
     const response = {
       timestamp: new Date().toISOString(),
       executionTime: Date.now() - startTime,
-      version: "2.9",
+      version: "3.0",
       totalMarkets: allMarkets.length,
+      opportunitiesFound: opportunities.length,
+      opportunities: opportunities.sort((a, b) => b.profitMargin - a.profitMargin).slice(0, 50),
       markets: allMarkets.slice(0, 100),
       crypto: crypto,
       volatilityIndex: volatilityIndex,
