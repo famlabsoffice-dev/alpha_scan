@@ -17,28 +17,38 @@ export default {
 
     const startTime = Date.now();
     const currentYear = 2026;
-    
-    // Multi-Source Data Ingestion (Increased Limits)
+    const AUTH_PASS = "TGMFAM2026";
+
+    // 1. Simple Auth Check (via Header or Query)
+    const url = new URL(request.url);
+    const providedPass = request.headers.get('X-FamLabs-Auth') || url.searchParams.get('auth');
+
+    if (providedPass !== AUTH_PASS) {
+      return new Response(JSON.stringify({ error: "UNAUTHORIZED_ACCESS", msg: "FamLabs Terminal Restricted. Authentication Required." }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 2. Data Ingestion (Enhanced Limits)
     const [polyRes, manifoldRes, kalshiRes] = await Promise.allSettled([
-      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=100&order=volume&dir=desc'),
-      fetch('https://api.manifold.markets/v0/markets?limit=100&sort=updated-time'),
+      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=150&order=volume&dir=desc'),
+      fetch('https://api.manifold.markets/v0/markets?limit=150&sort=updated-time'),
       fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=100&status=open')
     ]);
 
     let allMarkets = [];
 
-    // Filter Logic: Nur Märkte, die nicht vor 2026 geschlossen wurden
     const isMarketCurrent = (title, closedDate) => {
       if (closedDate) {
         const year = new Date(closedDate).getFullYear();
         if (year < currentYear) return false;
       }
-      // Zusätzlicher Check: Titel darf keine Jahre vor 2026 enthalten
       const oldYearMatch = title.match(/\b(202[0-5]|201[0-9])\b/);
       return !oldYearMatch;
     };
 
-    // Polymarket
+    // Polymarket Data
     if (polyRes.status === 'fulfilled') {
       try {
         const data = await polyRes.value.json();
@@ -58,7 +68,7 @@ export default {
       } catch (e) {}
     }
 
-    // Manifold
+    // Manifold Data
     if (manifoldRes.status === 'fulfilled') {
       try {
         const data = await manifoldRes.value.json();
@@ -77,7 +87,7 @@ export default {
       } catch (e) {}
     }
 
-    // Kalshi
+    // Kalshi Data
     if (kalshiRes.status === 'fulfilled') {
       try {
         const data = await kalshiRes.value.json();
@@ -98,12 +108,12 @@ export default {
       } catch (e) {}
     }
 
-    // --- ORACLE MATCHING ENGINE v4.4 ---
+    // --- HYPER-SENSITIVE MATCHING ENGINE v4.5 ---
     const semanticNormalize = (s) => {
       return s.toLowerCase()
-        .replace(/will|is|the|be|over|under|above|below|at|in|on|by/g, '')
+        .replace(/will|is|the|be|over|under|above|below|at|in|on|by|who|which|how|many|a|an|of|for|to/g, '')
         .replace(/[^a-z0-9]/g, '')
-        .substring(0, 40);
+        .substring(0, 30); // Focus on first 30 core characters for better matching
     };
 
     const grouped = {};
@@ -135,7 +145,7 @@ export default {
             net: netDiff.toFixed(1),
             buy: min,
             sell: max,
-            score: Math.min(100, (netDiff * 12 + Math.log10(group.totalVol + 1) * 4)).toFixed(1)
+            score: Math.min(100, (netDiff * 15 + Math.log10(group.totalVol + 1) * 5)).toFixed(1)
           };
         }
       }
@@ -151,7 +161,7 @@ export default {
         m2: f.arb.sell,
         sc: f.arb.score
       })).sort((a, b) => b.d - a.d),
-      f: matrix.sort((a, b) => b.totalVol - a.totalVol).slice(0, 50),
+      f: matrix.sort((a, b) => b.totalVol - a.totalVol).slice(0, 60),
       t: Date.now() - startTime,
       ts: new Date().toISOString()
     };

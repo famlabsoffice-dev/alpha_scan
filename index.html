@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMLABS | ALPHA SCAN</title>
+    <title>FAMILYLABORATORIES | ALPHA SCAN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -23,6 +23,7 @@
             font-family: 'Inter', sans-serif;
             letter-spacing: -0.01em;
             word-wrap: break-word;
+            overflow-x: hidden;
         }
         .mono { font-family: 'JetBrains+Mono', monospace; }
         .terminal-scroll::-webkit-scrollbar { width: 3px; }
@@ -42,7 +43,6 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
         
-        /* High-Priority Alpha Signal Card */
         .alpha-signal-card {
             background: linear-gradient(180deg, rgba(197, 160, 89, 0.08) 0%, rgba(13, 17, 23, 1) 100%);
             border: 1px solid rgba(197, 160, 89, 0.4);
@@ -88,18 +88,6 @@
         .mani { color: #0ea5e9; border-color: rgba(14, 165, 233, 0.3); }
         .kalshi { color: #f43f5e; border-color: rgba(244, 63, 94, 0.3); }
 
-        .nav-link {
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            transition: color 0.2s;
-        }
-        .nav-link:hover { color: var(--primary); }
-        .nav-link.active { color: var(--primary); border-bottom: 1px solid var(--primary); }
-
-        /* Adaptive Price Grid */
         .price-grid {
             display: grid;
             grid-template-columns: 1fr auto auto;
@@ -120,12 +108,73 @@
             .price-grid > div:first-child { grid-column: span 2; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
         }
 
-        @keyframes subtle-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-        .glow { animation: subtle-glow 3s infinite; }
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-deep);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            background: rgba(197, 160, 89, 0.05);
+            border-bottom: 1px solid rgba(197, 160, 89, 0.1);
+            padding: 6px 0;
+        }
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            padding-right: 100%;
+            animation: ticker 30s linear infinite;
+        }
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+        .ticker-item {
+            display: inline-block;
+            padding: 0 30px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
     </style>
 </head>
-<body class="p-3 md:p-8 min-h-screen flex flex-col">
-    <div class="max-w-[1600px] mx-auto w-full flex-grow flex flex-col gap-6 md:gap-10">
+<body class="min-h-screen flex flex-col opacity-0 transition-opacity duration-1000" id="main-body">
+
+    <!-- Login Overlay -->
+    <div id="login-overlay">
+        <div class="max-w-md w-full p-10 flex flex-col items-center gap-8">
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] font-bold tracking-[0.5em] text-primary mb-2 uppercase">FamilyLaboratories</span>
+                <h1 class="text-3xl font-light tracking-[-0.05em] text-white">ALPHA <span class="font-black">SCAN</span></h1>
+            </div>
+            <div class="w-full space-y-4">
+                <input type="password" id="pass-input" placeholder="ACCESS KEY REQUIRED" class="w-full bg-slate-900 border border-border rounded p-4 text-center text-xs tracking-[0.5em] focus:border-primary outline-none transition-all">
+                <button onclick="checkAuth()" class="w-full py-4 btn-gold rounded uppercase text-[10px] tracking-[0.4em]">Initialize Terminal</button>
+            </div>
+            <div class="text-[8px] text-slate-600 font-bold tracking-widest uppercase italic">C•J•V•K | Restricted Node</div>
+        </div>
+    </div>
+
+    <!-- Ticker System -->
+    <div class="ticker-wrap">
+        <div class="ticker" id="ticker-content">
+            <span class="ticker-item">FamLabs Alpha Scan Online</span>
+            <span class="ticker-item">Oracle Matching Engine Active</span>
+            <span class="ticker-item">Syncing Global Liquidity...</span>
+            <span class="ticker-item">Security Protocol TGMFAM2026 Engaged</span>
+        </div>
+    </div>
+
+    <div class="max-w-[1600px] mx-auto w-full flex-grow flex flex-col gap-6 md:gap-10 p-3 md:p-8">
         
         <!-- Corporate Header -->
         <header class="flex flex-col md:flex-row justify-between items-center gap-6 pb-6 md:pb-8 border-b border-border/50">
@@ -151,7 +200,7 @@
                     <div class="flex flex-col">
                         <span class="text-[8px] font-black text-slate-500 tracking-widest uppercase mb-1">Status</span>
                         <span class="text-xs font-bold flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 bg-success rounded-full glow"></span>
+                            <span class="w-1.5 h-1.5 bg-success rounded-full animate-pulse"></span>
                             <span class="uppercase text-[9px] tracking-widest">Active</span>
                         </span>
                     </div>
@@ -168,7 +217,7 @@
         <!-- Main Workspace -->
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10 flex-grow">
             
-            <!-- Alpha Signals Panel (High Focus) -->
+            <!-- Alpha Signals Panel -->
             <section class="lg:col-span-4 flex flex-col gap-4">
                 <div class="flex items-center justify-between px-1">
                     <h2 id="t-signals" class="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Alpha Arbitrage Signals</h2>
@@ -204,7 +253,7 @@
                 <div class="flex justify-between px-2">
                     <div class="flex flex-col">
                         <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Liquidity Pool</span>
-                        <span class="text-sm font-bold mono">$184.2M</span>
+                        <span class="text-sm font-bold mono">$214.8M</span>
                     </div>
                     <div class="flex flex-col text-right">
                         <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Matched Pairs</span>
@@ -301,12 +350,27 @@
         };
 
         let currentLang = 'de';
+        let authToken = localStorage.getItem('famlabs_auth') || '';
+
+        function checkAuth() {
+            const pass = document.getElementById('pass-input').value;
+            if (pass === 'TGMFAM2026') {
+                authToken = pass;
+                localStorage.setItem('famlabs_auth', pass);
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-body').style.opacity = '1';
+            } else {
+                alert('ACCESS DENIED: INVALID KEY');
+            }
+        }
+
+        if (authToken === 'TGMFAM2026') {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('main-body').style.opacity = '1';
+        }
 
         function setLang(lang) {
             currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('bg-slate-800', 'text-white'));
-            document.getElementById('btn-' + lang).classList.add('bg-slate-800', 'text-white');
-            
             document.getElementById('t-signals').innerText = i18n[lang].signals;
             document.getElementById('t-feed').innerText = i18n[lang].feed;
             document.getElementById('t-waiting-signals').innerText = i18n[lang].waiting_signals;
@@ -321,19 +385,32 @@
             const lat = document.getElementById('latency');
             const count = document.getElementById('t-markets-count');
             
-            term.innerHTML = `<div class="col-span-full py-24 text-center text-slate-600 animate-pulse text-[10px] uppercase tracking-[0.5em]">Synchronizing Matrix...</div>`;
+            term.innerHTML = `<div class="col-span-full py-24 text-center text-slate-600 animate-pulse text-[10px] uppercase tracking-[0.5em]">Syncing Global Matrix...</div>`;
             signals.innerHTML = `<div class="py-12 text-center text-slate-600 animate-pulse text-[10px] uppercase tracking-[0.3em]">Analyzing Spreads...</div>`;
             btn.disabled = true;
 
             try {
-                const response = await fetch('https://alphascan.famlabsoffice.workers.dev/');
+                const response = await fetch(`https://alphascan.famlabsoffice.workers.dev/?auth=${authToken}`);
                 const data = await response.json();
                 
+                if (data.error) {
+                    alert(data.msg);
+                    localStorage.removeItem('famlabs_auth');
+                    location.reload();
+                    return;
+                }
+
                 lat.innerText = data.t + ' ms';
                 count.innerText = 'Nodes Online: ' + data.f.length;
                 document.getElementById('arb-count').innerText = data.s.length;
 
-                // Render Priority Alpha Signals (High Focus)
+                // Ticker Update
+                if (data.s.length > 0) {
+                    const ticker = document.getElementById('ticker-content');
+                    ticker.innerHTML = data.s.map(s => `<span class="ticker-item">NEW ARBITRAGE DETECTED: ${s.n.substring(0, 30)}... (+${s.d}%)</span>`).join('') + ticker.innerHTML;
+                }
+
+                // Render Alpha Signals
                 if (data.s && data.s.length > 0) {
                     signals.innerHTML = data.s.map(s => {
                         const netDiff = parseFloat(s.d);
@@ -351,7 +428,6 @@
                                     </div>
                                 </div>
                                 <h3 class="text-sm md:text-base font-black text-white leading-snug mb-6 border-b border-border/50 pb-4">${s.n}</h3>
-                                
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                                     <div onclick="window.open('${s.m1.u}', '_blank')" class="bg-black/40 p-4 rounded-xl border border-border hover:border-success cursor-pointer transition-all">
                                         <div class="text-[8px] text-slate-500 uppercase font-black mb-1">${i18n[currentLang].buy} ${s.m1.p}</div>
@@ -362,7 +438,6 @@
                                         <div class="text-lg font-black mono text-danger">${s.m2.v.toFixed(1)}%</div>
                                     </div>
                                 </div>
-
                                 <div class="grid grid-cols-3 gap-3">
                                     <div class="bg-slate-900/80 rounded-xl p-3 text-center border border-border/50">
                                         <div class="text-[7px] text-slate-600 uppercase font-black mb-1">5$ ${i18n[currentLang].profit_est}</div>
@@ -384,7 +459,7 @@
                     signals.innerHTML = `<div class="corporate-card rounded p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-slate-900">${i18n[currentLang].waiting_signals}</div>`;
                 }
 
-                // Render Global Matrix (Main Feed)
+                // Render Global Matrix
                 if (data.f && data.f.length > 0) {
                     term.innerHTML = data.f.map(group => {
                         const hasArb = group.arb !== null;
@@ -397,13 +472,7 @@
                                         <span class="text-[10px] font-bold mono text-slate-400">$${Math.round(group.totalVol).toLocaleString()}</span>
                                     </div>
                                 </div>
-                                
                                 <div class="space-y-2">
-                                    <div class="grid grid-cols-[1fr_auto_auto] px-3 py-1 text-[7px] font-black text-slate-600 uppercase tracking-widest gap-6">
-                                        <div>${i18n[currentLang].platform}</div>
-                                        <div class="text-right">${i18n[currentLang].price}</div>
-                                        <div class="text-right">${i18n[currentLang].vol}</div>
-                                    </div>
                                     ${group.markets.map(m => `
                                         <div onclick="window.open('${m.u}', '_blank')" class="price-grid cursor-pointer group border border-transparent hover:border-border">
                                             <div class="flex items-center gap-3">
@@ -415,7 +484,6 @@
                                         </div>
                                     `).join('')}
                                 </div>
-
                                 ${hasArb ? `
                                     <div class="mt-2 p-4 bg-primary/10 rounded-xl border border-primary/30 flex flex-col sm:flex-row items-center justify-between gap-4">
                                         <div class="flex items-center gap-6 w-full sm:w-auto">
