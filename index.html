@@ -226,50 +226,175 @@
             }
         });
 
-        // Web3 Wallet Connection
+        // SIWE: Sign-In With Ethereum
+        async function generateSIWEMessage(address, chainId, nonce) {
+            const domain = window.location.host;
+            const origin = window.location.origin;
+            const statement = 'Sign in to AlphaScan - Hyperprecise Prediction Arbitrage Scanner';
+            const issuedAt = new Date().toISOString();
+            const expirationTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+            
+            return `${domain} wants you to sign in with your Ethereum account:\n${address}\n\n${statement}\n\nURI: ${origin}\nVersion: 1\nChain ID: ${chainId}\nNonce: ${nonce}\nIssued At: ${issuedAt}\nExpiration Time: ${expirationTime}`;
+        }
+
+        // Web3 Wallet Connection mit SIWE
         async function connectWallet() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
+                    // 1. Request Accounts
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const address = accounts[0];
+                    
+                    // 2. Get Chain ID
+                    const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
+                    const chainId = parseInt(chainIdHex, 16);
+                    
+                    // 3. Generate Nonce (random)
+                    const nonce = Math.random().toString(36).substring(2, 15);
+                    
+                    // 4. Generate SIWE Message
+                    const message = await generateSIWEMessage(address, chainId, nonce);
+                    
+                    // 5. Request Signature
                     state.provider = new ethers.BrowserProvider(window.ethereum);
                     state.signer = await state.provider.getSigner();
-                    state.wallet = accounts[0];
+                    const signature = await state.signer.signMessage(message);
+                    
+                    // 6. Verify on Backend (if available)
+                    try {
+                        const verifyResponse = await fetch('https://alphascan.famlabsoffice.workers.dev/api/siwe/verify', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ message, signature, address, chainId })
+                        });
+                        
+                        if (verifyResponse.ok) {
+                            const result = await verifyResponse.json();
+                            console.log('SIWE Verification successful:', result);
+                        }
+                    } catch (e) {
+                        console.warn('Backend verification unavailable, using local storage:', e);
+                    }
+                    
+                    // 7. Store locally
+                    state.wallet = address;
+                    state.chainId = chainId;
+                    localStorage.setItem('wallet_address', address);
+                    localStorage.setItem('siwe_message', message);
+                    localStorage.setItem('siwe_signature', signature);
+                    localStorage.setItem('wallet_verified_at', new Date().toISOString());
+                    
                     updateUI();
-                } catch (err) { console.error(err); }
-            } else { alert("Please install a Web3 Wallet!"); }
+                    alert(`✅ Wallet connected: ${address.slice(0, 6)}...${address.slice(-4)}`);
+                } catch (err) { 
+                    console.error('Wallet connection error:', err);
+                    alert('Wallet connection failed: ' + err.message);
+                }
+            } else { alert("❌ Please install MetaMask or another Web3 Wallet!"); }
         }
 
         function updateUI() {
             if (state.wallet) {
                 document.getElementById('walletAddr').innerText = state.wallet.slice(0, 6) + "..." + state.wallet.slice(-4);
                 document.getElementById('walletStatus').classList.remove('hidden');
-                document.getElementById('connectBtn').innerText = state.isPro ? "PRO ACTIVE" : "UPGRADE TO PRO";
+                document.getElementById('connectBtn').innerText = state.isPro ? "✅ PRO ACTIVE" : "🚀 UPGRADE TO PRO";
                 document.getElementById('connectBtn').onclick = state.isPro ? null : () => document.getElementById('paymentModal').classList.remove('hidden');
+                
+                // Show wallet verification status
+                const verifiedAt = localStorage.getItem('wallet_verified_at');
+                if (verifiedAt) {
+                    const verifiedDate = new Date(verifiedAt);
+                    const timeAgo = Math.floor((Date.now() - verifiedDate) / 1000);
+                    const statusText = timeAgo < 3600 ? `Verified ${timeAgo}s ago` : `Verified ${Math.floor(timeAgo/3600)}h ago`;
+                    console.log('Wallet Status:', statusText);
+                }
             }
             if (state.isPro) document.getElementById('proBadge').classList.remove('hidden');
         }
 
         async function processPayment() {
-            if (!state.signer) return;
+            if (!state.signer || !state.wallet) {
+                alert('❌ Please connect your wallet first!');
+                return;
+            }
+            
             document.getElementById('txStatus').classList.remove('hidden');
             try {
+                // Create transaction with SIWE signature
                 const tx = await state.signer.sendTransaction({
                     to: WEB3_CONFIG.RECEIVER_ADDR,
                     value: ethers.parseEther(WEB3_CONFIG.PAYMENT_AMOUNT),
                     type: 2
                 });
-                await tx.wait();
+                
+                const receipt = await tx.wait();
+                
+                // Log payment with SIWE signature
+                const siweSignature = localStorage.getItem('siwe_signature');
+                localStorage.setItem('last_payment_tx', receipt.hash);
+                localStorage.setItem('last_payment_wallet', state.wallet);
+                localStorage.setItem('last_payment_at', new Date().toISOString());
                 localStorage.setItem('pro_status_web3_v2', 'true');
+                
+                // Try to verify on backend
+                try {
+                    await fetch('https://alphascan.famlabsoffice.workers.dev/api/payment/verify-evm', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            txHash: receipt.hash,
+                            walletAddress: state.wallet,
+                            siweSignature: siweSignature,
+                            chainId: state.chainId
+                        })
+                    });
+                } catch (e) {
+                    console.warn('Backend payment verification unavailable:', e);
+                }
+                
                 state.isPro = true;
                 updateUI();
                 document.getElementById('paymentModal').classList.add('hidden');
-                alert("Web3 PRO Status Activated!");
-            } catch (err) { console.error(err); }
+                alert(`✅ Payment successful! TX: ${receipt.hash.slice(0, 10)}...`);
+            } catch (err) { 
+                console.error('Payment error:', err);
+                alert('❌ Payment failed: ' + err.message);
+            }
         }
+        
+        // Load wallet from localStorage on page load
+        window.addEventListener('load', () => {
+            const savedWallet = localStorage.getItem('wallet_address');
+            if (savedWallet) {
+                state.wallet = savedWallet;
+                updateUI();
+                console.log('Wallet restored from localStorage:', savedWallet);
+            }
+        });
 
+        // Disconnect Wallet
+        function disconnectWallet() {
+            localStorage.removeItem('wallet_address');
+            localStorage.removeItem('siwe_message');
+            localStorage.removeItem('siwe_signature');
+            localStorage.removeItem('wallet_verified_at');
+            state.wallet = null;
+            state.provider = null;
+            state.signer = null;
+            state.chainId = null;
+            updateUI();
+            alert('✅ Wallet disconnected');
+        }
+        
         document.getElementById('connectBtn').addEventListener('click', connectWallet);
         document.getElementById('payWeb3Btn').addEventListener('click', processPayment);
         document.getElementById('closePaymentModal').addEventListener('click', () => document.getElementById('paymentModal').classList.add('hidden'));
+        
+        // Add disconnect button listener (if exists)
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        if (disconnectBtn) disconnectBtn.addEventListener('click', disconnectWallet);
 
         const safeFloat = (v, fallback = 0) => { const f = parseFloat(v); return isNaN(f) ? fallback : f; };
         const jaccard = (a, b) => {
