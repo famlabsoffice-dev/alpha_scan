@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMILYLABORATORIES | ALPHA SCAN v2.1</title>
+    <title>FAMILYLABORATORIES | ALPHA SCAN v2.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -232,6 +232,27 @@
         .priority-1 { background: rgba(197,160,89,0.15); color: var(--primary); border: 1px solid rgba(197,160,89,0.4); }
         .priority-2 { background: rgba(16,185,129,0.10); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
         .priority-3 { background: rgba(148,163,184,0.10); color: var(--text-secondary); border: 1px solid rgba(148,163,184,0.2); }
+
+        /* ── Volatility Index (USP) ── */
+        .volatility-index {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .volatility-bar {
+            width: 80px;
+            height: 6px;
+            background: rgba(148,163,184,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid rgba(197,160,89,0.3);
+        }
+        .volatility-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #c5a059 50%, #ef4444 100%);
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -243,7 +264,7 @@
     <div class="max-w-md w-full p-10 text-center flex flex-col items-center">
         <div class="mb-12">
             <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] block mb-3 uppercase">FamilyLaboratories</span>
-            <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.1</span></h1>
+            <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.2</span></h1>
             <p class="text-[9px] text-slate-600 mt-3 tracking-widest uppercase">Cross-DEX Arbitrage Engine</p>
         </div>
         <div class="w-full space-y-6">
@@ -285,7 +306,7 @@
             <div class="flex items-center gap-10">
                 <div class="flex flex-col">
                     <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] uppercase mb-1">FamilyLaboratories</span>
-                    <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.1</span></h1>
+                    <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v2.2</span></h1>
                 </div>
                 <div class="h-12 w-px bg-slate-800 hidden lg:block"></div>
                 <nav class="hidden sm:flex gap-8 text-[11px] font-bold tracking-widest uppercase text-slate-500">
@@ -310,6 +331,14 @@
                         <span class="text-[7px] font-black text-slate-600 uppercase tracking-widest">ETH</span>
                         <span class="text-[11px] font-black mono text-white" id="price-eth">–</span>
                     </div>
+                </div>
+                <!-- Volatility Index (USP) -->
+                <div class="volatility-index">
+                    <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest">Volatility</span>
+                    <div class="volatility-bar">
+                        <div class="volatility-fill" id="volatility-fill" style="width: 0%;"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-[#c5a059] mono" id="volatility-value">0.0</span>
                 </div>
                 <!-- Engine Status -->
                 <div class="flex flex-col items-end">
@@ -699,6 +728,13 @@ async function executeScan() {
             if (solJup) document.getElementById('price-sol-jup').innerText = 'JUP $' + fmt(solJup, 2);
             if (btc)    document.getElementById('price-btc').innerText = '$' + fmt(btc, 0);
             if (eth)    document.getElementById('price-eth').innerText = '$' + fmt(eth, 2);
+        }
+
+        // ── Update Volatility Index (USP) ──
+        if (data.volatilityIndex !== undefined) {
+            const volIdx = data.volatilityIndex;
+            document.getElementById('volatility-value').innerText = volIdx.toFixed(1);
+            document.getElementById('volatility-fill').style.width = Math.min(100, volIdx) + '%';
 
             // Update ticker with live prices
             const tickerEl = document.getElementById('ticker-content');
@@ -707,10 +743,11 @@ async function executeScan() {
                     <span class="ticker-item">SOL: $${fmt(sol,2)}</span>
                     <span class="ticker-item">BTC: $${fmt(btc,0)}</span>
                     ${eth ? `<span class="ticker-item">ETH: $${fmt(eth,2)}</span>` : ''}
-                    <span class="ticker-item">FamLabs Alpha Scan v2.1 Online</span>
+                    <span class="ticker-item">FamLabs Alpha Scan v2.2 Online</span>
                     <span class="ticker-item">Cross-DEX Arbitrage Engine Active</span>
-                    <span class="ticker-item">Monaco / Hxro Solana – Primary Focus</span>
-                    <span class="ticker-item">Polymarket CLOB Integration Live</span>
+                    <span class="ticker-item">Polymarket + Manifold + Raydium + Orca Live</span>
+                    <span class="ticker-item">Kraken + CoinGecko Price Feeds</span>
+                    <span class="ticker-item">100% LIVE DATA ONLY</span>
                     <span class="ticker-item">Profit Calc: 5€ / 10€ / 25€</span>
                     <span class="ticker-item">Exec Time: ${data.executionTime}ms</span>
                 `;
