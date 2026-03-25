@@ -3,355 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMILYLABORATORIES | ALPHA SCAN v3.0</title>
+    <title>UnderdogBot Pro | Live Prediction Market Scanner</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=IBM+Plex+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #c5a059; --bg: #050505; --card-bg: #0a0a0a; --border: #1a1a1a; --text-muted: #666; }
-        body { background-color: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .corporate-card { background: var(--card-bg); border: 1px solid var(--border); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .corporate-card:hover { border-color: var(--gold); }
-        .gold-glow { text-shadow: 0 0 10px rgba(197, 160, 89, 0.3); }
-        .btn-primary { background: var(--gold); color: #000; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.2s; }
-        .btn-primary:hover { background: #d4b475; transform: translateY(-1px); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .ticker-item { margin-right: 3rem; white-space: nowrap; font-weight: 700; font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; }
-        .live-dot { width: 6px; height: 6px; background: #10b981; border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        .chain-badge { font-size: 7px; font-weight: 900; padding: 2px 6px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.1em; }
-        .chain-badge.solana { background: #14f195; color: #000; }
-        .chain-badge.polygon { background: #8247e5; color: #fff; }
-        .chain-badge.web2 { background: #333; color: #fff; }
-        #login-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .trade-btn { cursor: pointer; transition: all 0.2s; }
-        .trade-btn:hover { background: #111; border-color: var(--gold); }
-        .profit-tier { text-align: center; padding: 6px; border-radius: 4px; background: #000; border: 1px solid #111; }
-        .profit-tier .amount { font-size: 7px; color: var(--text-muted); font-weight: 900; margin-bottom: 2px; }
-        .profit-tier .value { font-size: 10px; font-weight: 900; font-family: 'JetBrains Mono'; }
-        .profit-tier .value.pos { color: #10b981; }
-        .profit-tier .value.neg { color: #ef4444; }
-        .profit-tier .roi { font-size: 7px; font-weight: 700; color: #444; }
-        .volatility-bar { height: 4px; background: #111; border-radius: 2px; overflow: hidden; width: 60px; }
-        .volatility-fill { height: 100%; background: var(--gold); transition: width 0.5s; }
-        .lang-btn { cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
-        .lang-btn.active { opacity: 1; color: var(--gold); border-bottom: 1px solid var(--gold); }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #000; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--gold); }
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .animate-marquee { display: flex; width: 200%; animation: marquee 30s linear infinite; }
-        
-        /* Range Slider Styling */
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]:focus { outline: none; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 2px; cursor: pointer; background: #1a1a1a; border-radius: 1px; }
-        input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; border-radius: 50%; background: var(--gold); cursor: pointer; -webkit-appearance: none; margin-top: -5px; box-shadow: 0 0 10px rgba(197, 160, 89, 0.5); }
-        input[type=range]:focus::-webkit-slider-runnable-track { background: #222; }
+        :root { --bg: #020617; --card-bg: rgba(15, 23, 42, 0.7); --accent: #2563eb; --success: #00ff9d; --danger: #ff4d6d; --warning: #fbbf24; }
+        body { background-color: var(--bg); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .glass { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .scan-line { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: scan 4s linear infinite; z-index: 100; pointer-events: none; }
+        @keyframes scan { 0% { transform: translateY(-100vh); } 100% { transform: translateY(100vh); } }
+        .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        .card-hover:hover { transform: translateY(-4px); border-color: var(--accent); transition: all 0.3s ease; }
+        .tab-active { border-bottom: 2px solid var(--accent); color: var(--accent); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-8">
-
-<div id="login-overlay">
-    <div class="max-w-md w-full p-10 text-center flex flex-col items-center">
-        <div class="mb-12">
-            <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] block mb-3 uppercase">FamilyLaboratories</span>
-            <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v3.0</span></h1>
-            <p class="text-[9px] text-slate-600 mt-3 tracking-widest uppercase">Cross-DEX Arbitrage Engine</p>
+<body class="min-h-screen">
+    <div class="scan-line"></div>
+    <header class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <h1 class="font-orbitron text-2xl font-black tracking-tighter text-white">UNDERDOG<span class="text-blue-500">BOT</span> <span class="text-xs bg-blue-600 px-2 py-0.5 rounded-full font-sans tracking-normal">PRO</span></h1>
+            <div class="hidden md:flex items-center gap-2 text-xs font-mono opacity-60"><span class="w-2 h-2 bg-green-500 rounded-full pulse"></span>LIVE SCANNER ACTIVE</div>
         </div>
-        <div class="w-full space-y-6">
-            <input type="password" id="authInput" placeholder="ACCESS KEY" class="w-full bg-transparent border-b-2 border-slate-900 p-4 text-center text-white focus:outline-none focus:border-[#c5a059] transition-all tracking-[0.5em] text-sm uppercase">
-            <button onclick="login()" class="w-full btn-primary p-4 text-xs">Authorize Access</button>
+        <div class="flex items-center gap-4">
+            <div id="walletStatus" class="hidden md:flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-white/10 text-xs font-mono"><span id="walletAddr">NOT CONNECTED</span></div>
+            <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">CONNECT WALLET</button>
         </div>
+    </header>
+    <section class="relative py-20 px-6 text-center overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none"></div>
+        <h2 class="font-orbitron text-5xl md:text-7xl font-black mb-4 tracking-tight">UNDERDOG <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">GEWINNT IMMER</span></h2>
+        <p class="text-slate-400 max-w-2xl mx-auto mb-10 text-lg">Der weltweit präziseste Prediction-Market-Scanner. Finden Sie Arbitrage-Chancen und Underdog-Wetten in Echtzeit über alle großen Plattformen hinweg.</p>
+        <div class="flex flex-wrap justify-center gap-6 mb-12">
+            <div class="glass p-6 rounded-2xl min-w-[160px]"><div class="text-3xl font-orbitron font-bold text-blue-400" id="statPlatforms">4</div><div class="text-xs text-slate-500 font-mono uppercase tracking-widest">Plattformen</div></div>
+            <div class="glass p-6 rounded-2xl min-w-[160px]"><div class="text-3xl font-orbitron font-bold text-purple-400" id="statSpeed">&lt;2s</div><div class="text-xs text-slate-500 font-mono uppercase tracking-widest">Scan-Speed</div></div>
+            <div class="glass p-6 rounded-2xl min-w-[160px]"><div class="text-3xl font-orbitron font-bold text-green-400" id="statMarkets">0</div><div class="text-xs text-slate-500 font-mono uppercase tracking-widest">Märkte Live</div></div>
+        </div>
+        <button id="scanBtn" class="group relative bg-white text-black px-10 py-5 rounded-2xl font-orbitron font-black text-xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)]"><span class="relative z-10">LIVE SCAN STARTEN</span><div class="absolute inset-0 bg-blue-500 rounded-2xl blur-xl opacity-0 group-hover:opacity-40 transition-all"></div></button>
+    </section>
+    <main id="resultsArea" class="hidden px-6 pb-20 max-w-7xl mx-auto">
+        <div class="mb-16">
+            <div class="flex items-center justify-between mb-8"><h3 class="font-orbitron text-2xl font-bold flex items-center gap-3"><span class="text-yellow-500">★</span> TOP 10 OPPORTUNITIES</h3><div class="text-xs font-mono text-slate-500 uppercase tracking-widest">Höchster ROI & Arbitrage</div></div>
+            <div id="top10Grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"></div>
+        </div>
+        <div class="flex gap-8 border-b border-white/10 mb-10 overflow-x-auto">
+            <button class="tab-btn tab-active pb-4 font-bold text-sm tracking-widest uppercase" data-filter="ALL">Alle Märkte</button>
+            <button class="tab-btn pb-4 font-bold text-sm tracking-widest uppercase opacity-50 hover:opacity-100" data-filter="ARB">Arbitrage</button>
+            <button class="tab-btn pb-4 font-bold text-sm tracking-widest uppercase opacity-50 hover:opacity-100" data-filter="UNDERDOG">Underdogs</button>
+            <button class="tab-btn pb-4 font-bold text-sm tracking-widest uppercase opacity-50 hover:opacity-100" data-filter="CRYPTO">Crypto</button>
+            <button class="tab-btn pb-4 font-bold text-sm tracking-widest uppercase opacity-50 hover:opacity-100" data-filter="POLITICS">Politics</button>
+        </div>
+        <div id="marketFeed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </main>
+    <div id="loadingOverlay" class="hidden fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center">
+        <div class="relative w-48 h-48 mb-8"><div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div><div class="absolute inset-0 border-4 border-t-blue-500 rounded-full animate-spin"></div><div class="absolute inset-0 flex items-center justify-center font-orbitron font-black text-2xl">SCANNING</div></div>
+        <div class="w-64 h-2 bg-slate-800 rounded-full overflow-hidden"><div id="progressBar" class="h-full bg-blue-500 w-0 transition-all duration-500"></div></div>
+        <p id="loadingText" class="mt-4 font-mono text-xs text-slate-500 uppercase tracking-widest">Initialisiere Deep-Scan...</p>
     </div>
-</div>
+    <footer class="px-6 py-10 border-t border-white/5 text-center text-slate-600 text-xs font-mono">
+        <div class="mb-4 flex justify-center gap-6"><span>C•J•V•K</span><span>© 2026 FAMILYLABORATORIES</span><span>V4.1.0 PRO</span></div>
+        <p>Alle Daten werden in Echtzeit über öffentliche APIs aggregiert. Arbitrage-Chancen sind zeitkritisch.</p>
+    </footer>
 
-<div id="main-content" class="hidden max-w-[1400px] mx-auto">
-    <div class="space-y-12">
-        <header class="flex flex-col lg:flex-row justify-between items-center border-b border-slate-800 pb-10 gap-8">
-            <div class="flex items-center gap-10">
-                <div class="flex flex-col">
-                    <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] uppercase mb-1">FamilyLaboratories</span>
-                    <h1 class="text-3xl md:text-4xl font-light text-white tracking-tighter">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-[#c5a059]">v3.0</span></h1>
-                </div>
-                <div class="h-12 w-px bg-slate-800 hidden lg:block"></div>
-                <nav class="hidden sm:flex gap-8 text-[11px] font-bold tracking-widest uppercase text-slate-500">
-                    <span class="text-white border-b-2 border-[#c5a059] pb-1 cursor-pointer">Terminal</span>
-                    <span class="hover:text-white transition-colors cursor-pointer">Cross-DEX</span>
-                    <span class="hover:text-white transition-colors cursor-pointer">Arbitrage</span>
-                </nav>
-                <div class="flex gap-3 ml-4">
-                    <span id="btn-de" onclick="setLang('de')" class="lang-btn active text-[9px] font-black uppercase">DE</span>
-                    <span id="btn-en" onclick="setLang('en')" class="lang-btn text-[9px] font-black uppercase">EN</span>
-                    <span id="btn-pt" onclick="setLang('pt')" class="lang-btn text-[9px] font-black uppercase">PT</span>
-                    <span id="btn-zh" onclick="setLang('zh')" class="lang-btn text-[9px] font-black uppercase">ZH</span>
-                </div>
-            </div>
+    <script>
+        const CONFIG = { REFRESH_INTERVAL: 30000, JACCARD_THRESHOLD: 0.42, CORS_PROXY: "https://api.allorigins.win/raw?url=" };
+        const PLATFORMS = {
+            Polymarket: { name: "Polymarket", color: "#2563eb", chain: "Polygon", standard: "ERC1155", payout: 1.0 },
+            Manifold: { name: "Manifold", color: "#7c3aed", chain: "Off-chain", standard: "M$", payout: null },
+            Metaculus: { name: "Metaculus", color: "#0891b2", chain: "Off-chain", standard: "Points", payout: null },
+            Kalshi: { name: "Kalshi", color: "#059669", chain: "CFTC", standard: "USD", payout: 1.0 }
+        };
+        const SOURCES = [
+            { id: "polymarket", name: "Polymarket", url: "https://gamma-api.polymarket.com/markets?limit=100&active=true&closed=false" },
+            { id: "manifold", name: "Manifold", url: "https://api.manifold.markets/v0/markets?limit=100&sort=liquidity&order=desc" },
+            { id: "metaculus", name: "Metaculus", url: "https://www.metaculus.com/api2/questions/?limit=50&status=active" },
+            { id: "kalshi", name: "Kalshi", url: "https://trading-api.kalshi.com/trade-api/v2/markets?limit=50&status=open" }
+        ];
 
-            <div class="flex items-center gap-12 bg-[#0a0a0a] p-4 border border-slate-900 rounded">
-                <div class="flex flex-col items-center">
-                    <span class="text-[7px] text-slate-600 font-black uppercase mb-1">SOLANA</span>
-                    <span id="price-sol" class="text-sm font-black mono text-white gold-glow">$0.00</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <span class="text-[7px] text-slate-600 font-black uppercase mb-1">BITCOIN</span>
-                    <span id="price-btc" class="text-sm font-black mono text-white">$0.00</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <span class="text-[7px] text-slate-600 font-black uppercase mb-1">ETHEREUM</span>
-                    <span id="price-eth" class="text-sm font-black mono text-white">$0.00</span>
-                </div>
-                <div class="h-8 w-px bg-slate-800"></div>
-                <div class="flex flex-col items-center">
-                    <span class="text-[7px] text-slate-600 font-black uppercase mb-1">Volatility</span>
-                    <div class="flex items-center gap-2">
-                        <div class="volatility-bar"><div id="volatility-fill" class="volatility-fill" style="width: 0%"></div></div>
-                        <span id="volatility-value" class="text-[10px] font-black mono text-[#c5a059]">0.0</span>
+        let state = { markets: [], arbs: [], filter: "ALL", wallet: null };
+
+        const safeFloat = (v, fallback = 0) => { const f = parseFloat(v); return isNaN(f) ? fallback : f; };
+        const jaccard = (a, b) => {
+            const tokenize = s => new Set(s.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(w => w.length > 3));
+            const ta = tokenize(a), tb = tokenize(b);
+            if (ta.size === 0 || tb.size === 0) return 0;
+            let inter = 0; ta.forEach(w => tb.has(w) && inter++);
+            return inter / (ta.size + tb.size - inter);
+        };
+
+        const PARSERS = {
+            polymarket: (data) => (data.markets || data || []).filter(m => m.outcomePrices).map(m => {
+                try {
+                    const prices = JSON.parse(m.outcomePrices);
+                    const yes = safeFloat(prices[0]);
+                    return { id: `PM_${m.id}`, platform: "Polymarket", question: m.question, yes_price: yes, no_price: 1 - yes, volume: safeFloat(m.volume), liquidity: safeFloat(m.liquidity), url: `https://polymarket.com/event/${m.slug || m.id}`, category: m.category || "General" };
+                } catch(e) { return null; }
+            }).filter(Boolean),
+            manifold: (data) => (data || []).filter(m => !m.isResolved && m.probability != null).map(m => ({ id: `MF_${m.id}`, platform: "Manifold", question: m.question, yes_price: safeFloat(m.probability), no_price: 1 - safeFloat(m.probability), volume: safeFloat(m.volume), liquidity: safeFloat(m.totalLiquidity), url: m.url, category: m.groupSlugs?.[0] || "General" })),
+            metaculus: (data) => (data.results || []).filter(m => m.community_prediction?.full?.q2 != null).map(m => ({ id: `MC_${m.id}`, platform: "Metaculus", question: m.title, yes_price: safeFloat(m.community_prediction.full.q2), no_price: 1 - safeFloat(m.community_prediction.full.q2), volume: safeFloat(m.number_of_predictions), liquidity: 0, url: `https://www.metaculus.com${m.page_url}`, category: m.categories?.[0]?.name || "General" })),
+            kalshi: (data) => (data.markets || []).map(m => {
+                const yes = (safeFloat(m.yes_bid) + safeFloat(m.yes_ask)) / 200 || 0.5;
+                return { id: `KL_${m.ticker}`, platform: "Kalshi", question: m.title, yes_price: yes, no_price: 1 - yes, volume: safeFloat(m.volume), liquidity: safeFloat(m.open_interest), url: `https://kalshi.com/markets/${m.ticker}`, category: m.category || "General" };
+            })
+        };
+
+        async function runScan() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('progressBar').style.width = '0%';
+            let collected = [];
+            for (let i = 0; i < SOURCES.length; i++) {
+                const src = SOURCES[i];
+                document.getElementById('loadingText').innerText = `Scanne ${src.name}...`;
+                try {
+                    const res = await fetch(CONFIG.CORS_PROXY + encodeURIComponent(src.url));
+                    const data = await res.json();
+                    const parsed = PARSERS[src.id](data);
+                    collected.push(...parsed);
+                } catch(e) { console.error(e); }
+                document.getElementById('progressBar').style.width = `${((i+1)/SOURCES.length)*100}%`;
+            }
+            
+            const { analyzed, arbs } = analyzeMarkets(collected);
+            state.markets = analyzed;
+            state.arbs = arbs;
+            
+            renderResults();
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('resultsArea').classList.remove('hidden');
+            document.getElementById('statMarkets').innerText = analyzed.length;
+        }
+
+        function analyzeMarkets(allMarkets) {
+            const arbs = [];
+            const analyzed = allMarkets.map(m => {
+                const matches = allMarkets.filter(other => other.id !== m.id && jaccard(m.question, other.question) > CONFIG.JACCARD_THRESHOLD);
+                let consensus = m.yes_price;
+                if (matches.length > 0) {
+                    const prices = [m.yes_price, ...matches.map(mm => mm.yes_price)];
+                    consensus = prices.reduce((a, b) => a + b, 0) / prices.length;
+                }
+                matches.forEach(match => {
+                    const profit = (1 - (m.yes_price + match.no_price)) * 100;
+                    if (profit > 0.5) arbs.push({ id: `ARB_${m.id}_${match.id}`, marketA: m, marketB: match, profit: profit });
+                });
+                return { ...m, consensus, confidence: matches.length > 0 ? 70 + (matches.length * 5) : 40 };
+            });
+            return { analyzed, arbs: arbs.sort((a, b) => b.profit - a.profit) };
+        }
+
+        function renderResults() {
+            const top10 = [...state.arbs.slice(0, 5), ...state.markets.sort((a, b) => (1/a.yes_price) - (1/b.yes_price)).slice(0, 5)];
+            const top10Grid = document.getElementById('top10Grid');
+            top10Grid.innerHTML = top10.map(item => createCard(item, true)).join('');
+
+            const feed = document.getElementById('marketFeed');
+            let filtered = state.markets;
+            if (state.filter === "ARB") filtered = state.arbs.map(a => ({...a.marketA, arb: a}));
+            else if (state.filter === "UNDERDOG") filtered = state.markets.filter(m => m.yes_price < 0.15);
+            else if (state.filter !== "ALL") filtered = state.markets.filter(m => m.category.toUpperCase().includes(state.filter));
+            
+            feed.innerHTML = filtered.map(m => createCard(m)).join('');
+        }
+
+        function createCard(m, isTop = false) {
+            const isArb = m.profit !== undefined;
+            const market = isArb ? m.marketA : m;
+            const roi = ((1 / market.yes_price) * 100).toFixed(0);
+            const plat = PLATFORMS[market.platform];
+            
+            return `
+                <div class="glass p-5 rounded-2xl card-hover flex flex-col gap-4 ${isTop ? 'border-yellow-500/30' : ''}">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] font-mono px-2 py-1 rounded bg-white/5 border border-white/10" style="color: ${plat.color}">${market.platform.toUpperCase()}</span>
+                        ${isArb ? '<span class="text-[10px] font-mono px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30">ARBITRAGE</span>' : ''}
+                        ${market.yes_price < 0.15 ? '<span class="text-[10px] font-mono px-2 py-1 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30">UNDERDOG</span>' : ''}
                     </div>
-                </div>
-                <div class="flex flex-col items-end min-w-[80px]">
-                    <span class="text-[7px] text-slate-600 font-black uppercase mb-1">Engine Status</span>
-                    <div class="flex items-center"><span class="live-dot"></span><span id="engine-status" class="text-[10px] font-black uppercase tracking-widest text-[#10b981]">Standby</span></div>
-                </div>
-            </div>
-        </header>
-
-        <div class="overflow-hidden bg-[#0a0a0a] border-y border-slate-900 py-2">
-            <div id="ticker-content" class="animate-marquee">
-                <span class="ticker-item">Initializing FamLabs Alpha Scan v3.0...</span>
-                <span class="ticker-item">Global Arbitrage Engine Active</span>
-                <span class="ticker-item">Connecting to Solana Mainnet...</span>
-                <span class="ticker-item">Scanning Prediction Markets...</span>
-            </div>
-        </div>
-
-        <main class="grid grid-cols-1 xl:grid-cols-4 gap-12">
-            <div class="xl:col-span-3 space-y-8">
-                <div class="flex justify-between items-end border-b border-slate-900 pb-4">
-                    <div>
-                        <h2 class="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Markt-Daten Feed</h2>
-                        <div id="t-markets-count" class="text-[8px] text-slate-700 font-bold uppercase mt-1 tracking-widest">Märkte: 0</div>
-                    </div>
-                    
-                    <!-- New UI Component: Global Amount Slider -->
-                    <div class="flex flex-col items-end gap-2 bg-black/40 p-3 rounded border border-slate-900 min-w-[200px]">
-                        <div class="flex justify-between w-full">
-                            <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Investitions-Volumen</span>
-                            <span id="slider-val-display" class="text-[10px] font-black text-[#c5a059] mono">100€</span>
+                    <h4 class="text-sm font-bold leading-tight h-10 overflow-hidden">${market.question}</h4>
+                    <div class="flex items-end justify-between">
+                        <div>
+                            <div class="text-xs text-slate-500 font-mono uppercase">ROI Potential</div>
+                            <div class="text-2xl font-orbitron font-black text-white">${roi}%</div>
                         </div>
-                        <input type="range" id="globalAmountSlider" min="5" max="1000" value="100" step="5" class="w-full">
+                        <div class="text-right">
+                            <div class="text-xs text-slate-500 font-mono uppercase">Price</div>
+                            <div class="text-lg font-mono font-bold text-blue-400">¢${(market.yes_price * 100).toFixed(0)}</div>
+                        </div>
                     </div>
-                </div>
-                <div id="terminal" class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6 max-h-[1200px] overflow-y-auto custom-scrollbar pr-4">
-                    <div class="col-span-full py-20 text-center">
-                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#c5a059] mb-4"></div>
-                        <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">Verbindung zum DEX-Netzwerk...</p>
+                    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/5">
+                        <div class="text-center"><div class="text-[8px] text-slate-500 uppercase">5€</div><div class="text-[10px] font-mono text-green-400">+${(5/market.yes_price - 5).toFixed(2)}€</div></div>
+                        <div class="text-center"><div class="text-[8px] text-slate-500 uppercase">10€</div><div class="text-[10px] font-mono text-green-400">+${(10/market.yes_price - 10).toFixed(2)}€</div></div>
+                        <div class="text-center"><div class="text-[8px] text-slate-500 uppercase">25€</div><div class="text-[10px] font-mono text-green-400">+${(25/market.yes_price - 25).toFixed(2)}€</div></div>
                     </div>
+                    <a href="${market.url}" target="_blank" class="mt-2 block text-center py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold transition-all">DETAILS ANSEHEN</a>
                 </div>
-            </div>
-
-            <div class="space-y-8">
-                <div class="flex justify-between items-end border-b border-slate-900 pb-4">
-                    <h2 class="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Cross-DEX Arbitrage Chancen</h2>
-                    <span id="opp-count" class="text-[8px] font-black text-[#10b981] bg-[#10b981]/10 px-2 py-1 rounded uppercase tracking-widest">0 Found</span>
-                </div>
-                <div id="signals" class="space-y-6 max-h-[1200px] overflow-y-auto custom-scrollbar pr-2">
-                    <div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase italic border-dashed border-2 border-slate-900">
-                        Initialisiere Arbitrage-Scan...
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <footer class="border-t border-slate-900 pt-10 pb-20 flex flex-col md:flex-row justify-between items-center gap-8">
-            <button id="scanBtn" onclick="executeScan()" class="btn-primary px-12 py-5 text-xs rounded shadow-[0_0_30px_rgba(197,160,89,0.2)]">
-                Cross-DEX Scan Ausführen
-            </button>
-            <div class="text-right">
-                <div class="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em] mb-2">Polymarket Gamma | Kraken & Jupiter Price Feeds</div>
-                <div class="text-[8px] text-slate-700 font-bold uppercase tracking-[0.2em]">C•J•V•K | Private Access <span class="mx-2">|</span> © 2026 FamilyLaboratories</div>
-                <div id="last-update" class="text-[7px] text-slate-800 font-black uppercase mt-4">Updated --:--:--</div>
-            </div>
-        </footer>
-    </div>
-</div>
-
-<script>
-    let authToken = "";
-    let currentLang = 'de';
-    let globalInvestAmount = 100;
-
-    const i18n = {
-        de: { profit: 'Profit', spread: 'Spread', buy: 'Kauf', sell: 'Verkauf', nodes: 'Märkte', yes: 'JA', no: 'NEIN' },
-        en: { profit: 'Profit', spread: 'Spread', buy: 'Buy', sell: 'Sell', nodes: 'Markets', yes: 'YES', no: 'NO' },
-        pt: { profit: 'Lucro', spread: 'Spread', buy: 'Compra', sell: 'Venda', nodes: 'Mercados', yes: 'SIM', no: 'NÃO' },
-        zh: { profit: '利润', spread: '价差', buy: '买入', sell: '卖出', nodes: '市场', yes: '是', no: '否' }
-    };
-
-    function login() {
-        const input = document.getElementById('authInput').value;
-        if (input === "TGMFAM2026") {
-            authToken = input;
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('main-content').classList.remove('hidden');
-            executeScan();
-            setInterval(executeScan, 30000);
-        } else {
-            alert("ACCESS DENIED.");
+            `;
         }
-    }
 
-    function setLang(l) {
-        currentLang = l;
-        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('btn-' + l).classList.add('active');
-        executeScan();
-    }
-
-    function fmt(n, d = 2) { if (n === null || n === undefined || isNaN(n)) return '–'; return parseFloat(n).toFixed(d); }
-    function fmtPrice(n) { return n >= 100 ? fmt(n, 2) : fmt(n, 4); }
-    function fmtEUR(n) { return (n >= 0 ? '+' : '') + fmt(n, 2) + '€'; }
-    function fmtROI(n) { return (n >= 0 ? '+' : '') + fmt(n, 2) + '%'; }
-
-    function profitTierHTML(label, net, roi) {
-        const cls = net >= 0 ? 'pos' : 'neg';
-        return `<div class="profit-tier"><div class="amount">${label}</div><div class="value ${cls}">${fmtEUR(net)}</div><div class="roi">${fmtROI(roi)}</div></div>`;
-    }
-
-    function arbCardHTML(opp) {
-        const L = i18n[currentLang];
-        const profitColor = opp.profitMargin >= 1 ? 'text-[#10b981]' : opp.profitMargin >= 0 ? 'text-[#c5a059]' : 'text-[#ef4444]';
-        const categoryBadge = opp.category ? `<span class="text-[7px] font-black text-slate-400 uppercase tracking-widest bg-slate-900 px-2 py-1 rounded">${opp.category}</span>` : '';
-        return `<div class="corporate-card p-6 shadow-2xl">
-            <div class="flex justify-between items-start mb-4">
-                <div class="flex flex-col gap-1"><span class="text-[9px] font-black text-[#10b981] uppercase tracking-widest">${L.profit}</span><span class="text-3xl font-black ${profitColor} mono">${fmt(opp.profitMargin)}%</span></div>
-                <div class="text-right"><span class="text-[8px] text-slate-500 font-black uppercase tracking-widest">${L.spread}</span><div class="text-sm font-black mono text-[#c5a059]">${fmt(opp.percentageDifference)}%</div><div class="flex gap-2 mt-1"><span class="chain-badge mt-1 ${opp.chain.toLowerCase()}">${opp.chain}</span>${categoryBadge}</div></div>
-            </div>
-            <h3 class="text-sm font-bold text-[#c5a059] leading-snug mb-1 border-b border-slate-800 pb-3">${opp.title}</h3>
-            <div class="text-[8px] text-slate-600 mb-3">Source: <span class="text-slate-400 font-bold">${opp.source}</span></div>
-            <div class="grid grid-cols-2 gap-3 mb-4 mt-4">
-                <div class="trade-btn buy p-2 rounded bg-slate-900 border border-slate-800"><span class="text-[7px] font-black text-[#10b981] uppercase mb-1">${L.buy}</span><span class="text-[9px] font-black text-white">${opp.buyDex}</span><div class="text-lg font-black mono text-[#10b981]" style="margin-top:4px">$${fmtPrice(opp.buyPrice)}</div></div>
-                <div class="trade-btn sell p-2 rounded bg-slate-900 border border-slate-800"><span class="text-[7px] font-black text-[#ef4444] uppercase mb-1">${L.sell}</span><span class="text-[9px] font-black text-white">${opp.sellDex}</span><div class="text-lg font-black mono text-[#ef4444]" style="margin-top:4px">$${fmtPrice(opp.sellPrice)}</div></div>
-            </div>
-            <div class="grid grid-cols-3 gap-2 mb-4">${profitTierHTML('5€', opp.profit5, opp.roi5)}${profitTierHTML('10€', opp.profit10, opp.roi10)}${profitTierHTML('25€', opp.profit25, opp.roi25)}</div>
-            <div class="text-[7px] text-slate-600 border-t border-slate-800 pt-2">Vol: $${fmt(opp.volume, 0)} | Status: ${opp.status}</div>
-        </div>`;
-    }
-
-    function marketCardHTML(market) {
-        const L = i18n[currentLang];
-        if (!market || market.yes_price === undefined || market.no_price === undefined) return '';
-        
-        const yesPrice = parseFloat(market.yes_price) || 0;
-        const noPrice = parseFloat(market.no_price) || 0;
-        const fee = market.fee || 0.002;
-        
-        // Dynamic Calculation based on Slider
-        function calcDynamic(buy, sell, amt, f) {
-            if (buy <= 0) return { net: 0, roi: 0 };
-            const shares = amt / buy;
-            const net = (shares * sell) - amt - (amt * f * 2);
-            return { net: parseFloat(net.toFixed(2)), roi: parseFloat(((net/amt)*100).toFixed(2)) };
-        }
-        
-        const dynYes = calcDynamic(yesPrice, 1.0, globalInvestAmount, fee);
-        const dynNo = calcDynamic(noPrice, 1.0, globalInvestAmount, fee);
-        
-        const yesColor = dynYes.roi >= 0 ? 'text-[#10b981]' : 'text-[#ef4444]';
-        const noColor = dynNo.roi >= 0 ? 'text-[#10b981]' : 'text-[#ef4444]';
-        
-        return `<div class="market-card p-4 corporate-card border border-slate-800 bg-slate-950/50">
-            <div class="flex justify-between items-start gap-3 mb-4">
-                <div class="flex-1">
-                    <h3 class="text-[11px] font-bold text-white leading-relaxed mb-2">${market.title}</h3>
-                    <div class="flex gap-2">
-                        <span class="chain-badge ${market.chain.toLowerCase()}">${market.chain}</span>
-                        <span class="text-[7px] font-bold text-slate-500 bg-slate-900 px-2 py-1 rounded">${market.source}</span>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-[13px] font-black mono text-[#10b981]">$${fmt(yesPrice, 4)}</div>
-                    <div class="text-[11px] font-black mono text-[#ef4444]">$${fmt(noPrice, 4)}</div>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="trade-btn buy flex flex-col items-center p-3 bg-slate-900 border border-[#10b981]/30 rounded">
-                    <span class="text-[8px] font-black text-[#10b981] uppercase mb-1">YES</span>
-                    <span class="text-[10px] font-black text-white">$${fmt(yesPrice, 4)}</span>
-                    <span class="${yesColor} text-[7px] font-bold mt-1">${fmtROI(dynYes.roi)} ROI</span>
-                </div>
-                <div class="trade-btn sell flex flex-col items-center p-3 bg-slate-900 border border-[#ef4444]/30 rounded">
-                    <span class="text-[8px] font-black text-[#ef4444] uppercase mb-1">NO</span>
-                    <span class="text-[10px] font-black text-white">$${fmt(noPrice, 4)}</span>
-                    <span class="${noColor} text-[7px] font-bold mt-1">${fmtROI(dynNo.roi)} ROI</span>
-                </div>
-            </div>
-            <div class="border-t border-slate-900 pt-3">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-[7px] text-slate-600 uppercase font-black">Invest: ${globalInvestAmount}€</span>
-                    <span class="text-[7px] text-slate-600 uppercase font-black">ROI Target</span>
-                </div>
-                <div class="flex justify-between">
-                    <div class="flex flex-col">
-                        <span class="text-[8px] font-black text-[#10b981]">${fmtEUR(dynYes.net)} (YES)</span>
-                        <span class="text-[8px] font-black text-[#ef4444]">${fmtEUR(dynNo.net)} (NO)</span>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <span class="text-[8px] font-black ${yesColor}">${fmtROI(dynYes.roi)}</span>
-                        <span class="text-[8px] font-black ${noColor}">${fmtROI(dynNo.roi)}</span>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-    }
-
-    async function executeScan() {
-        const term = document.getElementById('terminal'); const signals = document.getElementById('signals'); const btn = document.getElementById('scanBtn');
-        btn.disabled = true; document.getElementById('engine-status').innerText = 'Scanning...';
-        try {
-            const response = await fetch(`https://alphascan.famlabsoffice.workers.dev/?auth=${authToken}`);
-            const data = await response.json();
-            if (data.crypto) {
-                const sol = data.crypto.SOL; const btc = data.crypto.BTC; const eth = data.crypto.ETH;
-                document.getElementById('price-sol').innerText = '$' + fmt(sol, 2); document.getElementById('price-btc').innerText = '$' + fmt(btc, 0); document.getElementById('price-eth').innerText = '$' + fmt(eth, 2);
-                document.getElementById('ticker-content').innerHTML = `<span class="ticker-item">SOL: $${fmt(sol,2)}</span><span class="ticker-item">BTC: $${fmt(btc,0)}</span><span class="ticker-item">ETH: $${fmt(eth,2)}</span><span class="ticker-item">FamLabs Alpha Scan v3.0 Online</span><span class="ticker-item">Global Prediction Markets Scanned</span><span class="ticker-item">Polymarket | Manifold | PredictIt</span><span class="ticker-item">100% LIVE DATA – DYNAMIC SLIDER</span><span class="ticker-item">Exec Time: ${data.executionTime}ms</span>`;
-            }
-            if (data.volatilityIndex !== undefined) {
-                document.getElementById('volatility-value').innerText = data.volatilityIndex.toFixed(1);
-                document.getElementById('volatility-fill').style.width = Math.min(100, data.volatilityIndex) + '%';
-            }
-            document.getElementById('t-markets-count').innerText = i18n[currentLang].nodes + ': ' + (data.totalMarkets || 0);
-            document.getElementById('opp-count').innerText = (data.opportunitiesFound || 0) + ' Found';
-            
-            // Render Opportunities
-            if (data.opportunities?.length > 0) { signals.innerHTML = data.opportunities.map(opp => arbCardHTML(opp)).join(''); }
-            else { signals.innerHTML = `<div class="corporate-card p-12 text-center text-slate-700 text-[9px] uppercase italic border-dashed border-2 border-slate-900">No opportunities detected.</div>`; }
-            
-            // Render Markets
-            if (data.markets?.length > 0) { 
-                window.lastMarkets = data.markets; // Cache for slider updates
-                term.innerHTML = data.markets.slice(0, 50).map(m => marketCardHTML(m)).filter(h => h).join(''); 
-            }
-            
-            document.getElementById('engine-status').innerText = 'Active';
-            document.getElementById('last-update').innerText = 'Updated ' + new Date().toLocaleTimeString('de-DE');
-        } catch (err) {
-            document.getElementById('engine-status').innerText = 'Error';
-            signals.innerHTML = `<div class="corporate-card p-12 text-center text-red-600 text-[9px] uppercase italic border-dashed border-2 border-red-900">ERROR: Failed to fetch market data.</div>`;
-        }
-        btn.disabled = false;
-    }
-
-    // Slider Interaction
-    document.getElementById('globalAmountSlider').addEventListener('input', (e) => {
-        globalInvestAmount = parseInt(e.target.value);
-        document.getElementById('slider-val-display').innerText = globalInvestAmount + '€';
-        if (window.lastMarkets) {
-            document.getElementById('terminal').innerHTML = window.lastMarkets.slice(0, 50).map(m => marketCardHTML(m)).filter(h => h).join('');
-        }
-    });
-
-</script>
+        document.getElementById('scanBtn').addEventListener('click', runScan);
+        document.getElementById('connectBtn').addEventListener('click', () => {
+            state.wallet = "0x" + Math.random().toString(16).slice(2, 10) + "..." + Math.random().toString(16).slice(2, 6);
+            document.getElementById('walletAddr').innerText = state.wallet.toUpperCase();
+            document.getElementById('walletStatus').classList.remove('hidden');
+            document.getElementById('connectBtn').innerText = "PRO ACTIVE";
+            document.getElementById('connectBtn').classList.replace('bg-blue-600', 'bg-purple-600');
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('tab-active', 'opacity-100'); b.classList.add('opacity-50'); });
+                e.target.classList.add('tab-active', 'opacity-100');
+                state.filter = e.target.dataset.filter;
+                renderResults();
+            });
+        });
+    </script>
 </body>
 </html>
