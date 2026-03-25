@@ -31,10 +31,28 @@
             background: var(--bg-surface);
             border: 1px solid var(--border);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
         .corporate-card:hover {
             border-color: var(--primary);
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+        .arb-highlight {
+            border: 1px solid rgba(197, 160, 89, 0.4);
+            background: linear-gradient(180deg, rgba(197, 160, 89, 0.05) 0%, transparent 100%);
+        }
+        .arb-highlight::before {
+            content: 'ARBITRAGE OPPORTUNITY';
+            position: absolute;
+            top: 0; right: 0;
+            background: var(--primary);
+            color: #000;
+            font-size: 7px;
+            font-weight: 900;
+            padding: 2px 8px;
+            letter-spacing: 0.1em;
+            border-bottom-left-radius: 4px;
         }
         .alert-card {
             background: linear-gradient(180deg, rgba(239, 68, 68, 0.03) 0%, transparent 100%);
@@ -53,11 +71,11 @@
             transform: translateY(-1px);
         }
         .platform-badge {
-            font-size: 8px;
+            font-size: 7px;
             font-weight: 800;
-            padding: 2px 8px;
+            padding: 1px 5px;
             border-radius: 2px;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
             border: 1px solid rgba(255,255,255,0.1);
         }
@@ -76,6 +94,29 @@
         .nav-link.active { color: var(--primary); border-bottom: 1px solid var(--primary); }
         @keyframes subtle-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
         .glow { animation: subtle-glow 3s infinite; }
+        .price-row {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .price-row:hover {
+            border-color: var(--border);
+            background: rgba(255,255,255,0.03);
+        }
+        .matrix-diff-tag {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 2px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
     </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen flex flex-col">
@@ -126,11 +167,11 @@
         <!-- Main Workspace -->
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-10 flex-grow overflow-hidden">
             
-            <!-- Arbitrage Alerts Panel -->
+            <!-- Arbitrage Alerts Panel (Priority) -->
             <section class="lg:col-span-4 flex flex-col gap-4 min-h-0">
                 <div class="flex items-center justify-between px-1">
                     <h2 id="t-signals" class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Priority Spreads</h2>
-                    <span class="text-[8px] font-black text-danger border border-danger/30 px-2 py-0.5 rounded uppercase">Real-Time Analysis</span>
+                    <span class="text-[8px] font-black text-danger border border-danger/30 px-2 py-0.5 rounded uppercase">Alpha Signals</span>
                 </div>
                 <div id="signals" class="flex-grow overflow-y-auto terminal-scroll space-y-4 pr-3 max-h-[70vh]">
                     <div id="t-waiting-signals" class="corporate-card rounded p-12 text-center text-slate-600 text-[10px] uppercase tracking-widest border-dashed">
@@ -139,15 +180,15 @@
                 </div>
             </section>
 
-            <!-- Market Matrix Panel -->
+            <!-- Global Market Matrix (Grouped View) -->
             <section class="lg:col-span-8 flex flex-col gap-4 min-h-0">
                 <div class="flex items-center justify-between px-1">
                     <h2 id="t-feed" class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Global Market Matrix</h2>
                     <div class="flex gap-4">
-                        <span class="text-[8px] font-bold text-slate-600 uppercase">Synced Sources: 3</span>
+                        <span class="text-[8px] font-bold text-slate-600 uppercase">Cross-Platform Analysis</span>
                     </div>
                 </div>
-                <div id="terminal" class="flex-grow overflow-y-auto terminal-scroll grid grid-cols-1 md:grid-cols-2 gap-4 pr-3 max-h-[70vh] content-start">
+                <div id="terminal" class="flex-grow overflow-y-auto terminal-scroll grid grid-cols-1 gap-4 pr-3 max-h-[70vh] content-start">
                     <div id="t-waiting-feed" class="col-span-full corporate-card rounded p-24 text-center text-slate-600 text-[10px] uppercase tracking-[0.5em] font-light">
                         Connecting to Global Liquidity Network...
                     </div>
@@ -199,7 +240,10 @@
                 buy: "KAUFEN @",
                 sell: "VERKAUFEN @",
                 profit_est: "PROFIT",
-                arb_detected: "ARB ERKANNT"
+                arb_detected: "ARB ERKANNT",
+                platform: "PLATTFORM",
+                price: "PREIS",
+                vol: "VOLUMEN"
             },
             en: {
                 status: "Active",
@@ -214,7 +258,10 @@
                 buy: "BUY @",
                 sell: "SELL @",
                 profit_est: "PROFIT",
-                arb_detected: "ARB DETECTED"
+                arb_detected: "ARB DETECTED",
+                platform: "PLATFORM",
+                price: "PRICE",
+                vol: "VOLUME"
             },
             pt: {
                 status: "Ativo",
@@ -229,7 +276,10 @@
                 buy: "COMPRAR @",
                 sell: "VENDER @",
                 profit_est: "LUCRO",
-                arb_detected: "ARB DETECTADO"
+                arb_detected: "ARB DETECTADO",
+                platform: "PLATAFORMA",
+                price: "PREÇO",
+                vol: "VOLUME"
             },
             zh: {
                 status: "活跃",
@@ -244,7 +294,10 @@
                 buy: "买入 @",
                 sell: "卖出 @",
                 profit_est: "利润",
-                arb_detected: "检测到套利"
+                arb_detected: "检测到套利",
+                platform: "平台",
+                price: "价格",
+                vol: "成交量"
             }
         };
 
@@ -269,8 +322,8 @@
             const lat = document.getElementById('latency');
             const count = document.getElementById('count');
             
-            term.innerHTML = `<div class="col-span-full py-24 text-center text-slate-600 animate-pulse text-[10px] uppercase tracking-[0.5em]">Defragmenting Matrix...</div>`;
-            signals.innerHTML = `<div class="py-12 text-center text-slate-600 animate-pulse text-[10px] uppercase tracking-[0.3em]">Analyzing Spreads...</div>`;
+            term.innerHTML = `<div class="col-span-full py-24 text-center text-slate-600 animate-pulse text-[10px] uppercase tracking-[0.5em]">Analyzing Market Matrix...</div>`;
+            signals.innerHTML = `<div class="py-12 text-center text-slate-600 animate-pulse text-[10px] uppercase tracking-[0.3em]">Scanning Spreads...</div>`;
             btn.disabled = true;
 
             try {
@@ -281,7 +334,7 @@
                 count.innerText = data.f.length;
                 document.getElementById('arb-count').innerText = data.s.length;
 
-                // Render Signals
+                // Render Priority Signals (Left Panel)
                 if (data.s && data.s.length > 0) {
                     signals.innerHTML = data.s.map(s => {
                         const netDiff = parseFloat(s.d);
@@ -290,7 +343,7 @@
                             <div class="corporate-card alert-card rounded p-5">
                                 <div class="flex justify-between items-center mb-4">
                                     <span class="text-[9px] font-black text-danger uppercase tracking-widest">${i18n[currentLang].diff}: ${s.d}%</span>
-                                    <span class="text-[8px] text-slate-500 font-bold mono uppercase">Score: ${s.sc}</span>
+                                    <span class="text-[8px] text-slate-500 font-bold mono uppercase">Confidence: ${s.sc}</span>
                                 </div>
                                 <h3 class="text-xs font-bold text-white leading-tight mb-5 border-b border-border/50 pb-3">${s.n}</h3>
                                 
@@ -326,41 +379,54 @@
                     signals.innerHTML = `<div class="corporate-card rounded p-12 text-center text-slate-700 text-[9px] uppercase tracking-widest italic border-dashed border-2 border-slate-900">${i18n[currentLang].waiting_signals}</div>`;
                 }
 
-                // Render Matrix
+                // Render Market Matrix (Main Panel)
                 if (data.f && data.f.length > 0) {
                     term.innerHTML = data.f.map(group => {
                         const hasArb = group.arb !== null;
                         return `
-                            <div class="corporate-card rounded p-5 flex flex-col gap-4">
+                            <div class="corporate-card rounded p-6 flex flex-col gap-6 ${hasArb ? 'arb-highlight' : ''}">
                                 <div class="flex justify-between items-start">
-                                    <div class="flex gap-2 flex-wrap">
-                                        ${group.markets.map(m => `<span class="platform-badge ${m.p.toLowerCase().substring(0,4)}">${m.p}</span>`).join('')}
+                                    <h3 class="text-sm font-bold text-white leading-snug pr-12">${group.name}</h3>
+                                    <div class="flex flex-col items-end">
+                                        <span class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-1">Aggregated Vol</span>
+                                        <span class="text-xs font-bold mono text-slate-400">$${Math.round(group.totalVol).toLocaleString()}</span>
                                     </div>
-                                    ${hasArb ? `<span class="text-[8px] font-black bg-danger text-white px-2 py-0.5 rounded uppercase tracking-tighter glow">${i18n[currentLang].arb_detected}</span>` : ''}
                                 </div>
-                                <h3 class="text-[10px] font-bold text-slate-200 leading-snug h-8 overflow-hidden line-clamp-2">${group.name}</h3>
                                 
-                                <div class="space-y-2">
+                                <div class="space-y-1">
+                                    <div class="grid grid-cols-[1fr_80px_80px] px-3 py-1 text-[8px] font-black text-slate-600 uppercase tracking-widest">
+                                        <div>${i18n[currentLang].platform}</div>
+                                        <div class="text-right">${i18n[currentLang].price}</div>
+                                        <div class="text-right">${i18n[currentLang].vol}</div>
+                                    </div>
                                     ${group.markets.map(m => `
-                                        <div onclick="window.open('${m.u}', '_blank')" class="flex justify-between items-center bg-black/20 p-2 rounded border border-border hover:border-slate-600 transition-all cursor-pointer group">
-                                            <span class="text-[8px] text-slate-500 font-bold group-hover:text-slate-300">${m.p}</span>
-                                            <div class="flex items-center gap-4">
-                                                <span class="text-[11px] font-bold mono text-white">${m.v.toFixed(1)}%</span>
-                                                <span class="text-[7px] text-slate-600 font-bold mono uppercase">Vol ${Math.round(m.vol).toLocaleString()}</span>
+                                        <div onclick="window.open('${m.u}', '_blank')" class="price-row cursor-pointer group">
+                                            <div class="flex items-center gap-3">
+                                                <span class="platform-badge ${m.p.toLowerCase().substring(0,4)}">${m.p}</span>
+                                                <span class="text-[10px] text-slate-400 group-hover:text-white transition-colors">Market Source</span>
                                             </div>
+                                            <div class="text-right text-xs font-bold mono text-white">${m.v.toFixed(1)}%</div>
+                                            <div class="text-right text-[9px] text-slate-500 mono">${Math.round(m.vol).toLocaleString()}</div>
                                         </div>
                                     `).join('')}
                                 </div>
 
                                 ${hasArb ? `
-                                    <div class="mt-2 p-3 bg-danger/5 rounded border border-danger/10 flex items-center justify-between">
-                                        <div class="flex flex-col">
-                                            <span class="text-[7px] text-slate-500 font-black uppercase mb-1">Net Spread</span>
-                                            <span class="text-[11px] font-bold text-danger mono">${group.arb.net}%</span>
+                                    <div class="mt-2 p-4 bg-primary/5 rounded border border-primary/20 flex items-center justify-between">
+                                        <div class="flex items-center gap-6">
+                                            <div class="flex flex-col">
+                                                <span class="text-[8px] text-primary font-black uppercase mb-1">Net Spread</span>
+                                                <span class="text-xl font-black text-primary mono">${group.arb.net}%</span>
+                                            </div>
+                                            <div class="h-8 w-px bg-primary/20"></div>
+                                            <div class="flex flex-col">
+                                                <span class="text-[8px] text-slate-500 font-black uppercase mb-1">Strategy</span>
+                                                <span class="text-[10px] font-bold text-white uppercase">Buy ${group.arb.buy.p} / Sell ${group.arb.sell.p}</span>
+                                            </div>
                                         </div>
-                                        <div class="flex gap-2">
-                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="text-[8px] font-black bg-slate-800 text-success px-3 py-1.5 rounded hover:bg-success hover:text-black transition-all uppercase">Buy ${group.arb.buy.p}</button>
-                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="text-[8px] font-black bg-slate-800 text-danger px-3 py-1.5 rounded hover:bg-danger hover:text-black transition-all uppercase">Sell ${group.arb.sell.p}</button>
+                                        <div class="flex gap-3">
+                                            <button onclick="window.open('${group.arb.buy.u}', '_blank')" class="text-[9px] font-bold bg-slate-900 text-success border border-success/30 px-4 py-2 rounded hover:bg-success hover:text-black transition-all uppercase">Execute Buy</button>
+                                            <button onclick="window.open('${group.arb.sell.u}', '_blank')" class="text-[9px] font-bold bg-slate-900 text-danger border border-danger/30 px-4 py-2 rounded hover:bg-danger hover:text-black transition-all uppercase">Execute Sell</button>
                                         </div>
                                     </div>
                                 ` : ''}
