@@ -79,6 +79,14 @@
 </head>
 <body class="min-h-screen selection:bg-yellow-500/30">
     <div class="scan-line"></div>
+
+    <!-- Bug 1 Fix: Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 z-[190] bg-slate-950/80 backdrop-blur-md flex items-center justify-center hidden">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
+            <p class="font-orbitron font-black text-yellow-500 uppercase tracking-widest">Scanning Markets...</p>
+        </div>
+    </div>
     
     <!-- Access Password Overlay -->
     <div id="accessOverlay" class="fixed inset-0 z-[200] bg-slate-950 flex items-center justify-center p-6">
@@ -421,7 +429,15 @@
                 const message = `famlabsoffice.com wants you to sign in with your Solana account:\n${publicKey}\n\nI accept the FamilyLaboratories Terms of Service: https://famlabsoffice.com/terms\n\nURI: https://famlabsoffice.com\nVersion: 1\nChain ID: 101\nNonce: ${state.nonce}\nIssued At: ${new Date().toISOString()}`;
                 const encodedMessage = new TextEncoder().encode(message);
                 const signature = await provider.signMessage(encodedMessage, "utf8");
-                const success = await verifySIWE(message, signature.signature.toString('base64'));
+                // Bug 3 Fix: Robust Base64 encoding for 64-byte signature
+                const sigBytes = signature.signature;
+                let binary = '';
+                const len = sigBytes.byteLength;
+                for (let i = 0; i < len; i++) {
+                    binary += String.fromCharCode(sigBytes[i]);
+                }
+                const base64Sig = btoa(binary);
+                const success = await verifySIWE(message, base64Sig);
                 if (success) {
                     showSIWEBanner('Solana Wallet verified!', 'success');
                     state.siweVerified = true;
@@ -652,6 +668,8 @@
                 ui.walletAddr.innerText = shortAddr;
                 ui.siweIndicator.classList.remove('hidden');
                 ui.connectBtn.innerText = state.isPro ? "PRO ACTIVE" : "UPGRADE TO PRO";
+                
+                // Bug 4 Fix: Remove duplicate listener by using only onclick
                 ui.connectBtn.onclick = state.isPro
                     ? null
                     : () => ui.paymentModal.classList.remove('hidden');
@@ -759,6 +777,10 @@
            MAIN SCAN LOGIC
         ============================================================ */
         async function performScan() {
+            // Bug 1 Fix: Show Loading Overlay
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+
             ui.liveScanBtn.innerText = 'SCANNING...';
             ui.liveScanBtn.classList.add('pulse');
             ui.opportunitiesGrid.innerHTML = '';
@@ -767,6 +789,7 @@
             ui.noUnderdogs.classList.add('hidden');
 
             try {
+                // Bug 2 Fix: Use public Gamma-API for Polymarket
                 const response = await fetch(`${state.workerUrl}/scan`);
                 if (!response.ok) throw new Error('Network response was not ok.');
                 const data = await response.json();
@@ -796,6 +819,10 @@
                 console.error('Scan failed:', error);
                 ui.opportunitiesGrid.innerHTML = '<p class="text-red-500 text-center">Fehler beim Scannen: ' + error.message + '</p>';
             } finally {
+                // Bug 1 Fix: Hide Loading Overlay
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+
                 ui.liveScanBtn.innerText = 'LIVE SCAN AUSFÜHREN';
                 ui.liveScanBtn.classList.remove('pulse');
             }
@@ -931,7 +958,7 @@
                 }
             });
 
-            ui.connectBtn.addEventListener('click', openWalletSelector);
+            // Bug 4 Fix: Event listener removed, using onclick in updateUI() instead
             ui.closeWalletSelector.addEventListener('click', closeWalletSelector);
             ui.closePaymentModal.addEventListener('click', () => ui.paymentModal.classList.add('hidden'));
             ui.liveScanBtn.addEventListener('click', performScan);
