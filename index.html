@@ -128,16 +128,19 @@
                 }
             }
 
-            if (localStorage.getItem("alphaScanAccess") === "granted") {
-                document.getElementById("login-screen").classList.add("hidden");
-                document.getElementById("app-container").classList.remove("hidden");
-                initializeApp();
-            } else {
-                document.getElementById("login-screen").classList.remove("hidden");
-            }
-
             document.addEventListener("DOMContentLoaded", () => {
+                const loginScreen = document.getElementById("login-screen");
+                const appContainer = document.getElementById("app-container");
                 const accessKeyInput = document.getElementById("access-key");
+
+                if (localStorage.getItem("alphaScanAccess") === "granted") {
+                    loginScreen.classList.add("hidden");
+                    appContainer.classList.remove("hidden");
+                    initializeApp();
+                } else {
+                    loginScreen.classList.remove("hidden");
+                }
+
                 if (accessKeyInput) {
                     accessKeyInput.addEventListener("keypress", (e) => {
                         if (e.key === "Enter") {
