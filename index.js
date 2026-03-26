@@ -1,218 +1,281 @@
+/**
+ * FamilyLaboratories Alpha Scan v3.0
+ * Cloudflare Worker – Global Cross-DEX Arbitrage Engine
+ * 
+ * 100% LIVE DATA ONLY – PRECISE ROI CALCULATIONS
+ */
+
+function calcProfit(buyPrice, sellPrice, amount, fee = 0.002) {
+  if (buyPrice <= 0 || sellPrice <= 0) return { net: 0, gross: 0, shares: 0, roi: 0 };
+  const shares = amount / buyPrice;
+  const gross = shares * sellPrice;
+  const totalFees = amount * (fee * 2);
+  const net = gross - amount - totalFees;
+  const roi = (net / amount) * 100;
+  return { 
+    net: parseFloat(net.toFixed(4)), 
+    gross: parseFloat(gross.toFixed(4)), 
+    shares: parseFloat(shares.toFixed(4)), 
+    roi: parseFloat(roi.toFixed(2))
+  };
+}
+
+function calcVolatilityIndex(trades) {
+  if (!trades || trades.length < 2) return 0;
+  const prices = trades.map(t => parseFloat(t[0])).slice(0, 100);
+  if (prices.length < 2) return 0;
+  const mean = prices.reduce((a, b) => a + b, 0) / prices.length;
+  const variance = prices.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) / prices.length;
+  const stdDev = Math.sqrt(variance);
+  const coeffVar = (stdDev / mean) * 100;
+  return Math.min(100, Math.max(0, (coeffVar / 1) * 100));
+}
+
+async function safeFetch(url, timeout = 6000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, { signal: controller.signal, headers: { 'User-Agent': 'FamLabs-AlphaScan/3.0' } });
+    clearTimeout(id);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    clearTimeout(id);
+    return null;
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
+
     const corsHeaders = {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin':  '*',
       'Access-Control-Allow-Methods': 'GET, HEAD, POST, OPTIONS',
-      'Access-Control-Max-Age': '86400',
+      'Access-Control-Max-Age':       '86400',
     };
 
     if (request.method === 'OPTIONS') {
       return new Response(null, {
-        headers: {
-          ...corsHeaders,
-          'Access-Control-Allow-Headers': request.headers.get('Access-Control-Request-Headers'),
-        },
+        headers: { ...corsHeaders, 'Access-Control-Allow-Headers': request.headers.get('Access-Control-Request-Headers') },
       });
     }
 
     const startTime = Date.now();
-    const currentYear = 2026;
-    const AUTH_PASS = "TGMFAM2026";
-
-    // 1. Simple Auth Check (via Header or Query)
+    const AUTH_PASS = env.AUTH_PASSWORD || "TGMFAM2026";
     const url = new URL(request.url);
     const providedPass = request.headers.get('X-FamLabs-Auth') || url.searchParams.get('auth');
 
     if (providedPass !== AUTH_PASS) {
-      return new Response(JSON.stringify({ error: "UNAUTHORIZED_ACCESS", msg: "FamLabs Terminal Restricted. Authentication Required." }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      return new Response(JSON.stringify({ error: "UNAUTHORIZED_ACCESS" }), 
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    // ── Parallel Data Fetch ───────────────────────────────────────────────────
+    const [krakenSol, krakenBtc, krakenEth, krakenTrades, polymarketGamma, polymarketClob, manifold, predictit] = await Promise.all([
+      safeFetch('https://api.kraken.com/0/public/Ticker?pair=SOLUSD'),
+      safeFetch('https://api.kraken.com/0/public/Ticker?pair=XBTUSD'),
+      safeFetch('https://api.kraken.com/0/public/Ticker?pair=ETHUSD'),
+      safeFetch('https://api.kraken.com/0/public/Trades?pair=SOLUSD'),
+      safeFetch('https://gamma-api.polymarket.com/events?active=true&closed=false&limit=200'),
+      safeFetch('https://clob.polymarket.com/markets?active=true&closed=false&limit=200'),
+      safeFetch('https://api.manifold.markets/v0/markets?limit=100'),
+      safeFetch('https://www.predictit.org/api/marketdata/all/'),
+    ]);
+
+    // ── Parse Crypto Prices ───────────────────────────────────────────────────
+    const crypto = {};
+    let volatilityIndex = 0;
+
+    if (krakenSol?.result) {
+      const k = Object.keys(krakenSol.result)[0];
+      crypto.SOL = parseFloat(krakenSol.result[k].c[0]);
+    }
+    if (krakenBtc?.result) {
+      const k = Object.keys(krakenBtc.result)[0];
+      crypto.BTC = parseFloat(krakenBtc.result[k].c[0]);
+    }
+    if (krakenEth?.result) {
+      const k = Object.keys(krakenEth.result)[0];
+      crypto.ETH = parseFloat(krakenEth.result[k].c[0]);
+    }
+    if (krakenTrades?.result) {
+      const k = Object.keys(krakenTrades.result)[0];
+      volatilityIndex = calcVolatilityIndex(krakenTrades.result[k] || []);
+    }
+
+    // ── Parse Global Markets ──────────────────────────────────────────────────
+    const allMarkets = [];
+    const marketMap = {};
+    const now = Date.now();
+
+    // Polymarket CLOB (Primary – Best Prices)
+    if (Array.isArray(polymarketClob)) {
+      polymarketClob.forEach(m => {
+        if (!m.active || m.closed) return;
+        const tokens = m.tokens || [];
+        if (tokens.length < 2) return;
+        const yes = tokens.find(t => t.outcome?.toUpperCase() === 'YES') || tokens[0];
+        const no  = tokens.find(t => t.outcome?.toUpperCase() === 'NO')  || tokens[1];
+        const yP  = parseFloat(yes?.price || 0);
+        const nP  = parseFloat(no?.price  || 0);
+        if (yP <= 0 || yP >= 1 || nP <= 0 || nP >= 1) return;
+        
+        const market = {
+          id: m.market_slug,
+          source: 'Polymarket',
+          title: m.question || '',
+          yes_price: yP,
+          no_price: nP,
+          // 5/10/25 tiers kept for Opportunity Cards
+          yes_roi_5: calcProfit(yP, 1.0, 5, 0.002).roi,
+          yes_roi_10: calcProfit(yP, 1.0, 10, 0.002).roi,
+          yes_roi_25: calcProfit(yP, 1.0, 25, 0.002).roi,
+          no_roi_5: calcProfit(nP, 1.0, 5, 0.002).roi,
+          no_roi_10: calcProfit(nP, 1.0, 10, 0.002).roi,
+          no_roi_25: calcProfit(nP, 1.0, 25, 0.002).roi,
+          yes_net_5: calcProfit(yP, 1.0, 5, 0.002).net,
+          yes_net_10: calcProfit(yP, 1.0, 10, 0.002).net,
+          yes_net_25: calcProfit(yP, 1.0, 25, 0.002).net,
+          no_net_5: calcProfit(nP, 1.0, 5, 0.002).net,
+          no_net_10: calcProfit(nP, 1.0, 10, 0.002).net,
+          no_net_25: calcProfit(nP, 1.0, 25, 0.002).net,
+          volume: 0,
+          fee: 0.002,
+          chain: 'Polygon',
+          token: 'USDC',
+          url: `https://polymarket.com/event/${m.market_slug}`,
+          category: 'Prediction',
+          timestamp: now,
+        };
+        if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
       });
     }
 
-    // 2. Cross-DEX Arbitrage Pair Configuration
-    const ARBITRAGE_PAIRS = [
-      {
-        id: "monaco-hxro-solana",
-        buy: "Monaco",
-        sell: "Hxro",
-        chain: "Solana",
-        token: "SPL_OUTCOME",
-        priority: 1,
-        description: "Monaco vs Hxro - SPL Outcome Tokens (Primary Focus)"
-      },
-      {
-        id: "polymarket-uniswap-polygon",
-        buy: "Polymarket",
-        sell: "UniswapV3",
-        chain: "Polygon",
-        token: "ERC1155_CTF",
-        priority: 2,
-        description: "Polymarket vs UniswapV3 - ERC1155 Conditional Tokens"
-      },
-      {
-        id: "jupiterpm-polybridge-solana",
-        buy: "JupiterPM",
-        sell: "PolymarketBridge",
-        chain: "Solana",
-        token: "WPM_SHARE",
-        priority: 3,
-        description: "JupiterPM vs PolymarketBridge - Wrapped PM Shares"
-      }
-    ];
-
-    // 3. Data Ingestion (Enhanced Limits)
-    const [polyRes, manifoldRes, kalshiRes] = await Promise.allSettled([
-      fetch('https://gamma-api.polymarket.com/markets?active=true&limit=150&order=volume&dir=desc'),
-      fetch('https://api.manifold.markets/v0/markets?limit=150&sort=updated-time'),
-      fetch('https://api.elections.kalshi.com/trade-api/v2/markets?limit=100&status=open')
-    ]);
-
-    let allMarkets = [];
-
-    const isMarketCurrent = (title, closedDate) => {
-      if (closedDate) {
-        const year = new Date(closedDate).getFullYear();
-        if (year < currentYear) return false;
-      }
-      const oldYearMatch = title.match(/\b(202[0-5]|201[0-9])\b/);
-      return !oldYearMatch;
-    };
-
-    // Polymarket Data
-    if (polyRes.status === 'fulfilled') {
-      try {
-        const data = await polyRes.value.json();
-        data.forEach(m => {
-          if (m.outcomePrices && isMarketCurrent(m.question, m.closedTime)) {
-            const prices = JSON.parse(m.outcomePrices);
-            allMarkets.push({
-              p: 'Polymarket',
-              n: m.question.trim(),
-              v: parseFloat(prices[0]) * 100,
-              u: `https://polymarket.com/event/${m.slug}`,
-              vol: parseFloat(m.volume) || 0,
-              fee: 0.002,
-              chain: 'Polygon',
-              token: 'ERC1155_CTF'
-            });
-          }
-        });
-      } catch (e) {}
+    // Manifold Markets
+    if (Array.isArray(manifold)) {
+      manifold.forEach(m => {
+        if (m.isResolved || (m.closeTime && m.closeTime < now)) return;
+        const prob = m.probability / 100;
+        if (prob <= 0 || prob >= 1) return;
+        
+        const market = {
+          id: m.id,
+          source: 'Manifold',
+          title: m.question || '',
+          yes_price: prob,
+          no_price: 1 - prob,
+          yes_roi_5: calcProfit(prob, 1.0, 5, 0.002).roi,
+          yes_roi_10: calcProfit(prob, 1.0, 10, 0.002).roi,
+          yes_roi_25: calcProfit(prob, 1.0, 25, 0.002).roi,
+          no_roi_5: calcProfit(1 - prob, 1.0, 5, 0.002).roi,
+          no_roi_10: calcProfit(1 - prob, 1.0, 10, 0.002).roi,
+          no_roi_25: calcProfit(1 - prob, 1.0, 25, 0.002).roi,
+          yes_net_5: calcProfit(prob, 1.0, 5, 0.002).net,
+          yes_net_10: calcProfit(prob, 1.0, 10, 0.002).net,
+          yes_net_25: calcProfit(prob, 1.0, 25, 0.002).net,
+          no_net_5: calcProfit(1 - prob, 1.0, 5, 0.002).net,
+          no_net_10: calcProfit(1 - prob, 1.0, 10, 0.002).net,
+          no_net_25: calcProfit(1 - prob, 1.0, 25, 0.002).net,
+          volume: m.volume24Hours || 0,
+          fee: 0.002,
+          chain: 'Web2',
+          token: 'USD',
+          url: m.url || '',
+          category: 'General',
+          timestamp: now,
+        };
+        if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
+      });
     }
 
-    // Manifold Data
-    if (manifoldRes.status === 'fulfilled') {
-      try {
-        const data = await manifoldRes.value.json();
-        data.forEach(m => {
-          if (m.probability !== undefined && isMarketCurrent(m.question, m.closeTime)) {
-            allMarkets.push({
-              p: 'Manifold',
-              n: m.question.trim(),
-              v: m.probability * 100,
-              u: m.url,
-              vol: m.volume || 0,
-              fee: 0,
-              chain: 'Ethereum',
-              token: 'ERC20'
-            });
-          }
+    // PredictIt Markets
+    if (predictit?.markets) {
+      predictit.markets.forEach(m => {
+        if (!m.active) return;
+        m.contracts?.forEach(c => {
+          if (c.lastTradePrice <= 0 || c.lastTradePrice >= 1) return;
+          
+          const market = {
+            id: `predictit-${m.id}-${c.id}`,
+            source: 'PredictIt',
+            title: `${m.name} - ${c.name}`,
+            yes_price: c.lastTradePrice,
+            no_price: 1 - c.lastTradePrice,
+            yes_roi_5: calcProfit(c.lastTradePrice, 1.0, 5, 0.002).roi,
+            yes_roi_10: calcProfit(c.lastTradePrice, 1.0, 10, 0.002).roi,
+            yes_roi_25: calcProfit(c.lastTradePrice, 1.0, 25, 0.002).roi,
+            no_roi_5: calcProfit(1 - c.lastTradePrice, 1.0, 5, 0.002).roi,
+            no_roi_10: calcProfit(1 - c.lastTradePrice, 1.0, 10, 0.002).roi,
+            no_roi_25: calcProfit(1 - c.lastTradePrice, 1.0, 25, 0.002).roi,
+            yes_net_5: calcProfit(c.lastTradePrice, 1.0, 5, 0.002).net,
+            yes_net_10: calcProfit(c.lastTradePrice, 1.0, 10, 0.002).net,
+            yes_net_25: calcProfit(c.lastTradePrice, 1.0, 25, 0.002).net,
+            no_net_5: calcProfit(1 - c.lastTradePrice, 1.0, 5, 0.002).net,
+            no_net_10: calcProfit(1 - c.lastTradePrice, 1.0, 10, 0.002).net,
+            no_net_25: calcProfit(1 - c.lastTradePrice, 1.0, 25, 0.002).net,
+            volume: m.volume || 0,
+            fee: 0.002,
+            chain: 'Web2',
+            token: 'USD',
+            url: `https://www.predictit.org/markets/detail/${m.id}`,
+            category: 'Politics',
+            timestamp: now,
+          };
+          if (!marketMap[market.id]) { marketMap[market.id] = market; allMarkets.push(market); }
         });
-      } catch (e) {}
+      });
     }
 
-    // Kalshi Data
-    if (kalshiRes.status === 'fulfilled') {
-      try {
-        const data = await kalshiRes.value.json();
-        if (data.markets) {
-          data.markets.forEach(m => {
-            if (m.yes_bid && isMarketCurrent(m.title, m.close_time)) {
-              allMarkets.push({
-                p: 'Kalshi',
-                n: m.title.trim(),
-                v: parseFloat(m.yes_bid),
-                u: `https://kalshi.com/markets/${m.ticker}`,
-                vol: parseFloat(m.volume) || 0,
-                fee: 0.004,
-                chain: 'Ethereum',
-                token: 'ERC20'
-              });
-            }
+    // ── Arbitrage Detection (Legacy support for Signals) ───────────────────────
+    const opportunities = [];
+    allMarkets.forEach(m => {
+      const sum = m.yes_price + m.no_price;
+      if (sum < 0.990 && sum > 0.01) {
+        const spread = 1 - sum;
+        const pctSpread = (spread / sum) * 100;
+        const totalFees = (m.fee * 2) * 100;
+        if (pctSpread > totalFees + 0.1) {
+          const p5  = calcProfit(m.yes_price, 1.0, 5, m.fee);
+          const p10 = calcProfit(m.yes_price, 1.0, 10, m.fee);
+          const p25 = calcProfit(m.yes_price, 1.0, 25, m.fee);
+          opportunities.push({
+            pairId: `spread-${m.source}-${m.id}`,
+            title: m.title,
+            buyDex: `${m.source} YES`,
+            sellDex: `${m.source} NO`,
+            chain: m.chain,
+            token: m.token,
+            buyPrice: m.yes_price * 100,
+            sellPrice: (1 - m.no_price) * 100,
+            priceDifference: spread * 100,
+            percentageDifference: pctSpread,
+            profitMargin: pctSpread - totalFees,
+            profit5: p5.net, profit10: p10.net, profit25: p25.net,
+            roi5: p5.roi, roi10: p10.roi, roi25: p25.roi,
+            volume: m.volume,
+            category: m.category,
+            source: m.source,
+            status: 'PROFITABLE',
           });
         }
-      } catch (e) {}
-    }
-
-    // 4. Arbitrage Detection Engine
-    const detectArbitrages = (markets, pairs) => {
-      const opportunities = [];
-      
-      for (const pair of pairs) {
-        // Find markets matching this pair's DEXs
-        const buyMarkets = markets.filter(m => m.p.toLowerCase() === pair.buy.toLowerCase());
-        const sellMarkets = markets.filter(m => m.p.toLowerCase() === pair.sell.toLowerCase());
-
-        for (const buyM of buyMarkets) {
-          for (const sellM of sellMarkets) {
-            // Check if same chain and token
-            if (buyM.chain === sellM.chain && buyM.token === sellM.token) {
-              const priceDiff = sellM.v - buyM.v;
-              const percentDiff = (priceDiff / buyM.v) * 100;
-              const minVolume = Math.min(buyM.vol, sellM.vol);
-              
-              // Thresholds
-              const minPriceDiff = 1; // 1%
-              const minVolumeThreshold = 100; // $100
-
-              if (percentDiff >= minPriceDiff && minVolume >= minVolumeThreshold) {
-                const profitMargin = percentDiff - 0.5; // Account for 0.5% spread
-                
-                opportunities.push({
-                  pairId: pair.id,
-                  buyDex: pair.buy,
-                  sellDex: pair.sell,
-                  chain: pair.chain,
-                  token: pair.token,
-                  buyPrice: buyM.v,
-                  sellPrice: sellM.v,
-                  priceDifference: priceDiff,
-                  percentageDifference: percentDiff,
-                  profitMargin: profitMargin,
-                  volume: minVolume,
-                  buyMarket: buyM.n,
-                  sellMarket: sellM.n,
-                  timestamp: Date.now(),
-                  status: profitMargin > 0 ? 'PROFITABLE' : 'MARGINAL'
-                });
-              }
-            }
-          }
-        }
       }
+    });
 
-      // Sort by profit margin
-      return opportunities.sort((a, b) => b.profitMargin - a.profitMargin);
-    };
-
-    const opportunities = detectArbitrages(allMarkets, ARBITRAGE_PAIRS);
-
-    // 5. Response Formatting
     const response = {
       timestamp: new Date().toISOString(),
       executionTime: Date.now() - startTime,
+      version: "3.0",
       totalMarkets: allMarkets.length,
-      arbitragePairs: ARBITRAGE_PAIRS.length,
       opportunitiesFound: opportunities.length,
-      profitableOpportunities: opportunities.filter(o => o.status === 'PROFITABLE').length,
-      opportunities: opportunities.slice(0, 50), // Top 50
-      markets: allMarkets.slice(0, 100), // Top 100 markets
-      status: 'SUCCESS'
+      opportunities: opportunities.sort((a, b) => b.profitMargin - a.profitMargin).slice(0, 50),
+      markets: allMarkets.slice(0, 100),
+      crypto: crypto,
+      volatilityIndex: volatilityIndex,
+      status: 'SUCCESS',
     };
 
     return new Response(JSON.stringify(response), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  }
+  },
 };

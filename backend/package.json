@@ -1,0 +1,28 @@
+{
+  "name": "alphascan-backend",
+  "version": "4.0.0",
+  "description": "AlphaScan v4.0 PRO Backend - FamilyLaboratories",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create alphascan-db",
+    "db:migrate": "wrangler d1 migrations apply alphascan-db",
+    "db:migrate:local": "wrangler d1 migrations apply alphascan-db --local",
+    "kv:create": "wrangler kv:namespace create alphascan-kv",
+    "secrets:set": "node scripts/set-secrets.js",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bs58": "^6.0.0",
+    "hono": "^4.4.0",
+    "siwe": "^2.3.2",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240725.0",
+    "typescript": "^5.5.0",
+    "wrangler": "^3.65.0"
+  }
+}

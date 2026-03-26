@@ -1,0 +1,32 @@
+name = "alphascan-backend"
+main = "src/worker.ts"
+compatibility_date = "2025-09-27"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "alphascan-db"
+database_id = "v1.0-1136352999735383237a782e-4025c8227e199f7a3d55f7b81762ee5f20380623705edf8551ef4021203da8dd15624364311765e3e575c35de59df82ca1e67d929b8c3a70c8ffc90c03804a97d4c1b93c65da8ee1dc"
+migrations_dir = "migrations"
+
+# KV Namespace (Session blacklist, nonces, rate limits)
+[[kv_namespaces]]
+binding = "KV"
+id = "7c286cacaf23451ea75767fd83395c05"
+
+# Cron Trigger: Reset expired tiers every hour
+[triggers]
+crons = ["0 * * * *"]
+
+# Secrets (set via: wrangler secret put SECRET_NAME)
+# JWT_SECRET
+# ALCHEMY_API_KEY
+# RECEIVER_ADDRESS_ETH
+# RECEIVER_ADDRESS_SOL
+
+[vars]
+AUTH_PASSWORD = "TGMFAM2026"
