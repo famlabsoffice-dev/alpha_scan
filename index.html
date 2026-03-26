@@ -942,18 +942,25 @@
             }
 
             ui.accessBtn.addEventListener('click', () => {
-                if (ui.accessPass.value === 'FamilyLabs2026') { // Hardcoded for now
+                const pass = ui.accessPass.value.trim();
+                if (pass === 'FamilyLabs2026') {
                     localStorage.setItem('alphaScanAccess', 'granted');
                     state.accessGranted = true;
                     ui.accessOverlay.classList.add('hidden');
-                    performScan();
+                    // Delay scan slightly to ensure UI transition is smooth
+                    setTimeout(() => {
+                        performScan();
+                    }, 300);
                 } else {
                     ui.accessError.classList.remove('hidden');
+                    ui.accessPass.value = '';
+                    ui.accessPass.focus();
                 }
             });
 
-            ui.accessPass.addEventListener('keypress', (e) => {
+            ui.accessPass.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
+                    e.preventDefault();
                     ui.accessBtn.click();
                 }
             });
