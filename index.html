@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <!-- NEW: Solana Web3.js for balance + RPC -->
     <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=IBM+Plex+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=IBM+Plex+Mono:wght@400;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { 
             --bg: #020617; 
@@ -151,10 +151,10 @@
                 </div>
                 <div class="wallet-option wallet-chain-sol p-5 rounded-2xl flex items-center justify-between" onclick="connectSolflare()">
                     <div class="flex items-center gap-5">
-                        <span class="text-2xl">🌟</span>
+                        <span class="text-2xl">🔥</span>
                         <div>
                             <div class="font-orbitron font-black text-white text-sm uppercase tracking-wider">Solflare</div>
-                            <div class="text-[10px] text-slate-500 font-mono mt-0.5">Powerful Solana wallet</div>
+                            <div class="text-[10px] text-slate-500 font-mono mt-0.5">Solana wallet by Solflare</div>
                         </div>
                     </div>
                     <span id="solflareStatus" class="text-[9px] font-mono px-3 py-1.5 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
@@ -163,7 +163,7 @@
 
             <!-- EVM Chain -->
             <div class="mb-3">
-                <span class="text-[9px] font-mono tracking-[0.5em] uppercase px-3 py-1 rounded-full chain-label-evm">⟠ Ethereum / EVM</span>
+                <span class="text-[9px] font-mono tracking-[0.5em] uppercase px-3 py-1 rounded-full chain-label-evm">Ξ EVM</span>
             </div>
             <div class="flex flex-col gap-3">
                 <div class="wallet-option wallet-chain-evm p-5 rounded-2xl flex items-center justify-between" onclick="connectEVM('metamask')">
@@ -171,7 +171,7 @@
                         <span class="text-2xl">🦊</span>
                         <div>
                             <div class="font-orbitron font-black text-white text-sm uppercase tracking-wider">MetaMask</div>
-                            <div class="text-[10px] text-slate-500 font-mono mt-0.5">Industry standard EVM wallet</div>
+                            <div class="text-[10px] text-slate-500 font-mono mt-0.5">Most popular EVM wallet</div>
                         </div>
                     </div>
                     <span id="metamaskStatus" class="text-[9px] font-mono px-3 py-1.5 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
@@ -181,7 +181,7 @@
                         <span class="text-2xl">🐰</span>
                         <div>
                             <div class="font-orbitron font-black text-white text-sm uppercase tracking-wider">Rabby Wallet</div>
-                            <div class="text-[10px] text-slate-500 font-mono mt-0.5">Advanced security for EVM</div>
+                            <div class="text-[10px] text-slate-500 font-mono mt-0.5">EVM wallet by DeBank</div>
                         </div>
                     </div>
                     <span id="rabbyStatus" class="text-[9px] font-mono px-3 py-1.5 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
@@ -190,359 +190,345 @@
         </div>
     </div>
 
-    <!-- NEW: SIWE Status Banner -->
-    <div id="siweBanner" class="hidden fixed top-28 left-1/2 -translate-x-1/2 z-[300] px-10 py-4 rounded-2xl border backdrop-blur-xl animate-slide-down">
-        <div class="flex items-center gap-4">
-            <div class="siwe-dot"></div>
-            <span id="siweBannerText" class="text-[10px] font-mono text-white uppercase tracking-[0.2em] font-black"></span>
+    <!-- Main Content -->
+    <div class="relative min-h-screen flex flex-col items-center justify-start pt-8 pb-20 px-4">
+        <!-- Header -->
+        <header class="w-full max-w-6xl flex justify-between items-center mb-12">
+            <div class="flex items-center gap-4">
+                <span class="text-[10px] font-orbitron font-black tracking-[0.5em] text-yellow-500 uppercase">FAMILYLABORATORIES</span>
+                <div class="relative px-3 py-1 text-[10px] font-mono text-yellow-400 border border-yellow-400 rounded-full flex items-center gap-2">
+                    ALPHASCAN <span class="text-white">v4.1.0 GOLD PRO WEB3 FINAL</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-[10px] font-mono text-slate-500 uppercase">
+                    WALLET: <span id="walletAddr">NOT CONNECTED</span>
+                    <span id="siweIndicator" class="siwe-dot ml-2 hidden"></span>
+                </div>
+                <button id="connectBtn" class="bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-2 rounded-full font-orbitron font-black uppercase tracking-widest transition-all text-sm">
+                    CONNECT WALLET
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="text-center mb-20">
+            <h1 class="font-orbitron text-6xl md:text-8xl font-black gold-gradient uppercase leading-none mb-6">
+                ALPHA<br>SCAN
+            </h1>
+            <p class="text-slate-300 text-lg md:text-xl font-mono mb-8">
+                HYPERPRECISE PREDICTION ARBITRAGE SCANNER.
+                <br>WEB3 SECURED.
+            </p>
+            <button id="liveScanBtn" class="bg-yellow-500 hover:bg-yellow-600 text-black px-12 py-5 rounded-full font-orbitron font-black uppercase tracking-widest text-lg transition-all shadow-lg gold-glow">
+                LIVE SCAN AUSFÜHREN
+            </button>
+        </section>
+
+        <!-- SIWE Status Banner -->
+        <div id="siweStatusBanner" class="fixed top-0 left-1/2 -translate-x-1/2 mt-4 px-6 py-3 rounded-full text-sm font-mono hidden animate-slide-down z-[180]">
+            <span id="siweStatusText"></span>
         </div>
+
+        <!-- Opportunities Section -->
+        <section id="opportunitiesSection" class="w-full max-w-6xl mb-20">
+            <h2 class="text-3xl font-orbitron font-black text-white uppercase mb-10 text-center">
+                <span class="text-yellow-500">TOP 10</span> OPPORTUNITIES
+                <span class="text-slate-500 text-base block mt-2">ARBITRAGE & HIGH ROI</span>
+            </h2>
+            <div id="opportunitiesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Opportunity Cards will be injected here -->
+            </div>
+            <div id="noOpportunities" class="text-center text-slate-500 font-mono text-sm mt-12 hidden">
+                Keine hochprofitablen Arbitrage-Möglichkeiten gefunden. Versuchen Sie es später erneut.
+            </div>
+        </section>
+
+        <!-- Underdog Section -->
+        <section id="underdogSection" class="w-full max-w-6xl mb-20">
+            <h2 class="text-3xl font-orbitron font-black text-white uppercase mb-10 text-center">
+                <span class="text-blue-500">UNBEACHTETE</span> UNDERDOGS
+                <span class="text-slate-500 text-base block mt-2">HOHE VOLATILITÄT & GERINGES INTERESSE</span>
+            </h2>
+            <div id="underdogGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Underdog Cards will be injected here -->
+            </div>
+            <div id="noUnderdogs" class="text-center text-slate-500 font-mono text-sm mt-12 hidden">
+                Keine Underdog-Möglichkeiten gefunden. Versuchen Sie es später erneut.
+            </div>
+        </section>
+
+        <!-- Chart Section -->
+        <section class="w-full max-w-6xl mb-20">
+            <h2 class="text-3xl font-orbitron font-black text-white uppercase mb-10 text-center">
+                MARKET <span class="text-yellow-500">TRENDS</span>
+                <span class="text-slate-500 text-base block mt-2">PREDICTION MARKET INSIGHTS</span>
+            </h2>
+            <div class="glass p-8 rounded-[2rem] border-blue-500/30">
+                <canvas id="marketChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="w-full max-w-6xl text-center text-slate-500 text-xs font-mono uppercase tracking-widest mt-20">
+            <p class="mb-2">FAMILYLABORATORIES &copy; 2026. ALL RIGHTS RESERVED.</p>
+            <p class="mb-2">WEB3 SECURED. <span class="gold-gradient gold-glow">BUILD FOR BILLIONS.</span></p>
+            <p class="text-yellow-500 gold-glow">OUTCOME TOKENS SIND NICHT FÜR DEN HANDEL GEDACHT, SONDERN FÜR DIE TEILNAHME AN VORHERSAGEMÄRKTEN.</p>
+        </footer>
     </div>
 
-    <!-- Header -->
-    <header class="glass sticky top-0 z-50 px-10 py-6 flex items-center justify-between border-b border-yellow-500/20">
-        <div class="flex items-center gap-8">
-            <div class="flex flex-col">
-                <span class="text-[10px] font-orbitron font-black tracking-[0.5em] text-yellow-500 uppercase mb-1">FAMILYLABORATORIES</span>
-                <h1 class="font-orbitron text-3xl font-black tracking-tighter text-white uppercase leading-none">ALPHA<span class="text-yellow-500">SCAN</span> <span class="ml-2 text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full font-sans tracking-normal">v4.1.0 GOLD PRO WEB3 FINAL</span></h1>
-            </div>
-            <div class="hidden lg:flex items-center gap-4 text-[10px] font-mono tracking-[0.3em] text-slate-500 border-l border-white/10 pl-8">
-                <span class="w-2 h-2 bg-yellow-500 rounded-full pulse"></span>
-                ENTERPRISE WEB3 TERMINAL
-            </div>
-        </div>
-        <div class="flex items-center gap-8">
-            <div id="proBadge" class="hidden pro-badge">PRO ACTIVE</div>
-            <div id="walletStatus" class="hidden md:flex items-center gap-4 bg-white/5 px-5 py-2.5 rounded-2xl border border-white/10 text-[10px] font-mono">
-                <div id="siweIndicator" class="hidden siwe-dot mr-1"></div>
-                <span id="walletTypeLabel" class="hidden opacity-40 uppercase tracking-widest mr-2"></span>
-                <span id="walletBalance" class="hidden text-yellow-500 font-black mr-3 border-r border-white/10 pr-3"></span>
-                <span id="walletAddr" class="text-yellow-400 font-bold">NOT CONNECTED</span>
-            </div>
-            <button id="connectBtn" class="bg-yellow-500 hover:bg-yellow-600 text-black px-8 py-3 rounded-2xl text-xs font-black transition-all uppercase tracking-[0.2em] shadow-xl shadow-yellow-500/20">Connect Wallet</button>
-        </div>
-    </header>
-
-    <!-- Hero -->
-    <section class="relative pt-40 pb-32 px-6 text-center overflow-hidden">
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-yellow-600/5 blur-[150px] rounded-full pointer-events-none"></div>
-        <div class="relative z-10">
-            <div class="inline-block px-6 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black tracking-[0.5em] uppercase mb-10">FamilyLaboratories Web3 Enterprise</div>
-            <h2 class="font-orbitron text-8xl md:text-[10rem] font-black mb-10 tracking-tighter uppercase gold-glow leading-none">
-                ALPHA <span class="gold-gradient">SCAN</span>
-            </h2>
-            <p class="text-slate-400 max-w-4xl mx-auto mb-20 text-2xl font-light tracking-[0.2em] leading-relaxed uppercase">
-                Hyperprecise Prediction Arbitrage Scanner.<br>
-                <span class="text-yellow-500 font-bold">Web3 Secured.</span>
-            </p>
-            
-            <button id="scanBtn" class="group relative bg-yellow-500 text-black px-20 py-8 rounded-[2.5rem] font-orbitron font-black text-3xl hover:scale-105 transition-all shadow-[0_30px_80px_rgba(251,191,36,0.3)] uppercase tracking-tighter">
-                <span class="relative z-10">Live Scan Ausführen</span>
-                <div class="absolute inset-0 bg-yellow-400 rounded-[2.5rem] blur-3xl opacity-0 group-hover:opacity-50 transition-all"></div>
-            </button>
-        </div>
-    </section>
-
-    <!-- Main -->
-    <main id="resultsArea" class="hidden px-10 pb-48 max-w-[1600px] mx-auto">
-        <!-- Top Opportunities -->
-        <div class="mb-32">
-            <div class="flex items-center justify-between mb-16">
-                <h3 class="font-orbitron text-5xl font-black flex items-center gap-8 uppercase tracking-tighter">
-                    <span class="text-yellow-500 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">★</span> Top 10 Opportunities
-                </h3>
-                <div class="text-[11px] font-mono text-slate-500 uppercase tracking-[0.6em] border-b border-yellow-500/30 pb-3">Arbitrage & High ROI</div>
-            </div>
-            <div id="top10Grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10"></div>
-        </div>
-
-        <!-- Unbeachtete Opportunities (Underdogs) -->
-        <div class="mb-32">
-            <div class="flex items-center justify-between mb-16">
-                <h3 class="font-orbitron text-5xl font-black flex items-center gap-8 uppercase tracking-tighter">
-                    <span class="text-yellow-500 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">⚠️</span> Unbeachtete Underdogs
-                </h3>
-                <div class="text-[11px] font-mono text-slate-500 uppercase tracking-[0.6em] border-b border-yellow-500/30 pb-3">ROI > 1000% | Price < 10¢</div>
-            </div>
-            <div id="underdogGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10"></div>
-        </div>
-
-        <!-- Filters -->
-        <div class="flex gap-16 border-b border-white/5 mb-20 overflow-x-auto no-scrollbar">
-            <button class="tab-btn tab-active pb-10 font-bold text-xs tracking-[0.4em] uppercase transition-all opacity-40" data-filter="ALL">Alle Märkte</button>
-            <button class="tab-btn pb-10 font-bold text-xs tracking-[0.4em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="ARB">Arbitrage 🔥</button>
-            <button class="tab-btn pb-10 font-bold text-xs tracking-[0.4em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="UNDERDOG">Underdogs ⚠️</button>
-            <button class="tab-btn pb-10 font-bold text-xs tracking-[0.4em] uppercase transition-all opacity-40 hover:opacity-100" data-filter="SOLANA">Solana Focus</button>
-        </div>
-
-        <!-- Feed -->
-        <div id="marketFeed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"></div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="px-10 py-32 border-t border-yellow-500/20 text-center text-slate-600">
-        <div class="mb-12 flex justify-center gap-20 uppercase tracking-[0.8em] font-black text-[11px] text-slate-500">
-            <span class="hover:text-yellow-500 transition-colors cursor-default">C•J•V•K</span>
-            <span class="hover:text-yellow-500 transition-colors cursor-default">© 2026 FamilyLaboratories</span>
-            <span class="hover:text-yellow-500 transition-colors cursor-default">Build in 4 - Build for Billions</span>
-        </div>
-        <p class="max-w-4xl mx-auto opacity-40 text-[11px] leading-loose uppercase tracking-[0.2em] font-medium mb-8">
-            Alle Daten werden in Echtzeit über öffentliche APIs aggregiert. <span class="text-yellow-500 font-bold drop-shadow-[0_0_10px_rgba(251,191,36,0.4)]">Arbitrage-Chancen auf Solana (Monaco/Hxro) nutzen identische SPL-Outcome-Tokens für sofortige Ausführung über Phantom-Wallet.</span> Ein Produkt von <span class="text-yellow-500 font-bold">FamilyLaboratories</span>.
-        </p>
-    </footer>
-
-    <script type="module">
-        const WEB3_CONFIG = {
-            RECEIVER_ADDR: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-            PAYMENT_AMOUNT: '0.01'
-        };
-
-        const CONFIG = { 
-            REFRESH_INTERVAL: 30000, 
-            JACCARD_THRESHOLD: 0.42,
-            CORS_PROXY: "https://alphascan.famlabsoffice.workers.dev/?auth=TGMFAM2026&url=" 
-        };
-
-        const PLATFORMS = {
-            Monaco: { name: "Monaco", color: "#f59e0b", url: "https://monaco.market/markets/" },
-            Hxro: { name: "Hxro", color: "#ef4444", url: "https://hxro.network/trade/" },
-            JupiterPM: { name: "JupiterPM", color: "#10b981", url: "https://jup.ag/predict/" },
-            Polymarket: { name: "Polymarket", color: "#3b82f6", url: "https://polymarket.com/event/" },
-            Manifold: { name: "Manifold", color: "#8b5cf6", url: "https://manifold.markets/" },
-            Metaculus: { name: "Metaculus", color: "#ec4899", url: "https://www.metaculus.com/questions/" }
-        };
-
-        const SOURCES = [
-            { id: "polymarket", name: "Polymarket", url: "https://clob.polymarket.com/markets?limit=100&active=true" },
-            { id: "manifold", name: "Manifold", url: "https://api.manifold.markets/v0/markets?limit=100" },
-            { id: "metaculus", name: "Metaculus", url: "https://www.metaculus.com/api2/questions/?limit=100&order_by=-prediction_count" }
-        ];
-
-        let state = {
-            markets: [],
-            arbs: [],
-            filter: "ALL",
+    <script>
+        // Global State
+        const state = {
             wallet: null,
-            walletType: null,
-            chainType: null,
-            provider: null,
-            signer: null,
-            solProvider: null,
-            ethBalance: null,
-            solBalance: null,
+            walletType: null, // 'phantom', 'backpack', 'solflare', 'metamask', 'rabby'
+            chainType: null,  // 'solana', 'evm'
+            solProvider: null, // Solana provider object
+            evmProvider: null, // Ethers provider object
+            evmSigner: null,   // Ethers signer object
+            solBalance: 0,
+            evmBalance: 0,
             siweVerified: false,
-            sessionValid: false,
-            isPro: localStorage.getItem('pro_status_web3_v2') === 'true'
+            isPro: false, // For future PRO features
+            accessGranted: false,
+            nonce: null,
+            apiUrl: 'https://alphascan.famlabsoffice.workers.dev/api', // Our Cloudflare Worker API
+            workerUrl: 'https://alphascan.famlabsoffice.workers.dev' // Original Worker for data
         };
+
+        // UI Elements
+        const ui = {
+            accessOverlay: document.getElementById('accessOverlay'),
+            accessPass: document.getElementById('accessPass'),
+            accessBtn: document.getElementById('accessBtn'),
+            accessError: document.getElementById('accessError'),
+            paymentModal: document.getElementById('paymentModal'),
+            closePaymentModal: document.getElementById('closePaymentModal'),
+            payWeb3Btn: document.getElementById('payWeb3Btn'),
+            txStatus: document.getElementById('txStatus'),
+            walletSelectorModal: document.getElementById('walletSelectorModal'),
+            closeWalletSelector: document.getElementById('closeWalletSelector'),
+            connectBtn: document.getElementById('connectBtn'),
+            walletAddr: document.getElementById('walletAddr'),
+            siweIndicator: document.getElementById('siweIndicator'),
+            siweStatusBanner: document.getElementById('siweStatusBanner'),
+            siweStatusText: document.getElementById('siweStatusText'),
+            opportunitiesGrid: document.getElementById('opportunitiesGrid'),
+            noOpportunities: document.getElementById('noOpportunities'),
+            underdogGrid: document.getElementById('underdogGrid'),
+            noUnderdogs: document.getElementById('noUnderdogs'),
+            liveScanBtn: document.getElementById('liveScanBtn'),
+            phantomStatus: document.getElementById('phantomStatus'),
+            backpackStatus: document.getElementById('backpackStatus'),
+            solflareStatus: document.getElementById('solflareStatus'),
+            metamaskStatus: document.getElementById('metamaskStatus'),
+            rabbyStatus: document.getElementById('rabbyStatus'),
+        };
+
+        // Chart.js Instance
+        let marketChart;
 
         /* ============================================================
-           NEW: Backend Communication (SIWE + Session)
+           UTILITIES
         ============================================================ */
+        function showSIWEBanner(message, type = 'signing') {
+            ui.siweStatusText.innerText = message;
+            ui.siweStatusBanner.className = `fixed top-0 left-1/2 -translate-x-1/2 mt-4 px-6 py-3 rounded-full text-sm font-mono animate-slide-down z-[180] siwe-banner-${type}`;
+            ui.siweStatusBanner.classList.remove('hidden');
+            setTimeout(() => {
+                ui.siweStatusBanner.classList.add('hidden');
+            }, 5000);
+        }
+
+        async function fetchSolBalance(publicKey) {
+            if (!state.solProvider) return 0;
+            try {
+                const connection = new SolanaWeb3.Connection(SolanaWeb3.clusterApiUrl('mainnet-beta'), 'confirmed');
+                const balance = await connection.getBalance(new SolanaWeb3.PublicKey(publicKey));
+                return balance / SolanaWeb3.LAMPORTS_PER_SOL;
+            } catch (error) {
+                console.error("Error fetching SOL balance:", error);
+                return 0;
+            }
+        }
+
+        async function fetchEvmBalance(address) {
+            if (!state.evmProvider) return 0;
+            try {
+                const balance = await state.evmProvider.getBalance(address);
+                return ethers.formatEther(balance);
+            } catch (error) {
+                console.error("Error fetching EVM balance:", error);
+                return 0;
+            }
+        }
+
         async function getNonce() {
             try {
-                const res = await fetch('https://alphascan.famlabsoffice.workers.dev/api/nonce');
-                const data = await res.json();
+                const response = await fetch(`${state.apiUrl}/auth/nonce`);
+                if (!response.ok) throw new Error('Failed to fetch nonce');
+                const data = await response.json();
                 return data.nonce;
-            } catch(e) { return Math.random().toString(36).substring(2); }
+            } catch (error) {
+                console.error("Error fetching nonce:", error);
+                return null;
+            }
         }
 
-        async function verifySIWE(payload) {
+        async function verifySIWE(message, signature) {
             try {
-                const res = await fetch('https://alphascan.famlabsoffice.workers.dev/api/siwe-verify', {
+                const response = await fetch(`${state.apiUrl}/auth/verify`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ message, signature, wallet: state.wallet, chainType: state.chainType })
                 });
-                return await res.json();
-            } catch(e) { return { valid: true, isPro: state.isPro }; } // Fallback for local dev
-        }
-
-        async function checkSession() {
-            try {
-                const res = await fetch('https://alphascan.famlabsoffice.workers.dev/api/session');
-                const data = await res.json();
-                state.sessionValid = data.valid;
-                if (data.isPro) state.isPro = true;
-                updateUI();
-            } catch(e) { state.sessionValid = false; }
-        }
-
-        function generateSIWEMessage({ address, chainId, nonce }) {
-            const domain = window.location.host;
-            const origin = window.location.origin;
-            const statement = 'Sign in to AlphaScan - Hyperprecise Prediction Arbitrage Scanner';
-            const issuedAt = new Date().toISOString();
-            return `${domain} wants you to sign in with your Ethereum account:\n${address}\n\n${statement}\n\nURI: ${origin}\nVersion: 1\nChain ID: ${chainId}\nNonce: ${nonce}\nIssued At: ${issuedAt}`;
-        }
-
-        function generateSIWSMessage({ address, nonce }) {
-            const domain = window.location.host;
-            const issuedAt = new Date().toISOString();
-            return `${domain} wants you to sign in with your Solana account:\n${address}\n\nSign in to AlphaScan - Hyperprecise Prediction Arbitrage Scanner\n\nNonce: ${nonce}\nIssued At: ${issuedAt}`;
-        }
-
-        /* ============================================================
-           NEW: Double-Auth Guard
-        ============================================================ */
-        async function doubleAuthGuard(callback) {
-            if (!state.wallet) { openWalletSelector(); return false; }
-            if (!state.siweVerified) {
-                if (state.chainType === 'solana') await performSolSIWE(state.solProvider, state.wallet);
-                else await performEVMSIWE();
-                if (!state.siweVerified) return false;
+                if (!response.ok) throw new Error('SIWE verification failed');
+                const data = await response.json();
+                state.siweVerified = data.success; // Update SIWE status
+                return data.success;
+            } catch (error) {
+                console.error("SIWE verification error:", error);
+                state.siweVerified = false; // Reset SIWE status on error
+                return false;
             }
-            if (callback) callback();
-            return true;
         }
 
-        /* ============================================================
-           NEW: Balance Fetchers
-        ============================================================ */
-        async function fetchSolBalance(address) {
+        async function performEvmSIWE(signer, address) {
+            showSIWEBanner('Waiting for EVM signature...', 'signing');
             try {
-                const connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com");
-                const pubkey = new solanaWeb3.PublicKey(address);
-                const balance = await connection.getBalance(pubkey);
-                return (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
-            } catch(e) { return '0.0000'; }
-        }
-
-        async function fetchEthBalance(address) {
-            try {
-                const balance = await state.provider.getBalance(address);
-                return parseFloat(ethers.formatEther(balance)).toFixed(4);
-            } catch(e) { return '0.0000'; }
-        }
-
-        /* ============================================================
-           NEW: SIWE Status Banner
-        ============================================================ */
-        function showSIWEStatus(status) {
-            const banner = document.getElementById('siweBanner');
-            const text   = document.getElementById('siweBannerText');
-            banner.className = 'fixed top-28 left-1/2 -translate-x-1/2 z-[300] px-10 py-4 rounded-2xl border backdrop-blur-xl animate-slide-down';
-            if (status === 'signing') {
-                banner.classList.add('siwe-banner-signing');
-                text.textContent = '⏳ WALLET SIGN REQUEST — BITTE SIGNIEREN...';
-            } else if (status === 'success') {
-                banner.classList.add('siwe-banner-success');
-                text.textContent = '✅ SESSION VERIFIED — DOUBLE AUTH ACTIVE';
-                setTimeout(() => banner.classList.add('hidden'), 5000);
-            } else if (status === 'failed') {
-                banner.classList.add('siwe-banner-failed');
-                text.textContent = '❌ VERIFICATION FAILED — RETRY';
-            }
-            banner.classList.remove('hidden');
-        }
-
-        /* ============================================================
-           NEW: Solana SIWE Signing Flow (shared by all Sol wallets)
-        ============================================================ */
-        async function performSolSIWE(provider, address) {
-            try {
-                showSIWEStatus('signing');
-                const nonce   = await getNonce();
-                const message = generateSIWSMessage({ address, nonce });
-                const encoded = new TextEncoder().encode(message);
-
-                let sigBytes;
-                if (provider.signMessage) {
-                    const signResult = await provider.signMessage(encoded, 'utf8');
-                    sigBytes = signResult.signature || signResult;
-                }
-
-                // Base64-encode the raw signature bytes
-                const sigB64 = btoa(String.fromCharCode(...new Uint8Array(sigBytes)));
-
-                const result = await verifySIWE({ message, signature: sigB64, address, type: 'solana' });
-                if (result.valid) {
+                state.nonce = await getNonce();
+                const message = `famlabsoffice.com wants you to sign in with your Ethereum account:\n${address}\n\nI accept the FamilyLaboratories Terms of Service: https://famlabsoffice.com/terms\n\nURI: https://famlabsoffice.com\nVersion: 1\nChain ID: ${await signer.getChainId()}\nNonce: ${state.nonce}\nIssued At: ${new Date().toISOString()}`;
+                const signature = await signer.signMessage(message);
+                const success = await verifySIWE(message, signature);
+                if (success) {
+                    showSIWEBanner('EVM Wallet verified!', 'success');
                     state.siweVerified = true;
-                    state.sessionValid = true;
-                    if (result.isPro) { state.isPro = true; localStorage.setItem('pro_status_web3_v2', 'true'); }
-                    showSIWEStatus('success');
                 } else {
-                    showSIWEStatus('failed');
+                    showSIWEBanner('EVM Wallet verification failed!', 'failed');
+                    state.siweVerified = false;
                 }
-            } catch(e) {
-                console.error('Sol SIWE error:', e);
-                showSIWEStatus('failed');
+            } catch (error) {
+                console.error("EVM SIWE error:", error);
+                showSIWEBanner('EVM Signature rejected or failed!', 'failed');
+                state.siweVerified = false;
             }
         }
 
-        /* ============================================================
-           NEW: EVM SIWE Signing Flow (MetaMask + Rabby)
-        ============================================================ */
-        async function performEVMSIWE(chainId = 1) {
+        async function performSolSIWE(provider, publicKey) {
+            showSIWEBanner('Waiting for Solana signature...', 'signing');
             try {
-                showSIWEStatus('signing');
-                const nonce     = await getNonce();
-                const message   = generateSIWEMessage({ address: state.wallet, chainId, nonce });
-                const signature = await state.signer.signMessage(message);
-
-                const result = await verifySIWE({ message, signature, address: state.wallet, type: 'evm' });
-                if (result.valid) {
+                state.nonce = await getNonce();
+                const message = `famlabsoffice.com wants you to sign in with your Solana account:\n${publicKey}\n\nI accept the FamilyLaboratories Terms of Service: https://famlabsoffice.com/terms\n\nURI: https://famlabsoffice.com\nVersion: 1\nChain ID: 101\nNonce: ${state.nonce}\nIssued At: ${new Date().toISOString()}`;
+                const encodedMessage = new TextEncoder().encode(message);
+                const signature = await provider.signMessage(encodedMessage, "utf8");
+                const success = await verifySIWE(message, signature.signature.toString('base64'));
+                if (success) {
+                    showSIWEBanner('Solana Wallet verified!', 'success');
                     state.siweVerified = true;
-                    state.sessionValid = true;
-                    if (result.isPro) { state.isPro = true; localStorage.setItem('pro_status_web3_v2', 'true'); }
-                    showSIWEStatus('success');
                 } else {
-                    showSIWEStatus('failed');
+                    showSIWEBanner('Solana Wallet verification failed!', 'failed');
+                    state.siweVerified = false;
                 }
-            } catch(e) {
-                console.error('EVM SIWE error:', e);
-                showSIWEStatus('failed');
+            } catch (error) {
+                console.error("Solana SIWE error:", error);
+                showSIWEBanner('Solana Signature rejected or failed!', 'failed');
+                state.siweVerified = false;
             }
         }
 
         /* ============================================================
-           NEW: Wallet Selector — detect installed wallets on open
+           WALLET CONNECTORS
         ============================================================ */
-        function detectWallets() {
-            const set = (id, installed) => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                if (installed) {
-                    el.textContent = 'Installed';
-                    el.className = 'text-[9px] font-mono px-3 py-1.5 rounded-full wallet-installed uppercase tracking-widest';
-                } else {
-                    el.textContent = 'Install';
-                    el.className = 'text-[9px] font-mono px-3 py-1.5 rounded-full wallet-not-installed uppercase tracking-widest';
-                }
-            };
-            set('phantomStatus',  !!(window.phantom?.solana?.isPhantom || window.solana?.isPhantom));
-            set('backpackStatus', !!(window.backpack?.solana || window.xnft?.solana));
-            set('solflareStatus', !!(window.solflare?.isSolflare));
-            set('metamaskStatus', !!(window.ethereum?.isMetaMask && !window.ethereum?.isRabby));
-            set('rabbyStatus',    !!(window.ethereum?.isRabby));
-        }
-
         function openWalletSelector() {
+            ui.walletSelectorModal.classList.remove('hidden');
             detectWallets();
-            document.getElementById('walletSelectorModal').classList.remove('hidden');
         }
 
         function closeWalletSelector() {
-            document.getElementById('walletSelectorModal').classList.add('hidden');
+            ui.walletSelectorModal.classList.add('hidden');
         }
 
-        document.getElementById('closeWalletSelector').addEventListener('click', closeWalletSelector);
+        function detectWallets() {
+            // Phantom
+            if (window.phantom?.solana?.isPhantom) {
+                ui.phantomStatus.innerText = 'Installed';
+                ui.phantomStatus.classList.remove('wallet-not-installed');
+                ui.phantomStatus.classList.add('wallet-installed');
+            } else {
+                ui.phantomStatus.innerText = 'Install';
+                ui.phantomStatus.classList.remove('wallet-installed');
+                ui.phantomStatus.classList.add('wallet-not-installed');
+            }
+            // Backpack
+            if (window.backpack?.solana || window.xnft?.solana) {
+                ui.backpackStatus.innerText = 'Installed';
+                ui.backpackStatus.classList.remove('wallet-not-installed');
+                ui.backpackStatus.classList.add('wallet-installed');
+            } else {
+                ui.backpackStatus.innerText = 'Install';
+                ui.backpackStatus.classList.remove('wallet-installed');
+                ui.backpackStatus.classList.add('wallet-not-installed');
+            }
+            // Solflare
+            if (window.solflare?.isSolflare) {
+                ui.solflareStatus.innerText = 'Installed';
+                ui.solflareStatus.classList.remove('wallet-not-installed');
+                ui.solflareStatus.classList.add('wallet-installed');
+            } else {
+                ui.solflareStatus.innerText = 'Install';
+                ui.solflareStatus.classList.remove('wallet-installed');
+                ui.solflareStatus.classList.add('wallet-not-installed');
+            }
+            // MetaMask
+            if (window.ethereum?.isMetaMask) {
+                ui.metamaskStatus.innerText = 'Installed';
+                ui.metamaskStatus.classList.remove('wallet-not-installed');
+                ui.metamaskStatus.classList.add('wallet-installed');
+            } else {
+                ui.metamaskStatus.innerText = 'Install';
+                ui.metamaskStatus.classList.remove('wallet-not-installed');
+                ui.metamaskStatus.classList.add('wallet-not-installed');
+            }
+            // Rabby
+            if (window.ethereum?.isRabby) {
+                ui.rabbyStatus.innerText = 'Installed';
+                ui.rabbyStatus.classList.remove('wallet-not-installed');
+                ui.rabbyStatus.classList.add('wallet-installed');
+            } else {
+                ui.rabbyStatus.innerText = 'Install';
+                ui.rabbyStatus.classList.remove('wallet-installed');
+                ui.rabbyStatus.classList.add('wallet-not-installed');
+            }
+        }
 
         /* ============================================================
            NEW: Phantom Connect
         ============================================================ */
         window.connectPhantom = async function() {
-            const provider = window.phantom?.solana || window.solana;
-            if (!provider?.isPhantom) { window.open('https://phantom.app/', '_blank'); return; }
+            const provider = window.phantom?.solana || (window.solana?.isPhantom ? window.solana : null); // Verbesserte Phantom-Erkennung
+            if (!provider || !provider.isPhantom) { // Zusätzliche Prüfung auf isPhantom, um sicherzustellen, dass es der echte Provider ist
+                window.open(\'https://phantom.app/\', \'_blank\'); 
+                return; 
+            } // Fallback zum Download, falls nicht gefunden
             try {
-                const resp = await provider.connect();
+                const resp = await provider.connect({ onlyIfTrusted: false }); // Explizite Anforderung der Benutzergenehmigung
                 state.wallet       = resp.publicKey.toString();
-                state.walletType   = 'phantom';
-                state.chainType    = 'solana';
+                state.walletType   = \'phantom\';
+                state.chainType    = \'solana\';
                 state.solProvider  = provider;
                 state.solBalance   = await fetchSolBalance(state.wallet);
                 closeWalletSelector();
                 await performSolSIWE(provider, state.wallet);
                 updateUI();
-            } catch(e) { console.error('Phantom:', e); }
+            } catch(e) {
+                if (e.code === 4001 || e.message.includes(\'User rejected the request\')) { // User rejected request
+                    console.warn(\'Phantom connect: User rejected wallet connection.\', e);
+                    alert(\'Wallet-Verbindung abgelehnt. Bitte versuchen Sie es erneut.\');
+                } else {
+                    console.error(\'Phantom connect error:\', e);
+                    alert(\'Fehler bei der Phantom Wallet-Verbindung: \' + e.message);
+                }
+            }
         };
 
         /* ============================================================
@@ -550,10 +536,13 @@
         ============================================================ */
         window.connectBackpack = async function() {
             const provider = window.backpack?.solana || window.xnft?.solana;
-            if (!provider) { window.open('https://backpack.app/', '_blank'); return; }
+            if (!provider || !provider.isBackpack) { // Zusätzliche Prüfung auf isBackpack
+                window.open("https://backpack.app/", "_blank"); 
+                return; 
+            }
             try {
-                await provider.connect();
-                state.wallet       = provider.publicKey.toString();
+                const resp = await provider.connect({ onlyIfTrusted: false }); // Request user approval
+                state.wallet       = resp.publicKey.toString();
                 state.walletType   = 'backpack';
                 state.chainType    = 'solana';
                 state.solProvider  = provider;
@@ -561,26 +550,45 @@
                 closeWalletSelector();
                 await performSolSIWE(provider, state.wallet);
                 updateUI();
-            } catch(e) { console.error('Backpack:', e); }
+            } catch(e) {
+                if (e.code === 4001 || e.message.includes('User rejected the request')) { // User rejected request
+                    console.warn('Backpack connect: User rejected wallet connection.', e);
+                    alert('Wallet-Verbindung abgelehnt. Bitte versuchen Sie es erneut.');
+                } else {
+                    console.error('Backpack connect error:', e);
+                    alert('Fehler bei der Backpack Wallet-Verbindung: ' + e.message);
+                }
+            }
         };
 
         /* ============================================================
            NEW: Solflare Connect
         ============================================================ */
         window.connectSolflare = async function() {
-            const provider = window.solflare;
-            if (!provider?.isSolflare) { window.open('https://solflare.com/', '_blank'); return; }
+            const provider = window.solflare; // Solflare Provider
+            if (!provider || !provider.isSolflare) { // Zusätzliche Prüfung auf isSolflare
+                window.open(\'https://solflare.com/\', \'_blank\'); 
+                return; 
+            } // Fallback zum Download, falls nicht gefunden
             try {
-                await provider.connect();
+                await provider.connect({ onlyIfTrusted: false }); // Explizite Anforderung der Benutzergenehmigung
                 state.wallet       = provider.publicKey.toString();
-                state.walletType   = 'solflare';
-                state.chainType    = 'solana';
+                state.walletType   = \'solflare\';
+                state.chainType    = \'solana\';
                 state.solProvider  = provider;
                 state.solBalance   = await fetchSolBalance(state.wallet);
                 closeWalletSelector();
                 await performSolSIWE(provider, state.wallet);
                 updateUI();
-            } catch(e) { console.error('Solflare:', e); }
+            } catch(e) {
+                if (e.code === 4001 || e.message.includes(\'User rejected the request\')) { // User rejected request
+                    console.warn(\'Solflare connect: User rejected wallet connection.\', e);
+                    alert(\'Wallet-Verbindung abgelehnt. Bitte versuchen Sie es erneut.\');
+                } else {
+                    console.error(\'Solflare connect error:\', e);
+                    alert(\'Fehler bei der Solflare Wallet-Verbindung: \' + e.message);
+                }
+            }
         };
 
         /* ============================================================
@@ -593,22 +601,41 @@
                 window.open(url, '_blank');
                 return;
             }
+
+            let provider;
+            if (preferred === 'rabby' && window.ethereum.isRabby) {
+                provider = window.ethereum;
+            } else if (preferred === 'metamask' && window.ethereum.isMetaMask) {
+                provider = window.ethereum;
+            } else if (window.ethereum.isMetaMask) { // Default to MetaMask if available
+                provider = window.ethereum;
+            } else if (window.ethereum.isRabby) { // Fallback to Rabby if MetaMask not found
+                provider = window.ethereum;
+            } else {
+                alert('Bitte installieren Sie MetaMask oder Rabby Wallet, um fortzufahren.');
+                return;
+            }
+
             try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                state.provider   = new ethers.BrowserProvider(window.ethereum);
-                state.signer     = await state.provider.getSigner();
-                state.wallet     = accounts[0];
-                state.chainType  = 'evm';
-                state.walletType = window.ethereum.isRabby ? 'rabby' : 'metamask';
-                state.ethBalance = await fetchEthBalance(state.wallet);
-
-                const network = await state.provider.getNetwork();
-                const chainId = Number(network.chainId);
-
+                const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                state.wallet       = accounts[0];
+                state.walletType   = preferred;
+                state.chainType    = 'evm';
+                state.evmProvider  = new ethers.BrowserProvider(provider);
+                state.evmSigner    = await state.evmProvider.getSigner();
+                state.evmBalance   = await fetchEvmBalance(state.wallet);
                 closeWalletSelector();
-                await performEVMSIWE(chainId);
+                await performEvmSIWE(state.evmSigner, state.wallet);
                 updateUI();
-            } catch(e) { console.error('EVM connect:', e); }
+            } catch(e) {
+                if (e.code === 4001 || e.message.includes('User rejected the request')) { // User rejected request
+                    console.warn('EVM connect: User rejected wallet connection.', e);
+                    alert('Wallet-Verbindung abgelehnt. Bitte versuchen Sie es erneut.');
+                } else {
+                    console.error('EVM connect error:', e);
+                    alert('Fehler bei der EVM Wallet-Verbindung: ' + e.message);
+                }
+            }
         };
 
         /* ============================================================
@@ -622,250 +649,342 @@
         function updateUI() {
             if (state.wallet) {
                 const shortAddr = state.wallet.slice(0, 6) + "..." + state.wallet.slice(-4);
-                document.getElementById('walletAddr').innerText = shortAddr;
-                document.getElementById('walletStatus').classList.remove('hidden');
-
-                // NEW: balance
-                const balEl = document.getElementById('walletBalance');
-                if (state.solBalance !== null) {
-                    balEl.textContent = `${state.solBalance} SOL`;
-                    balEl.classList.remove('hidden');
-                } else if (state.ethBalance !== null) {
-                    balEl.textContent = `${state.ethBalance} ETH`;
-                    balEl.classList.remove('hidden');
-                }
-
-                // NEW: wallet type label
-                const typeEl = document.getElementById('walletTypeLabel');
-                const labels = { phantom: '👻 Phantom', backpack: '🎒 Backpack', solflare: '🌟 Solflare', metamask: '🦊 MetaMask', rabby: '🐰 Rabby' };
-                if (typeEl && state.walletType) {
-                    typeEl.textContent = labels[state.walletType] || state.walletType;
-                    typeEl.classList.remove('hidden');
-                }
-
-                // NEW: SIWE verified dot
-                if (state.siweVerified) {
-                    document.getElementById('siweIndicator').classList.remove('hidden');
-                }
-
-                // ORIGINAL: PRO button logic
-                document.getElementById('connectBtn').innerText = state.isPro ? "PRO ACTIVE" : "UPGRADE TO PRO";
-                document.getElementById('connectBtn').onclick = state.isPro
+                ui.walletAddr.innerText = shortAddr;
+                ui.siweIndicator.classList.remove('hidden');
+                ui.connectBtn.innerText = state.isPro ? "PRO ACTIVE" : "UPGRADE TO PRO";
+                ui.connectBtn.onclick = state.isPro
                     ? null
-                    : () => document.getElementById('paymentModal').classList.remove('hidden');
+                    : () => ui.paymentModal.classList.remove('hidden');
+            } else {
+                ui.walletAddr.innerText = 'NOT CONNECTED';
+                ui.siweIndicator.classList.add('hidden');
+                ui.connectBtn.innerText = 'CONNECT WALLET';
+                ui.connectBtn.onclick = openWalletSelector;
             }
-            if (state.isPro) document.getElementById('proBadge').classList.remove('hidden');
-        }
 
-        /* ============================================================
-           ORIGINAL: Payment — enhanced with SIWE double-auth
-        ============================================================ */
-        async function processPayment() {
-            // NEW: double-auth guard
-            const canProceed = await doubleAuthGuard(null);
-            if (canProceed === false) return;
-
-            if (!state.signer) {
-                // Solana path — payment via SOL (placeholder for Monaco/Hxro SPL)
-                if (state.chainType === 'solana') {
-                    alert('Solana payment integration: connect to Monaco/Hxro SPL via Phantom for PRO upgrade.');
-                    return;
-                }
-                alert('Please connect an EVM wallet to pay with ETH.');
-                return;
+            // Update wallet balances (if connected)
+            if (state.chainType === 'solana' && state.solBalance !== 0) {
+                // Display SOL balance
+            } else if (state.chainType === 'evm' && state.evmBalance !== 0) {
+                // Display EVM balance
             }
-            document.getElementById('txStatus').classList.remove('hidden');
-            try {
-                const tx = await state.signer.sendTransaction({
-                    to: WEB3_CONFIG.RECEIVER_ADDR,
-                    value: ethers.parseEther(WEB3_CONFIG.PAYMENT_AMOUNT),
-                    type: 2
-                });
-                await tx.wait();
-                localStorage.setItem('pro_status_web3_v2', 'true');
-                state.isPro = true;
-                updateUI();
-                document.getElementById('paymentModal').classList.add('hidden');
-                alert("Web3 PRO Status Activated!");
-            } catch(err) { console.error(err); }
-            finally { document.getElementById('txStatus').classList.add('hidden'); }
         }
 
         /* ============================================================
-           ORIGINAL: Button Event Listeners
-           connectBtn now opens wallet selector
+           OPPORTUNITY & UNDERDOG CARD RENDERING
         ============================================================ */
-        document.getElementById('connectBtn').addEventListener('click', openWalletSelector);
-        document.getElementById('payWeb3Btn').addEventListener('click', processPayment);
-        document.getElementById('closePaymentModal').addEventListener('click', () => document.getElementById('paymentModal').classList.add('hidden'));
+        function createCard(opportunity, type = 'opportunity') {
+            const isSolana = opportunity.platform.includes('Solana') || opportunity.platform.includes('Jupiter');
+            const platformColor = isSolana ? 'border-purple-500/30' : 'border-blue-500/30';
+            const platformLabel = isSolana ? '◎ Solana' : 'Ξ EVM';
+            const platformBadge = isSolana ? 'chain-label-sol' : 'chain-label-evm';
 
-        /* ============================================================
-           NEW: Session Auto-Refresh every 5 minutes
-        ============================================================ */
-        setInterval(async () => {
-            if (state.siweVerified) await checkSession();
-        }, 5 * 60 * 1000);
-
-        /* ============================================================
-           ORIGINAL: Utility functions (unchanged)
-        ============================================================ */
-        const safeFloat = (v, fallback = 0) => { const f = parseFloat(v); return isNaN(f) ? fallback : f; };
-        const jaccard = (a, b) => {
-            const tokenize = s => new Set(s.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(w => w.length > 3));
-            const ta = tokenize(a), tb = tokenize(b);
-            if (ta.size === 0 || tb.size === 0) return 0;
-            let inter = 0; ta.forEach(w => tb.has(w) && inter++);
-            return inter / (ta.size + tb.size - inter);
-        };
-
-        /* ============================================================
-           ORIGINAL: Parsers (unchanged)
-        ============================================================ */
-        const PARSERS = {
-            polymarket: (data) => (data.markets || data || []).filter(m => m.outcomePrices).map(m => {
-                try {
-                    const prices = JSON.parse(m.outcomePrices);
-                    const yes = safeFloat(prices[0]);
-                    return { id: m.id, platform: "Polymarket", question: m.question, yes_price: yes, no_price: 1 - yes, volume: safeFloat(m.volume), url: PLATFORMS.Polymarket.url + (m.slug || m.id), reason: "Hohes Volumen und klare Markttendenz auf Polymarket." };
-                } catch(e) { return null; }
-            }).filter(Boolean),
-            manifold: (data) => (data || []).filter(m => !m.isResolved && m.probability != null).map(m => ({ id: m.id, platform: "Manifold", question: m.question, yes_price: safeFloat(m.probability), no_price: 1 - safeFloat(m.probability), volume: safeFloat(m.volume), url: m.url, reason: "Community-Konsens auf Manifold deutet auf starke Wahrscheinlichkeit hin." })),
-            metaculus: (data) => (data.results || []).filter(m => m.community_prediction?.full?.q2 != null).map(m => ({ id: m.id, platform: "Metaculus", question: m.title, yes_price: safeFloat(m.community_prediction.full.q2), no_price: 1 - safeFloat(m.community_prediction.full.q2), volume: safeFloat(m.number_of_predictions), url: `https://www.metaculus.com${m.page_url}`, reason: "Metaculus Forecasts basieren auf aggregierten Expertenmeinungen." }))
-        };
-
-        /* ============================================================
-           ORIGINAL: runScan — wrapped with double-auth guard
-        ============================================================ */
-        async function runScanCore() {
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-            document.getElementById('progressBar').style.width = '0%';
-            let collected = [];
-            for (let i = 0; i < SOURCES.length; i++) {
-                const src = SOURCES[i];
-                document.getElementById('loadingText').innerText = `Scanne ${src.name}...`;
-                try {
-                    const res = await fetch(CONFIG.CORS_PROXY + encodeURIComponent(src.url));
-                    const data = await res.json();
-                    collected.push(...PARSERS[src.id](data));
-                } catch(e) { console.error(e); }
-                document.getElementById('progressBar').style.width = `${((i+1)/SOURCES.length)*100}%`;
+            let detailsLink = '#'; // Default to placeholder
+            if (opportunity.url) {
+                detailsLink = opportunity.url;
+            } else if (opportunity.platform === 'Polymarket') {
+                detailsLink = `https://polymarket.com/event/${opportunity.marketId}`;
+            } else if (opportunity.platform === 'Manifold Markets') {
+                detailsLink = `https://manifold.markets/market/${opportunity.marketId}`;
+            } else if (opportunity.platform === 'Metaculus') {
+                detailsLink = `https://www.metaculus.com/questions/${opportunity.marketId}`;
             }
-            
-            const { analyzed, arbs } = analyzeMarkets(collected);
-            state.markets = analyzed;
-            state.arbs = arbs;
-            renderResults();
-            document.getElementById('loadingOverlay').classList.add('hidden');
-            document.getElementById('resultsArea').classList.remove('hidden');
-        }
 
-        // Wrapped scan with double-auth
-        async function runScan() {
-            await doubleAuthGuard(runScanCore);
-        }
+            const card = document.createElement('div');
+            card.className = `glass p-8 rounded-[2rem] card-hover ${platformColor}`;
+            card.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-[9px] font-mono tracking-[0.5em] uppercase px-3 py-1 rounded-full ${platformBadge}">${platformLabel}</span>
+                    <span class="text-[9px] font-mono tracking-[0.5em] uppercase text-slate-500">${opportunity.platform}</span>
+                </div>
+                <h3 class="font-orbitron font-black text-white text-xl mb-4 leading-tight">${opportunity.title}</h3>
+                <p class="text-slate-400 text-sm mb-6">${opportunity.description}</p>
+                
+                ${type === 'opportunity' ? `
+                    <div class="flex justify-between items-center mb-6">
+                        <button class="btn-yes px-6 py-3 rounded-full font-orbitron font-black text-sm">YES $${opportunity.yesPrice}</button>
+                        <button class="btn-no px-6 py-3 rounded-full font-orbitron font-black text-sm">NO $${opportunity.noPrice}</button>
+                    </div>
+                    <div class="flex justify-between text-slate-400 text-xs font-mono mb-6">
+                        <div>5€ PROFIT<br><span class="text-white">+${opportunity.profit5}€</span></div>
+                        <div>10€ PROFIT<br><span class="text-white">+${opportunity.profit10}€</span></div>
+                        <div>25€ PROFIT<br><span class="text-white">+${opportunity.profit25}€</span></div>
+                    </div>
+                    <div class="text-center text-slate-400 text-sm font-mono mb-6">
+                        ROI POTENTIAL <span class="text-yellow-500 text-xl font-black gold-glow">${opportunity.roi}%</span>
+                    </div>
+                ` : `
+                    <div class="text-center text-slate-400 text-sm font-mono mb-6">
+                        PRICE <span class="text-white text-xl font-black gold-glow">$${opportunity.price}</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400 text-xs font-mono mb-6">
+                        <div>VOLUME<br><span class="text-white">${opportunity.volume}</span></div>
+                        <div>LIQUIDITY<br><span class="text-white">${opportunity.liquidity}</span></div>
+                        <div>CHANGE (24H)<br><span class="text-white">${opportunity.change24h}%</span></div>
+                    </div>
+                `}
 
-        /* ============================================================
-           ORIGINAL: analyzeMarkets + renderResults + createCard (unchanged)
-        ============================================================ */
-        function analyzeMarkets(allMarkets) {
-            const arbs = [];
-            const uniqueMarkets = [];
-            allMarkets.forEach(m => { if (!uniqueMarkets.some(um => jaccard(um.question, m.question) > 0.8)) uniqueMarkets.push(m); });
-            const analyzed = uniqueMarkets.map(m => {
-                if (m.arb_profit) arbs.push({ id: `ARB_${m.id}`, marketA: m, marketB: { platform: m.arb_partner }, profit: m.arb_profit });
-                return m;
-            });
-            return { analyzed, arbs: arbs.sort((a, b) => b.profit - a.profit) };
-        }
-
-        function renderResults() {
-            const top10 = [];
-            const underdogs = [];
-            const seen = new Set();
-            state.arbs.forEach(a => { if (top10.length < 10 && !seen.has(a.marketA.question)) { top10.push({...a.marketA, arb: a}); seen.add(a.marketA.question); } });
-            const sortedByROI = [...state.markets].sort((a, b) => (1/a.yes_price) - (1/b.yes_price));
-            sortedByROI.forEach(m => { if (top10.length < 10 && !seen.has(m.question)) { top10.push(m); seen.add(m.question); } });
-            state.markets.filter(m => m.yes_price < 0.10).sort((a, b) => a.yes_price - b.yes_price).forEach(m => { if (underdogs.length < 10) underdogs.push(m); });
-            document.getElementById('top10Grid').innerHTML = top10.map(item => createCard(item, true)).join('');
-            document.getElementById('underdogGrid').innerHTML = underdogs.map(item => createCard(item, true)).join('');
-            let filtered = state.markets;
-            if (state.filter === "ARB") filtered = state.arbs.map(a => ({...a.marketA, arb: a}));
-            else if (state.filter === "UNDERDOG") filtered = state.markets.filter(m => m.yes_price < 0.15);
-            else if (state.filter === "SOLANA") filtered = state.markets.filter(m => m.platform === "Monaco" || m.platform === "Hxro" || m.platform === "JupiterPM");
-            document.getElementById('marketFeed').innerHTML = filtered.map(m => createCard(m)).join('');
-        }
-
-        function createCard(m, isTop = false) {
-            const isArb = m.arb !== undefined;
-            const roi = ((1 / m.yes_price) * 100).toFixed(0);
-            const plat = PLATFORMS[m.platform] || { color: "#94a3b8" };
-            const calcProfit = (stake, price) => (stake / price - stake).toFixed(2);
-            return `
-                <div class="glass p-10 rounded-[3rem] card-hover flex flex-col gap-8 ${isTop ? 'border-yellow-500/40 shadow-[0_0_50px_rgba(251,191,36,0.2)]' : ''}">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-mono px-5 py-2 rounded-full bg-white/5 border border-white/10 tracking-[0.3em] uppercase font-black" style="color: ${plat.color}">${m.platform}</span>
-                        <div class="flex gap-3">
-                            ${isArb ? '<span class="text-[10px] font-mono px-5 py-2 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 uppercase tracking-[0.3em] font-black">Arb</span>' : ''}
-                            ${m.yes_price < 0.15 ? '<span class="text-[10px] font-mono px-5 py-2 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 uppercase tracking-[0.3em] font-black">Underdog</span>' : ''}
-                        </div>
-                    </div>
-                    <h4 class="text-xl font-bold leading-tight h-16 overflow-hidden text-white/90">${m.question}</h4>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest leading-relaxed">${m.reason || "Live-Daten Analyse bestätigt hohe Wahrscheinlichkeit."}</p>
-                    <div class="flex gap-6">
-                        <a href="${m.url}" target="_blank" class="flex-1 btn-yes py-4 rounded-2xl font-orbitron font-black text-center text-base uppercase tracking-widest">YES ¢${(m.yes_price * 100).toFixed(0)}</a>
-                        <a href="${m.url}" target="_blank" class="flex-1 btn-no py-4 rounded-2xl font-orbitron font-black text-center text-base uppercase tracking-widest">NO ¢${(m.no_price * 100).toFixed(0)}</a>
-                    </div>
-                    <div class="grid grid-cols-3 gap-6 pt-8 border-t border-white/5">
-                        <div class="text-center">
-                            <div class="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-2">5€ Profit</div>
-                            <div class="text-xs font-black text-green-400">+${calcProfit(5, m.yes_price)}€</div>
-                        </div>
-                        <div class="text-center border-x border-white/5">
-                            <div class="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-2">10€ Profit</div>
-                            <div class="text-xs font-black text-green-400">+${calcProfit(10, m.yes_price)}€</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-2">25€ Profit</div>
-                            <div class="text-xs font-black text-green-400">+${calcProfit(25, m.yes_price)}€</div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between pt-4">
-                        <div class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em]">ROI Potential</div>
-                        <div class="text-3xl font-orbitron font-black text-yellow-500">${roi}%</div>
-                    </div>
-                    <a href="${m.url}" target="_blank" class="w-full py-4 rounded-2xl border border-white/10 text-[10px] font-mono uppercase tracking-[0.4em] text-slate-500 hover:text-white hover:border-white/20 transition-all text-center">Details Ansehen</a>
+                <div class="text-center">
+                    <a href="${detailsLink}" target="_blank" class="text-yellow-500 hover:text-yellow-400 text-sm font-mono uppercase tracking-widest transition-colors">DETAILS ANSEHEN</a>
                 </div>
             `;
+            return card;
         }
 
-        // Event Listeners
-        document.getElementById('accessBtn').addEventListener('click', () => {
-            const pass = document.getElementById('accessPass').value;
-            if (pass === 'TGMFAM2026') {
-                document.getElementById('accessOverlay').classList.add('hidden');
+        function renderOpportunities(opportunities) {
+            ui.opportunitiesGrid.innerHTML = '';
+            if (opportunities.length === 0) {
+                ui.noOpportunities.classList.remove('hidden');
             } else {
-                document.getElementById('accessError').classList.remove('hidden');
+                ui.noOpportunities.classList.add('hidden');
+                opportunities.forEach(opp => {
+                    ui.opportunitiesGrid.appendChild(createCard(opp, 'opportunity'));
+                });
             }
-        });
+        }
 
-        // Enter key for password
-        document.getElementById('accessPass').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('accessBtn').click();
-        });
+        function renderUnderdogs(underdogs) {
+            ui.underdogGrid.innerHTML = '';
+            if (underdogs.length === 0) {
+                ui.noUnderdogs.classList.remove('hidden');
+            } else {
+                ui.noUnderdogs.classList.add('hidden');
+                underdogs.forEach(dog => {
+                    ui.underdogGrid.appendChild(createCard(dog, 'underdog'));
+                });
+            }
+        }
 
-        document.getElementById('scanBtn').addEventListener('click', runScan);
+        /* ============================================================
+           MAIN SCAN LOGIC
+        ============================================================ */
+        async function performScan() {
+            ui.liveScanBtn.innerText = 'SCANNING...';
+            ui.liveScanBtn.classList.add('pulse');
+            ui.opportunitiesGrid.innerHTML = '';
+            ui.underdogGrid.innerHTML = '';
+            ui.noOpportunities.classList.add('hidden');
+            ui.noUnderdogs.classList.add('hidden');
 
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
-                btn.classList.add('tab-active');
-                state.filter = btn.dataset.filter;
-                renderResults();
+            try {
+                const response = await fetch(`${state.workerUrl}/scan`);
+                if (!response.ok) throw new Error('Network response was not ok.');
+                const data = await response.json();
+
+                const opportunities = data.opportunities || [];
+                const underdogs = data.underdogs || [];
+
+                // Filter for high-profit, extreme odds opportunities
+                const filteredOpportunities = opportunities.filter(opp => {
+                    const roi = parseFloat(opp.roi);
+                    const yesPrice = parseFloat(opp.yesPrice);
+                    const noPrice = parseFloat(opp.noPrice);
+                    // Only show opportunities with ROI > 500% and extreme price imbalance
+                    return roi > 500 && (yesPrice / noPrice > 5 || noPrice / yesPrice > 5); 
+                });
+
+                // Implement Cross-Platform Matching (NEW)
+                const crossPlatformOpportunities = findCrossPlatformArbitrage(data.rawMarkets);
+
+                renderOpportunities([...filteredOpportunities, ...crossPlatformOpportunities]);
+                renderUnderdogs(underdogs);
+
+                // Update Chart (simplified for now)
+                updateChart(data.chartData || []);
+
+            } catch (error) {
+                console.error('Scan failed:', error);
+                ui.opportunitiesGrid.innerHTML = '<p class="text-red-500 text-center">Fehler beim Scannen: ' + error.message + '</p>';
+            } finally {
+                ui.liveScanBtn.innerText = 'LIVE SCAN AUSFÜHREN';
+                ui.liveScanBtn.classList.remove('pulse');
+            }
+        }
+
+        // NEW: Cross-Platform Arbitrage Logic
+        function findCrossPlatformArbitrage(rawMarkets) {
+            const arbitrageOpportunities = [];
+            const marketsByQuestion = {};
+
+            // Group markets by a normalized question/title
+            rawMarkets.forEach(market => {
+                const normalizedTitle = market.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (!marketsByQuestion[normalizedTitle]) {
+                    marketsByQuestion[normalizedTitle] = [];
+                }
+                marketsByQuestion[normalizedTitle].push(market);
             });
+
+            for (const question in marketsByQuestion) {
+                const relatedMarkets = marketsByQuestion[question];
+                if (relatedMarkets.length < 2) continue; // Need at least two markets to compare
+
+                // Simple comparison for now: find max YES and min NO price across platforms
+                let bestYes = { price: 0, market: null };
+                let bestNo = { price: Infinity, market: null };
+
+                relatedMarkets.forEach(market => {
+                    // Assuming 'yesPrice' and 'noPrice' exist for comparison
+                    const yesPrice = parseFloat(market.yesPrice);
+                    const noPrice = parseFloat(market.noPrice);
+
+                    if (!isNaN(yesPrice) && yesPrice > bestYes.price) {
+                        bestYes = { price: yesPrice, market: market };
+                    }
+                    if (!isNaN(noPrice) && noPrice < bestNo.price) {
+                        bestNo = { price: noPrice, market: market };
+                    }
+                });
+
+                // Check for arbitrage opportunity (buy NO on one, sell YES on another)
+                if (bestYes.market && bestNo.market && bestYes.price > bestNo.price + 0.05) { // 5 cent spread minimum
+                    const profitPerShare = bestYes.price - bestNo.price;
+                    const roi = (profitPerShare / bestNo.price) * 100;
+
+                    arbitrageOpportunities.push({
+                        title: `ARB: ${bestNo.market.platform} NO vs. ${bestYes.market.platform} YES`,
+                        description: `Buy NO on ${bestNo.market.platform} at $${bestNo.price} and sell YES on ${bestYes.market.platform} at $${bestYes.price}.`,
+                        platform: 'Cross-Platform Arbitrage',
+                        yesPrice: bestYes.price.toFixed(2),
+                        noPrice: bestNo.price.toFixed(2),
+                        profit5: (profitPerShare * 5).toFixed(2),
+                        profit10: (profitPerShare * 10).toFixed(2),
+                        profit25: (profitPerShare * 25).toFixed(2),
+                        roi: roi.toFixed(2),
+                        url: `https://example.com/arbitrage-details?market1=${bestNo.market.marketId}&market2=${bestYes.market.marketId}` // Placeholder URL
+                    });
+                }
+            }
+            return arbitrageOpportunities;
+        }
+
+        /* ============================================================
+           CHART LOGIC
+        ============================================================ */
+        function updateChart(chartData) {
+            const ctx = document.getElementById('marketChart').getContext('2d');
+            if (marketChart) {
+                marketChart.destroy();
+            }
+            marketChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.map(d => d.label),
+                    datasets: [{
+                        label: 'Market Price',
+                        data: chartData.map(d => d.value),
+                        borderColor: 'rgb(251, 191, 36)',
+                        backgroundColor: 'rgba(251, 191, 36, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { 
+                            grid: { color: 'rgba(255,255,255,0.08)' },
+                            ticks: { color: '#cbd5e1' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.08)' },
+                            ticks: { color: '#cbd5e1' }
+                        }
+                    }
+                }
+            });
+        }
+
+        /* ============================================================
+           INITIALIZATION & EVENT LISTENERS
+        ============================================================ */
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check for access password
+            const storedAccess = localStorage.getItem('alphaScanAccess');
+            if (storedAccess === 'granted') {
+                state.accessGranted = true;
+                ui.accessOverlay.classList.add('hidden');
+                // Initial scan on load
+                performScan();
+            } else {
+                ui.accessOverlay.classList.remove('hidden');
+            }
+
+            ui.accessBtn.addEventListener('click', () => {
+                if (ui.accessPass.value === 'FamilyLabs2026') { // Hardcoded for now
+                    localStorage.setItem('alphaScanAccess', 'granted');
+                    state.accessGranted = true;
+                    ui.accessOverlay.classList.add('hidden');
+                    performScan();
+                } else {
+                    ui.accessError.classList.remove('hidden');
+                }
+            });
+
+            ui.accessPass.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    ui.accessBtn.click();
+                }
+            });
+
+            ui.connectBtn.addEventListener('click', openWalletSelector);
+            ui.closeWalletSelector.addEventListener('click', closeWalletSelector);
+            ui.closePaymentModal.addEventListener('click', () => ui.paymentModal.classList.add('hidden'));
+            ui.liveScanBtn.addEventListener('click', performScan);
+
+            // Web3 Payment Logic (Placeholder for now)
+            ui.payWeb3Btn.addEventListener('click', async () => {
+                alert('Web3 Payment ist noch nicht aktiv. Bitte versuchen Sie es später erneut.');
+                // In a real scenario, this would trigger an ETH/SOL transaction
+            });
+
+            // Initial UI update
+            updateUI();
+
+            // Detect wallets on modal open
+            ui.walletSelectorModal.addEventListener('transitionend', () => {
+                if (!ui.walletSelectorModal.classList.contains('hidden')) {
+                    detectWallets();
+                }
+            });
+
+            // Auto-connect if wallet was previously connected and SIWE verified
+            // This part needs to be handled by the backend session management (JWT cookies)
+            // For now, it will require manual connect on page load if not SIWE verified.
         });
 
-        // Initial UI update
-        updateUI();
+        // Initial check for wallet providers on load (for status indicators)
+        // This is a basic check and doesn't initiate connection
+        if (typeof window.phantom !== 'undefined' && window.phantom.solana.isPhantom) {
+            ui.phantomStatus.innerText = 'Installed';
+            ui.phantomStatus.classList.remove('wallet-not-installed');
+            ui.phantomStatus.classList.add('wallet-installed');
+        }
+        if (typeof window.backpack !== 'undefined' && (window.backpack.solana || window.xnft.solana)) {
+            ui.backpackStatus.innerText = 'Installed';
+            ui.backpackStatus.classList.remove('wallet-not-installed');
+            ui.backpackStatus.classList.add('wallet-installed');
+        }
+        if (typeof window.solflare !== 'undefined' && window.solflare.isSolflare) {
+            ui.solflareStatus.innerText = 'Installed';
+            ui.solflareStatus.classList.remove('wallet-not-installed');
+            ui.solflareStatus.classList.add('wallet-installed');
+        }
+        if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
+            ui.metamaskStatus.innerText = 'Installed';
+            ui.metamaskStatus.classList.remove('wallet-not-installed');
+            ui.metamaskStatus.classList.add('wallet-installed');
+        }
+        if (typeof window.ethereum !== 'undefined' && window.ethereum.isRabby) {
+            ui.rabbyStatus.innerText = 'Installed';
+            ui.rabbyStatus.classList.remove('wallet-not-installed');
+            ui.rabbyStatus.classList.add('wallet-installed');
+        }
+
     </script>
 </body>
 </html>
