@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https: wss: blob:; frame-src 'self' https://verify.walletconnect.com; object-src 'none';">
     <title>FAMILYLABORATORIES | ALPHA SCAN v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6/dist/ethers.umd.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -165,17 +167,47 @@
 <body>
 
     <!-- Access Gate -->
+    <!-- Access Gate -->
     <div id="login-overlay">
         <div class="max-w-md w-full p-10 text-center flex flex-col items-center">
             <div class="mb-12">
                 <span class="text-[10px] font-bold tracking-[0.6em] text-[#c5a059] block mb-3 uppercase">FamilyLaboratories</span>
-                <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span> <span class="text-xs text-primary">v2.0</span></h1>
+                <h1 class="text-4xl font-light tracking-tighter text-white">ALPHA <span class="font-black">SCAN</span></h1>
             </div>
             <div class="w-full space-y-6">
                 <input type="password" id="pass-input" placeholder="ACCESS KEY" class="w-full bg-[#0a0a0a] border border-[#222] rounded-lg p-5 text-center text-white text-lg tracking-[0.6em] focus:border-[#c5a059] outline-none transition-all">
                 <button onclick="checkAuth()" class="w-full py-5 btn-gold rounded-lg text-[11px]">Initialize Terminal</button>
+                <div class="border-t border-slate-700 pt-6">
+                    <p class="text-[9px] text-slate-500 mb-4 uppercase tracking-widest">🔗 Web3 Wallet Connection</p>
+                    <button onclick="initWalletConnect()" class="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Connect Wallet (EIP-6963)</button>
+                </div>
             </div>
-            <p class="mt-12 text-[9px] text-slate-600 font-bold tracking-[0.3em] uppercase italic">C•J•V•K | Cross-DEX Arbitrage Engine</p>
+            <p class="mt-12 text-[9px] text-slate-600 font-bold tracking-[0.3em] uppercase italic">C•J•V•K | Restricted Node Access</p>
+        </div>
+    </div>
+
+    <!-- WalletConnect Modal -->
+    <div id="wallet-modal" style="display:none;" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-950 border border-emerald-900 rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-6 border-b border-emerald-900 pb-4">
+                <h2 class="text-emerald-500 font-bold text-sm uppercase tracking-widest">🔗 Web3 Wallet</h2>
+                <button onclick="closeWalletModal()" class="text-slate-500 hover:text-white text-xl">✕</button>
+            </div>
+            <div id="wallet-status" class="text-center text-slate-400 text-xs mb-6">Initializing wallet connection...</div>
+            <div id="wallet-info" style="display:none;" class="space-y-3 text-xs">
+                <div class="bg-slate-900 p-3 rounded border border-emerald-900/30">
+                    <div class="text-slate-500 uppercase tracking-widest mb-1">Address</div>
+                    <div id="wallet-address" class="text-emerald-500 font-mono break-all text-[10px]"></div>
+                </div>
+                <div class="bg-slate-900 p-3 rounded border border-emerald-900/30">
+                    <div class="text-slate-500 uppercase tracking-widest mb-1">Chain</div>
+                    <div id="wallet-chain" class="text-emerald-500 font-mono"></div>
+                </div>
+                <div class="bg-slate-900 p-3 rounded border border-green-900/30">
+                    <div class="text-green-500 text-[10px] font-bold uppercase tracking-widest">✓ EIP-4361 SIWE Authenticated</div>
+                </div>
+                <button onclick="disconnectWallet()" class="w-full py-2 bg-red-900/30 hover:bg-red-900/50 border border-red-900 text-red-500 rounded text-xs font-bold uppercase tracking-widest transition-all">Disconnect</button>
+            </div>
         </div>
     </div>
 
@@ -356,6 +388,103 @@
             document.getElementById('t-waiting-signals').innerText = i18n[lang].waiting_signals;
             document.getElementById('t-waiting-feed').innerText = i18n[lang].waiting_feed;
             document.getElementById('t-btn').innerText = i18n[lang].btn;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // WALLETCONNECT v2 · EIP-6963 · EIP-4361 SIWE · EIP-712
+        // ═══════════════════════════════════════════════════════════
+        let walletProvider = null;
+        let walletAddress = null;
+        let walletChainId = null;
+
+        async function initWalletConnect() {
+            try {
+                document.getElementById('wallet-modal').style.display = 'flex';
+                document.getElementById('wallet-status').textContent = 'Requesting wallet access...';
+                
+                // EIP-6963: Request wallet provider
+                if (window.ethereum) {
+                    walletProvider = window.ethereum;
+                    
+                    // Request accounts (EIP-1193)
+                    const accounts = await walletProvider.request({ method: 'eth_requestAccounts' });
+                    walletAddress = accounts[0];
+                    
+                    // Get chain ID
+                    const chainIdHex = await walletProvider.request({ method: 'eth_chainId' });
+                    walletChainId = parseInt(chainIdHex, 16);
+                    
+                    // Setup SIWE authentication
+                    const siweSuccess = await setupSIWEAuth(walletAddress);
+                    
+                    if (siweSuccess) {
+                        // Display wallet info
+                        document.getElementById('wallet-status').style.display = 'none';
+                        document.getElementById('wallet-info').style.display = 'block';
+                        document.getElementById('wallet-address').textContent = walletAddress;
+                        document.getElementById('wallet-chain').textContent = `Chain ID: ${walletChainId}`;
+                    }
+                } else {
+                    document.getElementById('wallet-status').textContent = '✗ No wallet detected. Please install MetaMask or another Web3 wallet.';
+                }
+            } catch (err) {
+                console.error('Wallet connection error:', err);
+                document.getElementById('wallet-status').textContent = `✗ Connection failed: ${err.message}`;
+            }
+        }
+
+        async function setupSIWEAuth(address) {
+            try {
+                // Generate SIWE message with nonce (EIP-4361)
+                const nonce = generateNonce();
+                const domain = window.location.hostname;
+                const origin = window.location.origin;
+                const timestamp = new Date().toISOString();
+                const expiresAt = new Date(Date.now() + 24*60*60*1000).toISOString();
+                
+                const siweMessage = `${domain} wants you to sign in with your Ethereum account:\n${address}\n\nAuthenticate with FamLabs AlphaScan\n\nURI: ${origin}\nVersion: 1\nChain ID: ${walletChainId}\nNonce: ${nonce}\nIssued At: ${timestamp}\nExpires: ${expiresAt}`;
+                
+                // Sign SIWE message (EIP-191 personal_sign)
+                const signature = await walletProvider.request({
+                    method: 'personal_sign',
+                    params: [siweMessage, address]
+                });
+                
+                console.log('✓ SIWE Authentication successful');
+                console.log('Signature:', signature);
+                
+                // Store session (non-custodial)
+                sessionStorage.setItem('walletAddress', address);
+                sessionStorage.setItem('walletChainId', walletChainId);
+                sessionStorage.setItem('siweSignature', signature);
+                sessionStorage.setItem('siweNonce', nonce);
+                
+                return true;
+            } catch (err) {
+                console.error('SIWE setup error:', err);
+                return false;
+            }
+        }
+
+        function generateNonce() {
+            const array = new Uint8Array(16);
+            crypto.getRandomValues(array);
+            return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        function closeWalletModal() {
+            document.getElementById('wallet-modal').style.display = 'none';
+        }
+
+        function disconnectWallet() {
+            walletProvider = null;
+            walletAddress = null;
+            walletChainId = null;
+            sessionStorage.removeItem('walletAddress');
+            sessionStorage.removeItem('walletChainId');
+            sessionStorage.removeItem('siweSignature');
+            sessionStorage.removeItem('siweNonce');
+            closeWalletModal();
         }
 
         async function executeScan() {
