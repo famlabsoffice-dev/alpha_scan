@@ -781,12 +781,14 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             if (loadingOverlay) loadingOverlay.classList.remove('hidden');
 
-            ui.liveScanBtn.innerText = 'SCANNING...';
-            ui.liveScanBtn.classList.add('pulse');
-            ui.opportunitiesGrid.innerHTML = '';
-            ui.underdogGrid.innerHTML = '';
-            ui.noOpportunities.classList.add('hidden');
-            ui.noUnderdogs.classList.add('hidden');
+            if (ui.liveScanBtn) {
+                ui.liveScanBtn.innerText = 'SCANNING...';
+                ui.liveScanBtn.classList.add('pulse');
+            }
+            if (ui.opportunitiesGrid) ui.opportunitiesGrid.innerHTML = '';
+            if (ui.underdogGrid) ui.underdogGrid.innerHTML = '';
+            if (ui.noOpportunities) ui.noOpportunities.classList.add('hidden');
+            if (ui.noUnderdogs) ui.noUnderdogs.classList.add('hidden');
 
             try {
                 // Bug 2 Fix: Use public Gamma-API for Polymarket
@@ -796,6 +798,7 @@
 
                 const opportunities = data.opportunities || [];
                 const underdogs = data.underdogs || [];
+                const rawMarkets = data.rawMarkets || [];
 
                 // Filter for high-profit, extreme odds opportunities
                 const filteredOpportunities = opportunities.filter(opp => {
@@ -807,7 +810,7 @@
                 });
 
                 // Implement Cross-Platform Matching (NEW)
-                const crossPlatformOpportunities = findCrossPlatformArbitrage(data.rawMarkets);
+                const crossPlatformOpportunities = findCrossPlatformArbitrage(rawMarkets);
 
                 renderOpportunities([...filteredOpportunities, ...crossPlatformOpportunities]);
                 renderUnderdogs(underdogs);
@@ -817,14 +820,18 @@
 
             } catch (error) {
                 console.error('Scan failed:', error);
-                ui.opportunitiesGrid.innerHTML = '<p class="text-red-500 text-center">Fehler beim Scannen: ' + error.message + '</p>';
+                if (ui.opportunitiesGrid) {
+                    ui.opportunitiesGrid.innerHTML = '<p class="text-red-500 text-center">Fehler beim Scannen: ' + error.message + '</p>';
+                }
             } finally {
                 // Bug 1 Fix: Hide Loading Overlay
                 const loadingOverlay = document.getElementById('loadingOverlay');
                 if (loadingOverlay) loadingOverlay.classList.add('hidden');
 
-                ui.liveScanBtn.innerText = 'LIVE SCAN AUSFÜHREN';
-                ui.liveScanBtn.classList.remove('pulse');
+                if (ui.liveScanBtn) {
+                    ui.liveScanBtn.innerText = 'LIVE SCAN AUSFÜHREN';
+                    ui.liveScanBtn.classList.remove('pulse');
+                }
             }
         }
 
@@ -946,15 +953,17 @@
                 if (pass === 'TGMFAM2026') {
                     localStorage.setItem('alphaScanAccess', 'granted');
                     state.accessGranted = true;
-                    ui.accessOverlay.classList.add('hidden');
+                    if (ui.accessOverlay) ui.accessOverlay.classList.add('hidden');
                     // Delay scan slightly to ensure UI transition is smooth
                     setTimeout(() => {
                         performScan();
                     }, 300);
                 } else {
-                    ui.accessError.classList.remove('hidden');
-                    ui.accessPass.value = '';
-                    ui.accessPass.focus();
+                    if (ui.accessError) ui.accessError.classList.remove('hidden');
+                    if (ui.accessPass) {
+                        ui.accessPass.value = '';
+                        ui.accessPass.focus();
+                    }
                 }
             });
 
