@@ -136,9 +136,13 @@
                 if (localStorage.getItem("alphaScanAccess") === "granted") {
                     loginScreen.classList.add("hidden");
                     appContainer.classList.remove("hidden");
-                    initializeApp();
                 } else {
                     loginScreen.classList.remove("hidden");
+                }
+
+                // Initialize app if access is granted (either now or from localStorage)
+                if (localStorage.getItem("alphaScanAccess") === "granted") {
+                    initializeApp();
                 }
 
                 if (accessKeyInput) {
