@@ -111,6 +111,43 @@
     <body class="min-h-screen selection:bg-yellow-500/30">
         <script>
             const ACCESS_PASSWORD = "TGMFAM2026";
+
+            function authorizeAccess() {
+                const accessKeyInput = document.getElementById("access-key");
+                const loginScreen = document.getElementById("login-screen");
+                const appContainer = document.getElementById("app-container");
+                const errorMsg = document.getElementById("error-msg");
+
+                if (accessKeyInput.value === ACCESS_PASSWORD) {
+                    loginScreen.classList.add("hidden");
+                    appContainer.classList.remove("hidden");
+                    localStorage.setItem("alphaScanAccess", "granted");
+                    initializeApp();
+                } else {
+                    errorMsg.classList.remove("hidden");
+                }
+            }
+
+            if (localStorage.getItem("alphaScanAccess") === "granted") {
+                document.getElementById("login-screen").classList.add("hidden");
+                document.getElementById("app-container").classList.remove("hidden");
+                initializeApp();
+            } else {
+                document.getElementById("login-screen").classList.remove("hidden");
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                const accessKeyInput = document.getElementById("access-key");
+                if (accessKeyInput) {
+                    accessKeyInput.addEventListener("keypress", (e) => {
+                        if (e.key === "Enter") {
+                            authorizeAccess();
+                        }
+                    });
+                }
+            });
+
+            window.authorizeAccess = authorizeAccess; // Make it globally accessible
         </script>
     <div class="scan-line"></div>
 
@@ -307,28 +344,7 @@
                 localStorage.setItem('alphaScanAccess', 'granted');
                 initializeApp();
             } else {
-                errorMsg.classList.remove('hidden');
-            }
-        }
-
-        if (localStorage.getItem('alphaScanAccess') === 'granted') {
-            loginScreen.classList.add('hidden');
-            appContainer.classList.remove('hidden');
-            initializeApp();
-        } else {
-            loginScreen.classList.remove('hidden');
-        }
-
-        accessKeyInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                authorizeAccess();
-            }
-        });
-
-        // Global access for onclick events
-        window.authorizeAccess = authorizeAccess;
-
-        // Initialize App Function
+                errorMsg.classList.remove('hiddep Function
         async function initializeApp() {
             const videoEl = document.getElementById('scanner-video');
             const scanResultsEl = document.getElementById('scan-results');
