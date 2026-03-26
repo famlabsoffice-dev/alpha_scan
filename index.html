@@ -89,13 +89,13 @@
     </div>
     
     <!-- Access Password Overlay -->
-    <div id="accessOverlay" class="fixed inset-0 z-[200] bg-slate-950 flex items-center justify-center p-6">
+    <div id="login-screen" class="fixed inset-0 z-[200] bg-slate-950 flex items-center justify-center p-6">
         <div class="glass p-12 rounded-[3rem] max-w-md w-full text-center border-yellow-500/30">
             <span class="text-[10px] font-orbitron font-black tracking-[0.5em] text-yellow-500 uppercase mb-4 block">FAMILYLABORATORIES</span>
             <h2 class="font-orbitron text-3xl font-black text-white uppercase mb-8 tracking-tighter">Access Required</h2>
-            <input type="password" id="accessPass" placeholder="PASSWORT EINGEBEN" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-center font-mono text-yellow-400 focus:outline-none focus:border-yellow-500 transition-all mb-6">
-            <button id="accessBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-4 rounded-2xl font-orbitron font-black uppercase tracking-widest transition-all">Authorize Access</button>
-            <p id="accessError" class="text-red-500 text-[10px] font-mono mt-4 uppercase tracking-widest hidden">Ungültiges Passwort</p>
+            <input type="password" id="access-key" placeholder="PASSWORT EINGEBEN" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-center font-mono text-yellow-400 focus:outline-none focus:border-yellow-500 transition-all mb-6">
+            <button type="button" onclick="authorizeAccess()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-4 rounded-2xl font-orbitron font-black uppercase tracking-widest transition-all">Authorize Access</button>
+            <p id="error-msg" class="text-red-500 text-[10px] font-mono mt-4 uppercase tracking-widest hidden">Ungültiges Passwort</p>
         </div>
     </div>
 
@@ -948,29 +948,41 @@
                 ui.accessOverlay.classList.remove('hidden');
             }
 
-            ui.accessBtn.addEventListener('click', () => {
-                const pass = ui.accessPass.value.trim();
-                if (pass === 'TGMFAM2026') {
-                    localStorage.setItem('alphaScanAccess', 'granted');
+            // LOGIN HANDLER - CORRECTED
+            function authorizeAccess() {
+                const input = document.getElementById('access-key').value.trim();
+                const VALID_KEY = 'TGMFAM2026';
+
+                if (input === VALID_KEY) {
+                    // Zugang gewähren
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                    sessionStorage.setItem('famlabs_auth', 'true');
                     state.accessGranted = true;
-                    if (ui.accessOverlay) ui.accessOverlay.classList.add('hidden');
                     // Delay scan slightly to ensure UI transition is smooth
                     setTimeout(() => {
                         performScan();
                     }, 300);
                 } else {
-                    if (ui.accessError) ui.accessError.classList.remove('hidden');
-                    if (ui.accessPass) {
-                        ui.accessPass.value = '';
-                        ui.accessPass.focus();
-                    }
+                    document.getElementById('error-msg').style.display = 'block';
+                    document.getElementById('access-key').value = '';
+                    document.getElementById('access-key').focus();
+                }
+            }
+
+            // Enter-Taste support
+            document.getElementById('access-key').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    authorizeAccess();
                 }
             });
 
-            ui.accessPass.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    ui.accessBtn.click();
+            // Session prüfen (bei Reload)
+            window.addEventListener('DOMContentLoaded', () => {
+                if (sessionStorage.getItem('famlabs_auth') === 'true') {
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
                 }
             });
 
