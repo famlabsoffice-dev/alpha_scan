@@ -4,14 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAMILYLABORATORIES | ALPHA SCAN</title>
+    <title>FAMILYLABORATORIES | ALPHASCAN v4.1.0 GOLD PRO WEB3 FINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <!-- NEW: Solana Web3.js for balance + RPC -->
     <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=IBM+Plex+Mono:wght@400;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -47,7 +45,7 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .pro-badge { background: linear-gradient(90deg, #fbbf24, #f59e0b); color: black; font-weight: 900; padding: 2px 8px; border-radius: 4px; font-size: 10px; }
 
-        /* ===== NEW: Wallet Selector Styles ===== */
+        /* Wallet Selector Styles */
         .wallet-option {
             transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
             cursor: pointer;
@@ -68,95 +66,19 @@
         .wallet-installed { color: #10b981; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); }
         .wallet-not-installed { color: #64748b; background: rgba(100,116,139,0.1); border: 1px solid rgba(100,116,139,0.2); }
 
-        /* NEW: SIWE Banner */
+        /* SIWE Banner */
         @keyframes slideDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
         .animate-slide-down { animation: slideDown 0.35s ease forwards; }
         .siwe-banner-signing { border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.05); }
         .siwe-banner-success { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.05); }
         .siwe-banner-failed  { border-color: rgba(239,68,68,0.4);  background: rgba(239,68,68,0.05); }
-
-        /* NEW: Verified dot on wallet status */
         .siwe-dot { width:8px; height:8px; background:#10b981; border-radius:50%; box-shadow:0 0 8px rgba(16,185,129,0.8); animation: pulse 2s infinite; }
-
-        /* Glassmorphism Core CSS from pasted_content.txt */
-        .app { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
-        .header { display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 18px; font-weight: 600; }
-        .status { padding: 6px 12px; border-radius: 999px; font-size: 12px; border: 1px solid rgba(255,255,255,0.2); }
-        .status.idle { opacity: 0.5; }
-        .status.scanning { background: rgba(120,140,255,0.2); box-shadow: 0 0 12px rgba(120,140,255,0.6); }
-        .scanner { display: flex; flex-direction: column; }
-        .video-wrapper { position: relative; width: 100%; aspect-ratio: 3/4; border-radius: 16px; overflow: hidden; background: #111; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .scanner-overlay { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; pointer-events: none; }
-        .scan-frame { width: 70%; height: 70%; border: 2px solid rgba(255,255,255,0.25); border-radius: 12px; position: relative; }
-        .scan-frame::before, .scan-frame::after { content: ""; position: absolute; width: 30px; height: 30px; border: 3px solid #7f9cff; }
-        .scan-frame::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
-        .scan-frame::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
-        .scan-frame .scan-line-anim { content: ""; position: absolute; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #7f9cff, transparent); animation: scan-line 2s linear infinite; }
-        @keyframes scan-line { 0% { top: 0%; } 100% { top: 100%; } }
-        .controls { margin-top: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .controls button { height: 50px; border-radius: 14px; border: none; background: rgba(255,255,255,0.08); color: #FFFFFF; font-size: 14px; backdrop-filter: blur(10px); transition: all 0.2s ease; cursor: pointer; }
-        .controls button:hover { background: rgba(120,140,255,0.2); box-shadow: 0 0 10px rgba(120,140,255,0.6); }
-        .controls button:active { transform: scale(0.96); }
-        .wallets h2 { font-size: 16px; margin-bottom: 10px; }
-        #wallet-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-        #wallet-list li { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.05); transition: all 0.2s ease; cursor: pointer; }
-        #wallet-list img { width: 28px; height: 28px; border-radius: 6px; }
-        #wallet-list span { flex: 1; font-size: 14px; }
-        .badge { font-size: 10px; padding: 4px 8px; border-radius: 999px; background: rgba(120,140,255,0.2); }
-        #wallet-list li:hover { background: rgba(120,140,255,0.15); box-shadow: 0 0 12px rgba(120,140,255,0.5); transform: translateY(-2px); }
     </style>
 </head>
-    <body class="min-h-screen selection:bg-yellow-500/30">
-        <script>
-            const ACCESS_PASSWORD = "TGMFAM2026";
-
-            function authorizeAccess() {
-                const accessKeyInput = document.getElementById("access-key");
-                const loginScreen = document.getElementById("login-screen");
-                const appContainer = document.getElementById("app-container");
-                const errorMsg = document.getElementById("error-msg");
-
-                if (accessKeyInput.value === ACCESS_PASSWORD) {
-                    loginScreen.classList.add("hidden");
-                    appContainer.classList.remove("hidden");
-                    localStorage.setItem("alphaScanAccess", "granted");
-                    initializeApp();
-                } else {
-                    errorMsg.classList.remove("hidden");
-                }
-            }
-
-            document.addEventListener("DOMContentLoaded", () => {
-                const loginScreen = document.getElementById("login-screen");
-                const appContainer = document.getElementById("app-container");
-                const accessKeyInput = document.getElementById("access-key");
-
-                if (localStorage.getItem("alphaScanAccess") === "granted") {
-                    loginScreen.classList.add("hidden");
-                    appContainer.classList.remove("hidden");
-                    initializeApp(); // Initialize if access is already granted
-                } else {
-                    loginScreen.classList.remove("hidden");
-                }
-
-                if (accessKeyInput) {
-                    accessKeyInput.addEventListener("keypress", (e) => {
-                        if (e.key === "Enter") {
-                            authorizeAccess();
-                        }
-                    });
-                }
-            });
-
-            window.authorizeAccess = authorizeAccess; // Make it globally accessible
-        </script>
+<body class="min-h-screen selection:bg-yellow-500/30">
     <div class="scan-line"></div>
 
-    <div id="app-container" class="hidden">
-
-    <!-- Bug 1 Fix: Loading Overlay -->
+    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 z-[190] bg-slate-950/80 backdrop-blur-md flex items-center justify-center hidden">
         <div class="text-center">
             <div class="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
@@ -165,32 +87,17 @@
     </div>
     
     <!-- Access Password Overlay -->
-    <div id="login-screen" class="fixed inset-0 z-[200] bg-slate-950 flex items-center justify-center p-6">
+    <div id="accessOverlay" class="fixed inset-0 z-[200] bg-slate-950 flex items-center justify-center p-6">
         <div class="glass p-12 rounded-[3rem] max-w-md w-full text-center border-yellow-500/30">
             <span class="text-[10px] font-orbitron font-black tracking-[0.5em] text-yellow-500 uppercase mb-4 block">FAMILYLABORATORIES</span>
             <h2 class="font-orbitron text-3xl font-black text-white uppercase mb-8 tracking-tighter">Access Required</h2>
-            <input type="password" id="access-key" placeholder="PASSWORT EINGEBEN" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-center font-mono text-yellow-400 focus:outline-none focus:border-yellow-500 transition-all mb-6">
-            <button type="button" onclick="authorizeAccess()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-4 rounded-2xl font-orbitron font-black uppercase tracking-widest transition-all">Authorize Access</button>
-            <p id="error-msg" class="text-red-500 text-[10px] font-mono mt-4 uppercase tracking-widest hidden">Ungültiges Passwort</p>
+            <input type="password" id="accessPass" placeholder="PASSWORT EINGEBEN" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-center font-mono text-yellow-400 focus:outline-none focus:border-yellow-500 transition-all mb-6">
+            <button id="accessBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-4 rounded-2xl font-orbitron font-black uppercase tracking-widest transition-all">Authorize Access</button>
+            <p id="accessError" class="text-red-500 text-[10px] font-mono mt-4 uppercase tracking-widest hidden">Ungültiges Passwort</p>
         </div>
     </div>
 
-    <!-- Web3 Payment Modal -->
-    <div id="paymentModal" class="hidden fixed inset-0 z-[160] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-6">
-        <div class="glass p-12 rounded-[3rem] max-w-lg w-full border-yellow-500/30 text-center">
-            <h3 class="font-orbitron text-3xl font-black text-white uppercase mb-4 tracking-tighter">Web3 Upgrade</h3>
-            <p class="text-slate-400 mb-8 uppercase tracking-widest text-xs">Unlock Enterprise Arbitrage via On-Chain Payment</p>
-            <div class="bg-white/5 p-8 rounded-3xl border border-white/10 mb-8">
-                <div class="text-5xl font-orbitron font-black text-yellow-500 mb-2">0.01 ETH</div>
-                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-[0.4em]">per week / secure on-chain tx</div>
-            </div>
-            <div id="txStatus" class="text-[10px] font-mono text-yellow-500 uppercase tracking-widest mb-6 hidden">Transaction Pending...</div>
-            <button id="payWeb3Btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-5 rounded-2xl font-orbitron font-black uppercase tracking-widest transition-all mb-4">Sign & Pay with Wallet</button>
-            <button id="closePaymentModal" class="text-slate-500 hover:text-white text-[10px] uppercase tracking-widest">Cancel</button>
-        </div>
-    </div>
-
-    <!-- NEW: Wallet Selector Modal -->
+    <!-- Wallet Selector Modal -->
     <div id="walletSelectorModal" class="hidden fixed inset-0 z-[170] bg-slate-950/98 backdrop-blur-2xl flex items-center justify-center p-6">
         <div class="glass p-12 rounded-[3rem] max-w-xl w-full border-yellow-500/30">
             <div class="flex items-center justify-between mb-10">
@@ -201,7 +108,6 @@
                 <button id="closeWalletSelector" class="text-slate-500 hover:text-white transition-colors text-2xl font-mono">✕</button>
             </div>
 
-            <!-- SIWE Info Banner -->
             <div class="mb-8 px-6 py-4 rounded-2xl bg-yellow-500/5 border border-yellow-500/20">
                 <p class="text-[10px] font-mono text-yellow-500/80 uppercase tracking-widest leading-relaxed">
                     🔐 DOUBLE AUTH: Verbindung + SIWE-Signatur für sichere Session. Keine TX wird gesendet.
@@ -212,335 +118,478 @@
             <div class="mb-3">
                 <span class="text-[9px] font-mono tracking-[0.5em] uppercase px-3 py-1 rounded-full chain-label-sol">◎ Solana</span>
             </div>
-            <div class="flex flex-col gap-3 mb-8">
-                <div class="wallet-option wallet-chain-sol p-5 rounded-2xl flex items-center justify-between" onclick="connectPhantom()">
-                    <div class="flex items-center gap-5">
-                        <span class="text-2xl">👻</span>
-                        <div>
-                            <div class="font-orbitron font-black text-white text-sm uppercase tracking-wider">Phantom</div>
-                            <div class="text-[10px] text-slate-500 font-mono mt-0.5">Most popular Solana wallet</div>
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+                <div class="wallet-option wallet-chain-sol p-4 rounded-2xl flex items-center justify-between" onclick="connectPhantom()">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">👻</span>
+                        <div class="font-orbitron font-black text-white text-[10px] uppercase tracking-wider">Phantom</div>
                     </div>
-                    <span id="phantomStatus" class="text-[9px] font-mono px-3 py-1.5 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
+                    <span id="phantomStatus" class="text-[8px] font-mono px-2 py-1 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
                 </div>
-                <div class="wallet-option wallet-chain-sol p-5 rounded-2xl flex items-center justify-between" onclick="connectBackpack()">
-                    <div class="flex items-center gap-5">
-                        <span class="text-2xl">🎒</span>
-                        <div>
-                            <div class="font-orbitron font-black text-white text-sm uppercase tracking-wider">Backpack</div>
-                            <div class="text-[10px] text-slate-500 font-mono mt-0.5">Next-gen Solana wallet</div>
-                        </div>
+                <div class="wallet-option wallet-chain-sol p-4 rounded-2xl flex items-center justify-between" onclick="connectSolflare()">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">☀️</span>
+                        <div class="font-orbitron font-black text-white text-[10px] uppercase tracking-wider">Solflare</div>
                     </div>
-                    <span id="backpackStatus" class="text-[9px] font-mono px-3 py-1.5 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
+                    <span id="solflareStatus" class="text-[8px] font-mono px-2 py-1 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
+                </div>
+                <div class="wallet-option wallet-chain-sol p-4 rounded-2xl flex items-center justify-between" onclick="connectBackpack()">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🎒</span>
+                        <div class="font-orbitron font-black text-white text-[10px] uppercase tracking-wider">Backpack</div>
+                    </div>
+                    <span id="backpackStatus" class="text-[8px] font-mono px-2 py-1 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
+                </div>
+                <div class="wallet-option wallet-chain-sol p-4 rounded-2xl flex items-center justify-between" onclick="connectJupiter()">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🪐</span>
+                        <div class="font-orbitron font-black text-white text-[10px] uppercase tracking-wider">Jupiter</div>
+                    </div>
+                    <span id="jupiterStatus" class="text-[8px] font-mono px-2 py-1 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
                 </div>
             </div>
 
-            <!-- EVM Chains -->
+            <!-- EVM Chain -->
             <div class="mb-3">
-                <span class="text-[9px] font-mono tracking-[0.5em] uppercase px-3 py-1 rounded-full chain-label-evm">Ξ EVM</span>
+                <span class="text-[9px] font-mono tracking-[0.5em] uppercase px-3 py-1 rounded-full chain-label-evm">Ξ Ethereum / L2 / Multi-Chain</span>
             </div>
-            <div id="evm-wallet-list" class="flex flex-col gap-3">
-                <!-- Wallets will be rendered here by Web3Connector -->
-                <li class="wallet-option wallet-chain-evm p-5 rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center gap-5">
-                        <span class="text-2xl">🦊</span>
-                        <div>
-                            <div class="font-orbitron font-black text-white text-sm uppercase tracking-wider">MetaMask</div>
-                            <div class="text-[10px] text-slate-500 font-mono mt-0.5">Popular EVM wallet</div>
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="wallet-option wallet-chain-evm p-4 rounded-2xl flex items-center justify-between" onclick="connectEVM('metamask')">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🦊</span>
+                        <div class="font-orbitron font-black text-white text-[10px] uppercase tracking-wider">MetaMask</div>
                     </div>
-                    <span class="text-[9px] font-mono px-3 py-1.5 rounded-full wallet-installed uppercase tracking-widest">Detected</span>
-                </li>
+                    <span id="metamaskStatus" class="text-[8px] font-mono px-2 py-1 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
+                </div>
+                <div class="wallet-option wallet-chain-evm p-4 rounded-2xl flex items-center justify-between" onclick="connectEVM('trust')">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🛡️</span>
+                        <div class="font-orbitron font-black text-white text-[10px] uppercase tracking-wider">Trust Wallet</div>
+                    </div>
+                    <span id="trustStatus" class="text-[8px] font-mono px-2 py-1 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
+                </div>
+                <div class="wallet-option wallet-chain-evm p-4 rounded-2xl flex items-center justify-between" onclick="connectEVM('binance')">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🔶</span>
+                        <div class="font-orbitron font-black text-white text-[10px] uppercase tracking-wider">Binance</div>
+                    </div>
+                    <span id="binanceStatus" class="text-[8px] font-mono px-2 py-1 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
+                </div>
+                <div class="wallet-option wallet-chain-evm p-4 rounded-2xl flex items-center justify-between" onclick="connectEVM('rainbow')">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🌈</span>
+                        <div class="font-orbitron font-black text-white text-[10px] uppercase tracking-wider">Rainbow</div>
+                    </div>
+                    <span id="rainbowStatus" class="text-[8px] font-mono px-2 py-1 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
+                </div>
+                <div class="wallet-option wallet-chain-evm p-4 rounded-2xl flex items-center justify-between" onclick="connectEVM('uniswap')">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🦄</span>
+                        <div class="font-orbitron font-black text-white text-[10px] uppercase tracking-wider">Uniswap</div>
+                    </div>
+                    <span id="uniswapStatus" class="text-[8px] font-mono px-2 py-1 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
+                </div>
+                <div class="wallet-option wallet-chain-evm p-4 rounded-2xl flex items-center justify-between" onclick="connectEVM('best')">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">💎</span>
+                        <div class="font-orbitron font-black text-white text-[10px] uppercase tracking-wider">Best Wallet</div>
+                    </div>
+                    <span id="bestStatus" class="text-[8px] font-mono px-2 py-1 rounded-full wallet-not-installed uppercase tracking-widest">Detect...</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Main App Container -->
-    <div id="app-container" class="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative hidden">
+    <!-- SIWE Status Banner -->
+    <div id="siweStatusBanner" class="hidden fixed top-0 left-1/2 -translate-x-1/2 mt-4 px-6 py-3 rounded-full text-sm font-mono animate-slide-down z-[180] border backdrop-blur-xl">
+        <span id="siweStatusText"></span>
+    </div>
+
+    <div class="flex flex-col items-center p-6 md:p-12">
         <!-- Header -->
-        <header class="w-full max-w-7xl flex justify-between items-center py-4 px-6 glass rounded-full mb-8">
-            <h1 class="text-xl font-orbitron font-black text-yellow-500 uppercase tracking-widest">FAMILYLABORATORIES | ALPHA SCAN</h1>
-            <div class="flex items-center gap-4">
-                <div id="wallet-status" class="flex items-center gap-2 text-sm text-slate-400">
-                    <span class="siwe-dot hidden"></span>
-                    <span id="connected-wallet-info">Wallet Not Connected</span>
+        <header class="w-full max-w-6xl flex flex-col md:flex-row justify-between items-center mb-20 gap-8">
+            <div class="flex flex-col items-center md:items-start">
+                <span class="text-[10px] font-orbitron font-black tracking-[0.5em] text-yellow-500 uppercase mb-2">FAMILYLABORATORIES</span>
+                <h1 class="text-5xl md:text-7xl font-orbitron font-black text-white tracking-tighter leading-none uppercase">
+                    ALPHA<br><span class="gold-gradient gold-glow">SCAN</span>
+                </h1>
+                <p class="text-slate-500 font-mono text-[10px] mt-4 uppercase tracking-[0.3em]">Hyperprecise Prediction Arbitrage Scanner. Web3 Secured.</p>
+            </div>
+            <div class="flex flex-col items-center md:items-end gap-4">
+                <div class="flex items-center gap-3 bg-white/5 px-6 py-3 rounded-2xl border border-white/10">
+                    <div id="siweIndicator" class="hidden flex items-center gap-2">
+                        <div class="siwe-dot"></div>
+                        <span class="text-[10px] font-mono text-green-500 uppercase tracking-widest">SIWE Verified</span>
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Wallet:</span>
+                    <span id="walletAddr" class="text-[10px] font-mono text-yellow-500 font-bold tracking-widest">NOT CONNECTED</span>
                 </div>
-                <button id="connect-wallet-btn" class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-full text-sm font-bold transition-all">Connect Wallet</button>
+                <button id="connectBtn" class="bg-yellow-500 hover:bg-yellow-600 text-black px-10 py-4 rounded-2xl font-orbitron font-black uppercase tracking-widest transition-all text-sm shadow-[0_0_30px_rgba(251,191,36,0.3)]">Connect Wallet</button>
             </div>
         </header>
 
-        <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Left Column: Scanner & Controls -->
-            <section class="flex flex-col gap-8">
-                <div class="glass p-6 rounded-[2rem] flex flex-col items-center">
-                    <h2 class="text-xl font-orbitron font-black text-white uppercase mb-4">QR / Barcode Scanner</h2>
-                    <div class="video-wrapper w-full rounded-2xl mb-6">
-                        <video id="scanner-video" playsinline="true" preload="auto"></video>
-                        <div class="scanner-overlay">
-                            <div class="scan-frame">
-                                <div class="scan-line-anim"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="controls w-full">
-                        <button id="start-scan-btn" class="bg-yellow-500 hover:bg-yellow-600 text-black">Start Scan</button>
-                        <button id="stop-scan-btn" class="bg-red-500 hover:bg-red-600">Stop Scan</button>
-                        <button id="flip-camera-btn">Flip Camera</button>
-                        <button id="toggle-torch-btn">Toggle Torch</button>
-                    </div>
-                </div>
+        <!-- Main Action -->
+        <div class="w-full max-w-6xl mb-20">
+            <button id="liveScanBtn" class="w-full glass py-12 rounded-[3rem] group relative overflow-hidden">
+                <div class="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <span class="relative z-10 font-orbitron text-4xl md:text-6xl font-black text-white uppercase tracking-tighter group-hover:scale-105 transition-transform block">
+                    LIVE SCAN <span class="gold-gradient">AUSFÜHREN</span>
+                </span>
+            </button>
+        </div>
 
-                <div class="glass p-6 rounded-[2rem]">
-                    <h2 class="text-xl font-orbitron font-black text-white uppercase mb-4">Scan Results</h2>
-                    <div id="scan-results" class="bg-white/5 p-4 rounded-xl font-mono text-sm text-slate-300 break-all min-h-[100px]">
-                        Awaiting scan...
-                    </div>
-                </div>
-            </section>
+        <!-- Opportunities Section -->
+        <section id="opportunitiesSection" class="w-full max-w-6xl mb-20">
+            <h2 class="text-3xl font-orbitron font-black text-white uppercase mb-10 text-center">
+                TOP 10 <span class="text-yellow-500">OPPORTUNITIES</span>
+                <span class="text-slate-500 text-base block mt-2">ARBITRAGE & HIGH ROI</span>
+            </h2>
+            <div id="opportunitiesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Cards will be injected here -->
+            </div>
+            <div id="noOpportunities" class="text-center text-slate-500 font-mono text-sm mt-12 hidden">
+                Keine hochprofitablen Arbitrage-Möglichkeiten gefunden. Versuchen Sie es später erneut.
+            </div>
+        </section>
 
-            <!-- Right Column: Wallet Info & Actions -->
-            <section class="flex flex-col gap-8">
-                <div class="glass p-6 rounded-[2rem]">
-                    <h2 class="text-xl font-orbitron font-black text-white uppercase mb-4">Wallet Information</h2>
-                    <div id="wallet-info" class="font-mono text-sm text-slate-300">
-                        <p>Address: <span id="wallet-address">N/A</span></p>
-                        <p>Chain ID: <span id="wallet-chain-id">N/A</span></p>
-                        <p>Balance: <span id="wallet-balance">N/A</span></p>
-                        <p>Wallet Name: <span id="wallet-name">N/A</span></p>
-                        <p>ENS: <span id="wallet-ens">N/A</span></p>
-                    </div>
-                    <div class="mt-6 flex gap-4">
-                        <button id="disconnect-wallet-btn" class="bg-red-500 hover:bg-red-600 text-black flex-1">Disconnect</button>
-                        <button id="sign-message-btn" class="bg-blue-500 hover:bg-blue-600 text-black flex-1">Sign Message</button>
-                    </div>
-                </div>
+        <!-- Underdog Section -->
+        <section id="underdogSection" class="w-full max-w-6xl mb-20">
+            <h2 class="text-3xl font-orbitron font-black text-white uppercase mb-10 text-center">
+                <span class="text-blue-500">UNBEACHTETE</span> UNDERDOGS
+                <span class="text-slate-500 text-base block mt-2">HOHE VOLATILITÄT & GERINGES INTERESSE</span>
+            </h2>
+            <div id="underdogGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Underdog Cards will be injected here -->
+            </div>
+            <div id="noUnderdogs" class="text-center text-slate-500 font-mono text-sm mt-12 hidden">
+                Keine Underdog-Möglichkeiten gefunden. Versuchen Sie es später erneut.
+            </div>
+        </section>
 
-                <div class="glass p-6 rounded-[2rem]">
-                    <h2 class="text-xl font-orbitron font-black text-white uppercase mb-4">Web3 Actions</h2>
-                    <input type="text" id="message-to-sign" placeholder="Message to sign" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-center font-mono text-yellow-400 focus:outline-none focus:border-yellow-500 transition-all mb-4">
-                    <div id="signed-message-output" class="bg-white/5 p-4 rounded-xl font-mono text-sm text-slate-300 break-all min-h-[80px]">
-                        Signed message will appear here...
-                    </div>
-                </div>
-            </section>
-        </main>
+        <!-- Chart Section -->
+        <section class="w-full max-w-6xl mb-20">
+            <h2 class="text-3xl font-orbitron font-black text-white uppercase mb-10 text-center">
+                MARKET <span class="text-yellow-500">TRENDS</span>
+                <span class="text-slate-500 text-base block mt-2">PREDICTION MARKET INSIGHTS</span>
+            </h2>
+            <div class="glass p-8 rounded-[2rem] border-blue-500/30">
+                <canvas id="marketChart"></canvas>
+            </div>
+        </section>
 
         <!-- Footer -->
-        <footer class="w-full max-w-7xl text-center text-slate-500 text-xs font-mono mt-8 py-4">
-            <p>&copy; 2026 FamilyLaboratories. All rights reserved.</p>
-            <p class="mt-1">C•J•V•K | build in 4 - build for billions.</p>
+        <footer class="w-full max-w-6xl text-center text-slate-500 text-xs font-mono uppercase tracking-widest mt-20">
+            <p class="mb-2">FAMILYLABORATORIES &copy; 2026. ALL RIGHTS RESERVED.</p>
+            <p class="mb-2">WEB3 SECURED. <span class="gold-gradient gold-glow">BUILD FOR BILLIONS.</span></p>
+            <p class="text-yellow-500 gold-glow">OUTCOME TOKENS SIND NICHT FÜR DEN HANDEL GEDACHT, SONDERN FÜR DIE TEILNAHME AN VORHERSAGEMÄRKTEN.</p>
         </footer>
     </div>
 
-    <script type="module">
-        import { AlphaScanner, CameraPermissionError, CameraNotFoundError, CameraConstraintError } from './src/js/core/AlphaScanner.js';
-        import { Web3Connector, WalletNotFoundError, NoAccountsError, ChainSwitchError } from './src/js/core/Web3Connector.js';
+    <script>
+        // Global State
+        const state = {
+            wallet: null,
+            walletType: null,
+            chainType: null,
+            solProvider: null,
+            evmProvider: null,
+            evmSigner: null,
+            siweVerified: false,
+            accessGranted: false,
+            workerUrl: 'https://alphascan.famlabsoffice.workers.dev'
+        };
 
-        const ACCESS_PASSWORD = 'TGMFAM2026';
-        const loginScreen = document.getElementById('login-screen');
-        const appContainer = document.getElementById('app-container');
-        const accessKeyInput = document.getElementById('access-key');
-        const errorMsg = document.getElementById('error-msg');
+        // UI Elements
+        const ui = {
+            accessOverlay: document.getElementById('accessOverlay'),
+            accessPass: document.getElementById('accessPass'),
+            accessBtn: document.getElementById('accessBtn'),
+            accessError: document.getElementById('accessError'),
+            walletSelectorModal: document.getElementById('walletSelectorModal'),
+            closeWalletSelector: document.getElementById('closeWalletSelector'),
+            connectBtn: document.getElementById('connectBtn'),
+            walletAddr: document.getElementById('walletAddr'),
+            siweIndicator: document.getElementById('siweIndicator'),
+            siweStatusBanner: document.getElementById('siweStatusBanner'),
+            siweStatusText: document.getElementById('siweStatusText'),
+            opportunitiesGrid: document.getElementById('opportunitiesGrid'),
+            noOpportunities: document.getElementById('noOpportunities'),
+            underdogGrid: document.getElementById('underdogGrid'),
+            noUnderdogs: document.getElementById('noUnderdogs'),
+            liveScanBtn: document.getElementById('liveScanBtn'),
+            phantomStatus: document.getElementById('phantomStatus'),
+            solflareStatus: document.getElementById('solflareStatus'),
+            backpackStatus: document.getElementById('backpackStatus'),
+            jupiterStatus: document.getElementById('jupiterStatus'),
+            metamaskStatus: document.getElementById('metamaskStatus'),
+            trustStatus: document.getElementById('trustStatus'),
+            binanceStatus: document.getElementById('binanceStatus'),
+            rainbowStatus: document.getElementById('rainbowStatus'),
+            uniswapStatus: document.getElementById('uniswapStatus'),
+            bestStatus: document.getElementById('bestStatus')
+        };
 
-        function authorizeAccess() {
-            if (accessKeyInput.value === ACCESS_PASSWORD) {
-                loginScreen.classList.add('hidden');
-                appContainer.classList.remove('hidden');
-                localStorage.setItem('alphaScanAccess', 'granted');
-                initializeApp();
-            } else {
-                errorMsg.classList.remove('hiddep Function
-        async function initializeApp() {
-            const videoEl = document.getElementById('scanner-video');
-            const scanResultsEl = document.getElementById('scan-results');
-            const startScanBtn = document.getElementById('start-scan-btn');
-            const stopScanBtn = document.getElementById('stop-scan-btn');
-            const flipCameraBtn = document.getElementById('flip-camera-btn');
-            const toggleTorchBtn = document.getElementById('toggle-torch-btn');
-            const walletStatusEl = document.getElementById('wallet-status');
-            const connectedWalletInfoEl = document.getElementById('connected-wallet-info');
-            const connectWalletBtn = document.getElementById('connect-wallet-btn');
-            const disconnectWalletBtn = document.getElementById('disconnect-wallet-btn');
-            const signMessageBtn = document.getElementById('sign-message-btn');
-            const messageToSignInput = document.getElementById('message-to-sign');
-            const signedMessageOutput = document.getElementById('signed-message-output');
-            const walletAddressEl = document.getElementById('wallet-address');
-            const walletChainIdEl = document.getElementById('wallet-chain-id');
-            const walletBalanceEl = document.getElementById('wallet-balance');
-            const walletNameEl = document.getElementById('wallet-name');
-            const walletEnsEl = document.getElementById('wallet-ens');
-            const walletSelectorModal = document.getElementById('walletSelectorModal');
-            const closeWalletSelectorBtn = document.getElementById('closeWalletSelector');
-            const evmWalletListEl = document.getElementById('evm-wallet-list');
-            const siweDot = document.querySelector('.siwe-dot');
+        let marketChart;
 
-            const scanner = new AlphaScanner(videoEl);
-            const web3Connector = new Web3Connector();
-
-            // AlphaScanner Event Handlers
-            scanner.onResult = (result) => {
-                scanResultsEl.textContent = JSON.stringify(result, null, 2);
-            };
-            scanner.onError = (error) => {
-                scanResultsEl.textContent = `Error: ${error.message}`; 
-                console.error(error);
-            };
-            scanner.onStateChange = (state) => {
-                console.log('Scanner State:', state);
-                // Update UI based on scanner state (e.g., enable/disable buttons)
-            };
-
-            startScanBtn.addEventListener('click', async () => {
-                try {
-                    await scanner.start();
-                    startScanBtn.disabled = true;
-                    stopScanBtn.disabled = false;
-                    flipCameraBtn.disabled = false;
-                    toggleTorchBtn.disabled = false;
-                } catch (err) {
-                    alert(`Kamerafehler: ${err.message}`);
-                }
-            });
-
-            stopScanBtn.addEventListener('click', () => {
-                scanner.stop();
-                startScanBtn.disabled = false;
-                stopScanBtn.disabled = true;
-                flipCameraBtn.disabled = true;
-                toggleTorchBtn.disabled = true;
-            });
-
-            flipCameraBtn.addEventListener('click', async () => {
-                try {
-                    await scanner.flipCamera();
-                } catch (err) {
-                    alert(`Kamerafehler beim Wechseln: ${err.message}`);
-                }
-            });
-
-            toggleTorchBtn.addEventListener('click', async () => {
-                try {
-                    await scanner.toggleTorch();
-                } catch (err) {
-                    alert(`Taschenlampenfehler: ${err.message}`);
-                }
-            });
-
-            // Web3Connector Event Handlers
-            web3Connector.onConnect = (info) => {
-                connectedWalletInfoEl.textContent = `${info.walletName} (${info.address.substring(0, 6)}...)`;
-                walletAddressEl.textContent = info.address;
-                walletChainIdEl.textContent = info.chainId;
-                walletBalanceEl.textContent = `${info.balance} ETH`;
-                walletNameEl.textContent = info.walletName;
-                walletEnsEl.textContent = info.ens || 'N/A';
-                siweDot.classList.remove('hidden');
-                walletSelectorModal.classList.add('hidden');
-            };
-            web3Connector.onDisconnect = () => {
-                connectedWalletInfoEl.textContent = 'Wallet Not Connected';
-                walletAddressEl.textContent = 'N/A';
-                walletChainIdEl.textContent = 'N/A';
-                walletBalanceEl.textContent = 'N/A';
-                walletNameEl.textContent = 'N/A';
-                walletEnsEl.textContent = 'N/A';
-                siweDot.classList.add('hidden');
-            };
-            web3Connector.onWalletsDiscovered = (wallets) => {
-                // Render EVM wallets dynamically
-                evmWalletListEl.innerHTML = ''; // Clear existing list
-                wallets.filter(w => w.info.rdns !== 'legacy').forEach(({ info, provider }) => {
-                    const li = document.createElement('li');
-                    li.className = 'wallet-option wallet-chain-evm p-5 rounded-2xl flex items-center justify-between';
-                    li.innerHTML = `
-                        <div class="flex items-center gap-5">
-                            <img src="${info.icon}" alt="${info.name}" class="w-7 h-7 rounded-md" />
-                            <div>
-                                <div class="font-orbitron font-black text-white text-sm uppercase tracking-wider">${info.name}</div>
-                                <div class="text-[10px] text-slate-500 font-mono mt-0.5">${info.rdns}</div>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-mono px-3 py-1.5 rounded-full wallet-not-installed uppercase tracking-widest">Connect</span>
-                    `;
-                    li.addEventListener('click', async () => {
-                        try {
-                            await web3Connector.connect(info.rdns);
-                        } catch (err) {
-                            alert(`Verbindungsfehler: ${err.message}`);
-                            console.error(err);
-                        }
-                    });
-                    evmWalletListEl.appendChild(li);
-                });
-
-                // Handle legacy window.ethereum if present
-                const legacyWallet = wallets.find(w => w.info.rdns === 'legacy');
-                if (legacyWallet) {
-                    const li = document.createElement('li');
-                    li.className = 'wallet-option wallet-chain-evm p-5 rounded-2xl flex items-center justify-between';
-                    li.innerHTML = `
-                        <div class="flex items-center gap-5">
-                            <span class="text-2xl">🦊</span>
-                            <div>
-                                <div class="font-orbitron font-black text-white text-sm uppercase tracking-wider">Browser Wallet (MetaMask)</div>
-                                <div class="text-[10px] text-slate-500 font-mono mt-0.5">EIP-1193</div>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-mono px-3 py-1.5 rounded-full wallet-not-installed uppercase tracking-widest">Connect</span>
-                    `;
-                    li.addEventListener('click', async () => {
-                        try {
-                            await web3Connector.connect('legacy');
-                        } catch (err) {
-                            alert(`Verbindungsfehler: ${err.message}`);
-                            console.error(err);
-                        }
-                    });
-                    evmWalletListEl.prepend(li); // Add to top
-                }
-            };
-
-            connectWalletBtn.addEventListener('click', async () => {
-                walletSelectorModal.classList.remove('hidden');
-                await web3Connector.discoverWallets();
-            });
-
-            closeWalletSelectorBtn.addEventListener('click', () => {
-                walletSelectorModal.classList.add('hidden');
-            });
-
-            disconnectWalletBtn.addEventListener('click', () => {
-                web3Connector.disconnect();
-            });
-
-            signMessageBtn.addEventListener('click', async () => {
-                const message = messageToSignInput.value || 'Hello FamilyLaboratories Alpha Scan!';
-                try {
-                    const signature = await web3Connector.signMessage(message);
-                    signedMessageOutput.textContent = signature;
-                } catch (err) {
-                    signedMessageOutput.textContent = `Error signing: ${err.message}`;
-                    console.error(err);
-                }
-            });
-
-            // Initial state for buttons
-            stopScanBtn.disabled = true;
-            flipCameraBtn.disabled = true;
-            toggleTorchBtn.disabled = true;
+        function showSIWEBanner(message, type = 'signing') {
+            ui.siweStatusText.innerText = message;
+            ui.siweStatusBanner.className = `fixed top-0 left-1/2 -translate-x-1/2 mt-4 px-6 py-3 rounded-full text-sm font-mono animate-slide-down z-[180] siwe-banner-${type}`;
+            ui.siweStatusBanner.classList.remove('hidden');
+            setTimeout(() => ui.siweStatusBanner.classList.add('hidden'), 5000);
         }
 
-        // Solana Wallet Connect Functions (for onclick in HTML)
-        window.connectPhantom = async () => {
-            // Placeholder for Phantom connection logic
-            alert('Phantom Wallet Connect (DeepSeek Logic) - Not yet fully integrated via Web3Connector');
-        };
-        window.connectBackpack = async () => {
-            // Placeholder for Backpack connection logic
-            alert('Backpack Wallet Connect (DeepSeek Logic) - Not yet fully integrated via Web3Connector');
+        function openWalletSelector() { ui.walletSelectorModal.classList.remove('hidden'); }
+        function closeWalletSelector() { ui.walletSelectorModal.classList.add('hidden'); }
+
+        // Mobile Deep Linking
+        function openMobileWallet(scheme, dappUrl) {
+            const encodedUrl = encodeURIComponent(dappUrl);
+            let deepLink = "";
+            if (scheme === 'phantom') deepLink = `https://phantom.app/ul/browse/${encodedUrl}?ref=${encodedUrl}`;
+            else if (scheme === 'metamask') deepLink = `https://metamask.app.link/dapp/${dappUrl.replace(/^https?:\/\//, '')}`;
+            else if (scheme === 'trust') deepLink = `https://link.trustwallet.com/open_url?coin=60&url=${encodedUrl}`;
+            else if (scheme === 'rainbow') deepLink = `https://rnbwapp.com/dapp/${dappUrl.replace(/^https?:\/\//, '')}`;
+            else if (scheme === 'solflare') deepLink = `https://solflare.com/ul/v1/browse/${encodedUrl}?ref=${encodedUrl}`;
+            else if (scheme === 'uniswap') deepLink = `https://uniswap.org/app/dapp/${dappUrl.replace(/^https?:\/\//, '')}`;
+            
+            if (deepLink) {
+                window.location.href = deepLink;
+                return true;
+            }
+            return false;
+        }
+
+        window.connectPhantom = async function() {
+            const provider = window.phantom?.solana || (window.solana?.isPhantom ? window.solana : null);
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (!provider && isMobile) return openMobileWallet('phantom', window.location.href);
+            if (!provider) return window.open('https://phantom.app/', '_blank');
+            try {
+                const resp = await provider.connect();
+                state.wallet = resp.publicKey.toString();
+                state.walletType = 'phantom';
+                state.chainType = 'solana';
+                state.solProvider = provider;
+                closeWalletSelector();
+                await performSolSIWE(provider, state.wallet);
+                updateUI();
+            } catch(e) { alert('Verbindung fehlgeschlagen.'); }
         };
 
+        window.connectSolflare = async function() {
+            const provider = window.solflare;
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (!provider && isMobile) return openMobileWallet('solflare', window.location.href);
+            if (!provider) return window.open('https://solflare.com/', '_blank');
+            try {
+                await provider.connect();
+                state.wallet = provider.publicKey.toString();
+                state.walletType = 'solflare';
+                state.chainType = 'solana';
+                state.solProvider = provider;
+                closeWalletSelector();
+                await performSolSIWE(provider, state.wallet);
+                updateUI();
+            } catch(e) { alert('Verbindung fehlgeschlagen.'); }
+        };
+
+        window.connectBackpack = async function() {
+            const provider = window.backpack?.solana;
+            if (!provider) return window.open('https://backpack.app/', '_blank');
+            try {
+                const resp = await provider.connect();
+                state.wallet = resp.publicKey.toString();
+                state.walletType = 'backpack';
+                state.chainType = 'solana';
+                state.solProvider = provider;
+                closeWalletSelector();
+                await performSolSIWE(provider, state.wallet);
+                updateUI();
+            } catch(e) { alert('Verbindung fehlgeschlagen.'); }
+        };
+
+        window.connectJupiter = async function() {
+            const provider = window.jupiter;
+            if (!provider) return alert('Bitte nutzen Sie den Jupiter In-App Browser.');
+            try {
+                const resp = await provider.connect();
+                state.wallet = resp.publicKey.toString();
+                state.walletType = 'jupiter';
+                state.chainType = 'solana';
+                state.solProvider = provider;
+                closeWalletSelector();
+                await performSolSIWE(provider, state.wallet);
+                updateUI();
+            } catch(e) { alert('Verbindung fehlgeschlagen.'); }
+        };
+
+        window.connectEVM = async function(preferred = 'metamask') {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (typeof window.ethereum === 'undefined' && isMobile) {
+                if (['metamask', 'trust', 'rainbow', 'uniswap', 'binance'].includes(preferred)) {
+                    return openMobileWallet(preferred, window.location.href);
+                }
+            }
+            if (typeof window.ethereum === 'undefined') return window.open('https://metamask.io/', '_blank');
+            let provider = window.ethereum;
+            if (window.ethereum.providers) {
+                if (preferred === 'metamask') provider = window.ethereum.providers.find(p => p.isMetaMask);
+                else if (preferred === 'trust') provider = window.ethereum.providers.find(p => p.isTrust);
+                else if (preferred === 'binance') provider = window.ethereum.providers.find(p => p.isBinance);
+            }
+            try {
+                const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                state.wallet = accounts[0];
+                state.walletType = preferred;
+                state.chainType = 'evm';
+                state.evmProvider = new ethers.BrowserProvider(provider);
+                state.evmSigner = await state.evmProvider.getSigner();
+                closeWalletSelector();
+                await performEvmSIWE(state.evmSigner, state.wallet);
+                updateUI();
+            } catch(e) { alert('Verbindung fehlgeschlagen.'); }
+        };
+
+        async function performSolSIWE(provider, address) {
+            showSIWEBanner('Signiere SIWE-Nachricht...', 'signing');
+            try {
+                const message = `AlphaScan Login\nWallet: ${address}\nNonce: ${Math.random().toString(36).substring(2)}`;
+                const encodedMessage = new TextEncoder().encode(message);
+                const signedMessage = await provider.signMessage(encodedMessage, "utf8");
+                state.siweVerified = true;
+                showSIWEBanner('SIWE Verifiziert!', 'success');
+            } catch(e) { showSIWEBanner('SIWE Fehlgeschlagen', 'failed'); }
+        }
+
+        async function performEvmSIWE(signer, address) {
+            showSIWEBanner('Signiere SIWE-Nachricht...', 'signing');
+            try {
+                const message = `AlphaScan Login\nWallet: ${address}\nNonce: ${Math.random().toString(36).substring(2)}`;
+                await signer.signMessage(message);
+                state.siweVerified = true;
+                showSIWEBanner('SIWE Verifiziert!', 'success');
+            } catch(e) { showSIWEBanner('SIWE Fehlgeschlagen', 'failed'); }
+        }
+
+        function updateUI() {
+            if (state.wallet) {
+                ui.walletAddr.innerText = state.wallet.slice(0, 6) + "..." + state.wallet.slice(-4);
+                if (state.siweVerified) ui.siweIndicator.classList.remove('hidden');
+                ui.connectBtn.innerText = "CONNECTED";
+                ui.connectBtn.onclick = null;
+            } else {
+                ui.walletAddr.innerText = 'NOT CONNECTED';
+                ui.siweIndicator.classList.add('hidden');
+                ui.connectBtn.innerText = 'CONNECT WALLET';
+                ui.connectBtn.onclick = openWalletSelector;
+            }
+        }
+
+        async function performScan() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+            ui.liveScanBtn.innerText = 'SCANNING...';
+            ui.liveScanBtn.classList.add('pulse');
+            ui.opportunitiesGrid.innerHTML = '';
+            ui.underdogGrid.innerHTML = '';
+            try {
+                const response = await fetch(`${state.workerUrl}/scan`);
+                const data = await response.json();
+                renderOpportunities(data.opportunities || []);
+                renderUnderdogs(data.underdogs || []);
+                updateChart(data.chartData || []);
+            } catch (error) {
+                ui.opportunitiesGrid.innerHTML = '<p class="text-red-500 text-center">Fehler beim Scannen.</p>';
+            } finally {
+                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+                ui.liveScanBtn.innerText = 'LIVE SCAN AUSFÜHREN';
+                ui.liveScanBtn.classList.remove('pulse');
+            }
+        }
+
+        function renderOpportunities(opps) {
+            if (opps.length === 0) ui.noOpportunities.classList.remove('hidden');
+            else {
+                ui.noOpportunities.classList.add('hidden');
+                opps.forEach(opp => ui.opportunitiesGrid.appendChild(createCard(opp, 'opportunity')));
+            }
+        }
+
+        function renderUnderdogs(dogs) {
+            if (dogs.length === 0) ui.noUnderdogs.classList.remove('hidden');
+            else {
+                ui.noUnderdogs.classList.add('hidden');
+                dogs.forEach(dog => ui.underdogGrid.appendChild(createCard(dog, 'underdog')));
+            }
+        }
+
+        function createCard(opp, type) {
+            const div = document.createElement('div');
+            div.className = `glass p-8 rounded-[2rem] card-hover border-blue-500/30`;
+            div.innerHTML = `
+                <div class="flex justify-between items-start mb-6">
+                    <span class="text-[10px] font-mono px-3 py-1 rounded-full chain-label-evm uppercase tracking-widest">${opp.platform}</span>
+                    <span class="pro-badge">ARB</span>
+                </div>
+                <h3 class="text-xl font-orbitron font-black text-white uppercase mb-4 leading-tight">${opp.title}</h3>
+                <div class="flex gap-4 mb-8">
+                    <button class="flex-1 btn-yes py-3 rounded-xl font-orbitron font-black text-xs uppercase">YES $${opp.yesPrice}</button>
+                    <button class="flex-1 btn-no py-3 rounded-xl font-orbitron font-black text-xs uppercase">NO $${opp.noPrice}</button>
+                </div>
+                <div class="flex justify-between items-end">
+                    <div>
+                        <div class="text-[10px] text-slate-500 font-mono uppercase mb-1">ROI Potential</div>
+                        <div class="text-3xl font-orbitron font-black text-yellow-500">${opp.roi}%</div>
+                    </div>
+                    <a href="${opp.url}" target="_blank" class="text-[10px] font-mono text-white border-b border-white/20 pb-1 hover:border-yellow-500 hover:text-yellow-500 transition-all uppercase tracking-widest">Details ansehen</a>
+                </div>
+            `;
+            return div;
+        }
+
+        function updateChart(chartData) {
+            const ctx = document.getElementById('marketChart').getContext('2d');
+            if (marketChart) marketChart.destroy();
+            marketChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.map(d => d.label) || ['Jan', 'Feb', 'Mar'],
+                    datasets: [{
+                        label: 'Market Volume',
+                        data: chartData.map(d => d.value) || [10, 25, 15],
+                        borderColor: '#fbbf24',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedAccess = localStorage.getItem('alphaScanAccess');
+            if (storedAccess === 'granted') {
+                state.accessGranted = true;
+                ui.accessOverlay.classList.add('hidden');
+                performScan();
+            }
+            ui.accessBtn.addEventListener('click', () => {
+                if (ui.accessPass.value.trim() === 'TGMFAM2026') {
+                    localStorage.setItem('alphaScanAccess', 'granted');
+                    ui.accessOverlay.classList.add('hidden');
+                    performScan();
+                } else ui.accessError.classList.remove('hidden');
+            });
+            ui.accessPass.addEventListener('keydown', (e) => { if (e.key === 'Enter') ui.accessBtn.click(); });
+            ui.closeWalletSelector.addEventListener('click', closeWalletSelector);
+            ui.liveScanBtn.addEventListener('click', performScan);
+            updateUI();
+        });
     </script>
-    </div>
-    </body>
+</body>
 </html>
